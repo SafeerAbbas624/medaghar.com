@@ -1,0 +1,38 @@
+-- AlterTable
+ALTER TABLE "Property" ADD COLUMN     "areaSlug" TEXT,
+ADD COLUMN     "citySlug" TEXT,
+ADD COLUMN     "subAreaSlug" TEXT;
+
+-- CreateTable
+CREATE TABLE "SavedSearch" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "criteria" TEXT NOT NULL,
+    "frequency" TEXT NOT NULL DEFAULT 'never',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "SavedSearch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex
+CREATE INDEX "SavedSearch_userId_idx" ON "SavedSearch"("userId");
+
+-- CreateIndex
+CREATE INDEX "SavedSearch_frequency_idx" ON "SavedSearch"("frequency");
+
+-- CreateIndex
+CREATE INDEX "Property_citySlug_propertyType_listingType_status_idx" ON "Property"("citySlug", "propertyType", "listingType", "status");
+
+-- CreateIndex
+CREATE INDEX "Property_citySlug_areaSlug_listingType_status_idx" ON "Property"("citySlug", "areaSlug", "listingType", "status");
+
+-- CreateIndex
+CREATE INDEX "Property_citySlug_areaSlug_subAreaSlug_listingType_status_idx" ON "Property"("citySlug", "areaSlug", "subAreaSlug", "listingType", "status");
+
+-- CreateIndex
+CREATE INDEX "Property_isFSBO_citySlug_propertyType_status_idx" ON "Property"("isFSBO", "citySlug", "propertyType", "status");
+
+-- AddForeignKey
+ALTER TABLE "SavedSearch" ADD CONSTRAINT "SavedSearch_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

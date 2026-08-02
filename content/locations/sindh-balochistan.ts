@@ -162,6 +162,22 @@ const cities: City[] = [
         slug: 'surjani-town',
         name: 'Surjani Town',
       },
+      {
+        slug: 'port-qasim',
+        name: 'Port Qasim',
+      },
+      {
+        slug: 'site-area',
+        name: 'SITE Area',
+      },
+      {
+        slug: 'shahrah-e-faisal',
+        name: 'Shahrah-e-Faisal',
+      },
+      {
+        slug: 'tariq-road',
+        name: 'Tariq Road',
+      },
     ],
   },
   {

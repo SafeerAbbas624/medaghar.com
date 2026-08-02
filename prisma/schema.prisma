@@ -33,6 +33,7 @@ model User {
 
   // Relations
   savedProperties SavedProperty[]
+  savedSearches   SavedSearch[]
   viewHistory     ViewHistory[]
   reviews         Review[]
   agentProfile    Agent?
@@ -43,6 +44,24 @@ model User {
 
   @@index([role])
   @@index([email])
+}
+
+/// A user's stored search filters, optionally with an email alert cadence.
+/// Backs the "Save Search" flow in app/properties/page.tsx.
+model SavedSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  /// JSON blob of the filter set (city, area, price range, type, …)
+  criteria  String
+  /// never | daily | weekly | monthly
+  frequency String   @default("never")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([frequency])
 }
 
 model Agent {
@@ -57,6 +76,7 @@ model Agent {
   phoneNumber     String
   officeAddress   String?
   website         String?
+  licenseNumber   String?   // e.g. PK-REA-2018-001234
 
   // Relations
   properties      Property[]
@@ -74,6 +94,14 @@ model Property {
   province        String         // Punjab, Sindh, KPK, Balochistan, Islamabad
   area            String?        // DHA, Bahria Town, Gulberg, etc.
   subArea         String?        // Block / Phase / Sector, e.g. "Block 18", "Phase 6", "G-13/1"
+
+  // Canonical taxonomy slugs (content/locations). city/area/subArea above are
+  // free-text display values; these are the indexed join keys the SEO tree
+  // queries on. Resolved via resolveLocation() on create/edit.
+  citySlug        String?
+  areaSlug        String?
+  subAreaSlug     String?
+
   zipCode         String?
   country         String         @default("Pakistan")
   latitude        Float
@@ -182,6 +210,12 @@ model Property {
   @@index([area, listingType, price])
   @@index([ownerId, status, listingType])
   @@index([agentId, status])
+
+  // SEO tree access paths: /{purpose}/{type}/{city}[/{area}[/{subarea}]]
+  @@index([citySlug, propertyType, listingType, status])
+  @@index([citySlug, areaSlug, listingType, status])
+  @@index([citySlug, areaSlug, subAreaSlug, listingType, status])
+  @@index([isFSBO, citySlug, propertyType, status])
 }
 
 model PropertyImage {

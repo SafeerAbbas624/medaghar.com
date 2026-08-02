@@ -237,6 +237,26 @@ const cities: City[] = [
         slug: 'park-road',
         name: 'Park Road',
       },
+      {
+        slug: 'blue-area',
+        name: 'Blue Area',
+      },
+      {
+        slug: 'blue-world-city',
+        name: 'Blue World City',
+      },
+      {
+        slug: 'simly-dam-road',
+        name: 'Simly Dam Road',
+      },
+      {
+        slug: 'chak-shahzad',
+        name: 'Chak Shahzad',
+      },
+      {
+        slug: 'e-16',
+        name: 'E-16',
+      },
     ],
   },
 
