@@ -1,0 +1,26 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Block admin routes
+Disallow: /admin/
+Disallow: /api/
+
+# Block private user routes
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /messages/
+Disallow: /saved/
+Disallow: /post-rent/
+Disallow: /compare/
+Disallow: /verify-email/
+Disallow: /signin/
+Disallow: /signup/
+Disallow: /reviews/my-reviews/
+Disallow: /reviews/write/
+Disallow: /properties/*/edit/
+Disallow: /sitemap-page/
+
+# Sitemap
+Sitemap: https://medaghar.com/sitemap.xml
+

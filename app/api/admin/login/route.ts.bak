@@ -1,0 +1,113 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import bcrypt from 'bcryptjs'
+import { sign } from 'jsonwebtoken'
+import { cookies } from 'next/headers'
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const { email, password } = body
+
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Please enter your email and password' },
+        { status: 400 }
+      )
+    }
+
+    // Validate email domain
+    if (!email.endsWith('@medaghar.com')) {
+      return NextResponse.json(
+        { error: 'Invalid email domain. Only @medaghar.com emails are allowed.' },
+        { status: 400 }
+      )
+    }
+
+    const adminUser = await prisma.adminUser.findUnique({
+      where: { email },
+      include: {
+        role: {
+          include: {
+            permissions: true,
+          },
+        },
+      },
+    })
+
+    if (!adminUser) {
+      return NextResponse.json(
+        { error: 'No admin user found with this email' },
+        { status: 401 }
+      )
+    }
+
+    if (!adminUser.isActive) {
+      return NextResponse.json(
+        { error: 'Your account has been deactivated. Please contact the system administrator.' },
+        { status: 403 }
+      )
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, adminUser.password)
+
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        { error: 'Invalid password' },
+        { status: 401 }
+      )
+    }
+
+    // Create session token
+    const token = sign(
+      {
+        id: adminUser.id,
+        email: adminUser.email,
+        role: adminUser.role.name,
+        roleId: adminUser.roleId,
+        permissions: adminUser.role.permissions,
+      },
+      process.env.NEXTAUTH_SECRET || 'your-secret-key',
+      { expiresIn: '8h' }
+    )
+
+    // Create response
+    const response = NextResponse.json({
+      success: true,
+      user: {
+        id: adminUser.id,
+        email: adminUser.email,
+        name: `${adminUser.firstName} ${adminUser.lastName}`,
+        role: adminUser.role.name,
+      },
+    })
+
+    // Set cookie in response
+    response.cookies.set('admin-token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 8 * 60 * 60, // 8 hours
+      path: '/',
+    })
+
+    // Update last login
+    await prisma.adminUser.update({
+      where: { id: adminUser.id },
+      data: {
+        lastLoginAt: new Date(),
+        lastLoginIp: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        lastLoginDevice: request.headers.get('user-agent') || 'unknown',
+      },
+    })
+
+    return response
+  } catch (error: any) {
+    console.error('Admin login error:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
