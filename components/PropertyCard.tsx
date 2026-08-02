@@ -6,7 +6,6 @@ import { FaBed, FaBath, FaRuler, FaHeart, FaRegHeart, FaExchangeAlt } from 'reac
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { buildPropertyUrl } from '@/lib/propertyUrl'
 
 interface PropertyCardProps {
   property: {
@@ -30,6 +29,7 @@ interface PropertyCardProps {
     rentEstimate?: number | null
     isFeatured?: boolean | null
     isVerified?: boolean | null
+    isFSBO?: boolean | null
   }
 }
 
@@ -162,8 +162,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
     window.dispatchEvent(new Event('compareUpdated'))
   }
 
-  // Hierarchical canonical URL: /{residential|commercial}/{city}/{area}/{subarea?}/{slug}
-  const propertyUrl = buildPropertyUrl(property)
+  // Canonical listing URL. Flat and stable: the slug is frozen at creation, so
+  // this URL survives status/listingType/area changes.
+  const propertyUrl = `/properties/${property.slug || property.id}`
 
   return (
     <Link href={propertyUrl} className="block group">
@@ -228,6 +229,11 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             {property.isVerified && (
               <div className="bg-white text-slate-900 border border-cyan-600 px-3 py-1 rounded-full text-xs font-semibold shadow">
                 ✓ Verified
+              </div>
+            )}
+            {property.isFSBO && (
+              <div className="bg-emerald-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow">
+                ✓ No Commission
               </div>
             )}
           </div>

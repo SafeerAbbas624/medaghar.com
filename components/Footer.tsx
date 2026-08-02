@@ -140,7 +140,7 @@ export default function Footer() {
             <ul className="space-y-2">
               {['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar'].map((city) => (
                 <li key={city}>
-                  <Link href={`/residential/${city.toLowerCase()}`} className="hover:text-white transition text-sm">
+                  <Link href={`/properties?city=${encodeURIComponent(city)}`} className="hover:text-white transition text-sm">
                     Properties in {city}
                   </Link>
                 </li>

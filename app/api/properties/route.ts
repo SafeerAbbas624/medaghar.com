@@ -41,11 +41,11 @@ export async function GET(request: NextRequest) {
       status: 'ACTIVE',
     }
 
-    // For SQLite, we need to handle case-insensitive matching differently
-    // Using contains with exact value works for case-insensitive in SQLite
-    if (city) where.city = { contains: city }
-    if (province) where.province = { contains: province }
-    if (area) where.area = { contains: area }
+    // PostgreSQL `contains` is case-sensitive by default, so `?city=lahore`
+    // would not match a stored "Lahore" without mode: 'insensitive'.
+    if (city) where.city = { contains: city, mode: 'insensitive' }
+    if (province) where.province = { contains: province, mode: 'insensitive' }
+    if (area) where.area = { contains: area, mode: 'insensitive' }
     if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) }
     if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) }
     if (bedrooms) where.bedrooms = { gte: parseInt(bedrooms) }

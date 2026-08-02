@@ -1,7 +1,5 @@
 import { prisma } from '@/lib/prisma'
 import { BASE_URL } from '@/lib/seo'
-import { CITIES, allAreas, allSubAreas } from '@/lib/locations'
-import { buildCategoryUrl, buildPropertyUrl } from '@/lib/propertyUrl'
 import { GUIDES } from '@/content/guides'
 
 export interface SitemapEntry {
@@ -49,8 +47,6 @@ function staticSection(now: Date): SitemapEntry[] {
     { path: '/about', freq: 'monthly', priority: 0.5 },
     { path: '/privacy', freq: 'yearly', priority: 0.5 },
     { path: '/terms', freq: 'yearly', priority: 0.5 },
-    { path: '/residential', freq: 'daily', priority: 0.9 },
-    { path: '/commercial', freq: 'daily', priority: 0.9 },
     { path: '/guides', freq: 'weekly', priority: 0.8 },
     { path: '/tools', freq: 'monthly', priority: 0.8 },
     ...TOOL_SLUGS.map((slug) => ({
@@ -88,51 +84,16 @@ function guidesSection(now: Date): SitemapEntry[] {
   ]
 }
 
-function citiesSection(cat: 'residential' | 'commercial', now: Date): SitemapEntry[] {
-  return CITIES.map((city) => ({
-    url: `${BASE_URL}${buildCategoryUrl(cat, city.slug)}`,
-    lastModified: now,
-    changeFrequency: 'daily' as const,
-    priority: 0.8,
-  }))
-}
-
-function areasSection(cat: 'residential' | 'commercial', now: Date): SitemapEntry[] {
-  return allAreas().map(({ city, area }) => ({
-    url: `${BASE_URL}${buildCategoryUrl(cat, city.slug, area.slug)}`,
-    lastModified: now,
-    changeFrequency: 'daily' as const,
-    priority: 0.7,
-  }))
-}
-
-function subAreasSection(cat: 'residential' | 'commercial', now: Date): SitemapEntry[] {
-  return allSubAreas().map(({ city, area, subArea }) => ({
-    url: `${BASE_URL}${buildCategoryUrl(cat, city.slug, area.slug, subArea.slug)}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.6,
-  }))
-}
-
 async function propertiesSection(
   listingType: 'FOR_SALE' | 'FOR_RENT'
 ): Promise<SitemapEntry[]> {
   try {
     const properties = await prisma.property.findMany({
       where: { status: 'ACTIVE', listingType },
-      select: {
-        id: true,
-        slug: true,
-        city: true,
-        area: true,
-        subArea: true,
-        propertyType: true,
-        updatedAt: true,
-      },
+      select: { id: true, slug: true, updatedAt: true },
     })
     return properties.map((p) => ({
-      url: `${BASE_URL}${buildPropertyUrl(p)}`,
+      url: `${BASE_URL}/properties/${p.slug || p.id}`,
       lastModified: p.updatedAt,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
@@ -142,18 +103,17 @@ async function propertiesSection(
   }
 }
 
-/** The ordered list of logical sections. Each is sharded into <=500 chunks. */
+/**
+ * The ordered list of logical sections. Each is sharded into <=MAX_PER_SITEMAP chunks.
+ *
+ * Location sections (city/area/subarea) are intentionally absent until the
+ * purpose-first tree exists — a sitemap must never advertise a URL that 404s.
+ */
 function sections(): Section[] {
   const now = new Date()
   return [
     { name: 'static', build: () => staticSection(now) },
     { name: 'guides', build: () => guidesSection(now) },
-    { name: 'residential-cities', build: () => citiesSection('residential', now) },
-    { name: 'commercial-cities', build: () => citiesSection('commercial', now) },
-    { name: 'residential-areas', build: () => areasSection('residential', now) },
-    { name: 'commercial-areas', build: () => areasSection('commercial', now) },
-    { name: 'residential-subareas', build: () => subAreasSection('residential', now) },
-    { name: 'commercial-subareas', build: () => subAreasSection('commercial', now) },
     { name: 'properties-sale', build: () => propertiesSection('FOR_SALE') },
     { name: 'properties-rent', build: () => propertiesSection('FOR_RENT') },
   ]

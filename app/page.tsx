@@ -177,7 +177,7 @@ export default async function Home() {
             {['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan'].map((city) => (
               <Link
                 key={city}
-                href={`/residential/${city.toLowerCase()}`}
+                href={`/properties?city=${encodeURIComponent(city)}`}
                 className="bg-slate-50 hover:bg-cyan-50 p-[21px] rounded-xl text-center transition border-2 border-gray-200 hover:border-cyan-600 group"
               >
                 <h3 className="font-semibold text-gray-900 text-[16px] mb-[8px] group-hover:text-cyan-600 transition">{city}</h3>
