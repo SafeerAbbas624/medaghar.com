@@ -103,12 +103,12 @@ export default async function Home() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-[34px] lg:py-[55px]">
         {/* Fibonacci grid: 6 columns (Fibonacci number) with gap-[21px] */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[13px] lg:gap-[21px]">
-          <Link href="/buy" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
+          <Link href="/residential-for-sale" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
             <FaHome className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
             <p className="text-[16px] font-semibold mb-[8px]">Buy</p>
             <p className="text-[13px] text-gray-600 hidden sm:block">Houses, Flats & More</p>
           </Link>
-          <Link href="/rent" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
+          <Link href="/residential-for-rent" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
             <FaKey className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
             <p className="text-[16px] font-semibold mb-[8px]">Rent</p>
             <p className="text-[13px] text-gray-600 hidden sm:block">Apartments & Portions</p>
@@ -118,17 +118,17 @@ export default async function Home() {
             <p className="text-[16px] font-semibold mb-[8px]">Sell</p>
             <p className="text-[13px] text-gray-600 hidden sm:block">List Your Property</p>
           </Link>
-          <Link href="/fsbo" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
+          <Link href="/owner" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
             <FaHandshake className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
             <p className="text-[16px] font-semibold mb-[8px]">FSBO</p>
             <p className="text-[13px] text-gray-600 hidden sm:block">For Sale By Owner</p>
           </Link>
-          <Link href="/plots" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
+          <Link href="/for-sale/plot" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
             <FaMapMarkedAlt className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
             <p className="text-[16px] font-semibold mb-[8px]">Plots</p>
             <p className="text-[13px] text-gray-600 hidden sm:block">Residential & Commercial</p>
           </Link>
-          <Link href="/commercial" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
+          <Link href="/commercial-for-sale" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
             <FaStore className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
             <p className="text-[16px] font-semibold mb-[8px]">Commercial</p>
             <p className="text-[13px] text-gray-600 hidden sm:block">Offices & Shops</p>

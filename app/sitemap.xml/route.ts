@@ -1,6 +1,6 @@
 import { buildSitemapIndexXml, getSitemapIndexEntries } from '@/lib/sitemaps'
 
-export const revalidate = 3600
+export const revalidate = 600
 
 export async function GET() {
   const names = await getSitemapIndexEntries()

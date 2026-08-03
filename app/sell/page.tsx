@@ -506,7 +506,7 @@ export default function SellPage() {
 
       setSuccess(true)
       setTimeout(() => {
-        router.push(data.isFSBO ? '/fsbo' : '/buy')
+        router.push(data.isFSBO ? '/owner' : '/residential-for-sale')
       }, 2000)
     } catch (err: any) {
       setError(err.message)

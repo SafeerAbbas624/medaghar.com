@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server'
 import { buildSitemapXml, getAllShards } from '@/lib/sitemaps'
 
-export const revalidate = 3600
+export const revalidate = 600
 
 // Property shards are dynamic (counts change), so we don't pre-render any.
 // dynamicParams (default true) lets unknown-at-build names resolve at request time.

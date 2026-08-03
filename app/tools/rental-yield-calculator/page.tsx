@@ -115,7 +115,7 @@ export default function RentalYieldCalculatorPage() {
           <p>
             Hunting for an income property? See our guide to the{' '}
             <Link href="/guides/best-areas-to-invest-lahore">best areas to invest in Lahore</Link>{' '}
-            and browse current <Link href="/rent">rental listings</Link> to benchmark achievable
+            and browse current <Link href="/residential-for-rent">rental listings</Link> to benchmark achievable
             rents before you buy.
           </p>
         </div>

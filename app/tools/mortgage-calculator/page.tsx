@@ -113,7 +113,7 @@ export default function MortgageCalculatorPage() {
             For a full walkthrough of eligibility, documents and hidden costs, read our{' '}
             <Link href="/guides/home-loan-pakistan-guide">complete home loan guide for Pakistan</Link>{' '}
             or compare banks on our <Link href="/home-loans">home financing page</Link>. When
-            you&apos;re ready, <Link href="/buy">browse properties for sale</Link> and use this
+            you&apos;re ready, <Link href="/residential-for-sale">browse properties for sale</Link> and use this
             calculator on any listing you like.
           </p>
         </div>

@@ -472,7 +472,7 @@ export default function DashboardPage() {
                 <div className="text-center py-8 text-gray-500">
                   <FaHeart className="text-4xl mx-auto mb-3 text-gray-300" />
                   <p>No saved properties yet</p>
-                  <Link href="/buy" className="text-cyan-600 hover:underline mt-2 inline-block">
+                  <Link href="/residential-for-sale" className="text-cyan-600 hover:underline mt-2 inline-block">
                     Browse Properties
                   </Link>
                 </div>
@@ -486,7 +486,7 @@ export default function DashboardPage() {
               <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
               <div className="space-y-3">
                 <Link
-                  href="/buy"
+                  href="/residential-for-sale"
                   className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition"
                 >
                   <div className="w-10 h-10 bg-cyan-100 rounded-full flex items-center justify-center">

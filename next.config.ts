@@ -35,6 +35,26 @@ const nextConfig: NextConfig = {
       // Old dashboard link pointed here before the tools section existed
       { source: '/mortgage-calculator', destination: '/tools/mortgage-calculator', permanent: true },
       { source: '/rental-dashboard', destination: '/post-rent', permanent: false },
+
+      // --- Legacy flat category pages -> the purpose-first tree ------------
+      // Exact sources only: config redirects run before routing, so a
+      // wildcard here would shadow real routes.
+      { source: '/buy', destination: '/residential-for-sale', permanent: true },
+      { source: '/rent', destination: '/residential-for-rent', permanent: true },
+      { source: '/plots', destination: '/for-sale/plot', permanent: true },
+      { source: '/commercial', destination: '/commercial-for-sale', permanent: true },
+      { source: '/fsbo', destination: '/owner', permanent: true },
+      { source: '/rent-by-owner', destination: '/owner', permanent: true },
+
+      // --- Type-slug aliases ----------------------------------------------
+      // The in-route parser also handles these, but catching them here saves
+      // a render and keeps the canonical form unambiguous.
+      { source: '/for-sale/apartment/:rest*', destination: '/for-sale/flat/:rest*', permanent: true },
+      { source: '/for-rent/apartment/:rest*', destination: '/for-rent/flat/:rest*', permanent: true },
+      { source: '/for-sale/homes/:rest*', destination: '/for-sale/house/:rest*', permanent: true },
+      { source: '/for-rent/homes/:rest*', destination: '/for-rent/house/:rest*', permanent: true },
+      { source: '/for-sale/plots/:rest*', destination: '/for-sale/plot/:rest*', permanent: true },
+      { source: '/for-sale/residential-plot/:rest*', destination: '/for-sale/plot/:rest*', permanent: true },
     ];
   },
   async headers() {

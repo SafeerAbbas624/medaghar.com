@@ -1,6 +1,19 @@
+import { unstable_cache } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { BASE_URL } from '@/lib/seo'
 import { GUIDES } from '@/content/guides'
+import { CITIES } from '@/lib/locations'
+import { countFor } from '@/lib/listingCounts'
+import { inSitemap } from '@/lib/tree/gating'
+import { buildTreeUrl } from '@/lib/tree/urls'
+import {
+  HUBS,
+  typesForCategory,
+  ALL_TYPES_SLUG,
+  getTypeDef,
+  listingTypeForPurpose,
+  type Purpose,
+} from '@/lib/taxonomy'
 
 export interface SitemapEntry {
   url: string
@@ -9,8 +22,13 @@ export interface SitemapEntry {
   priority?: number
 }
 
-/** No single sitemap file may exceed this many URLs. */
-export const MAX_PER_SITEMAP = 500
+/**
+ * No single sitemap file may exceed this many URLs.
+ *
+ * Well under Google's real 50,000 limit — smaller shards make it far easier
+ * to see which segment is under-indexed in Search Console.
+ */
+export const MAX_PER_SITEMAP = 400
 
 interface Section {
   /** Base name for the section; sharded names append `-1`, `-2`, … when >1 chunk. */
@@ -30,15 +48,12 @@ const TOOL_SLUGS = [
 function staticSection(now: Date): SitemapEntry[] {
   const pages: Array<{ path: string; freq: SitemapEntry['changeFrequency']; priority: number }> = [
     { path: '/', freq: 'daily', priority: 1.0 },
-    { path: '/buy', freq: 'daily', priority: 0.9 },
-    { path: '/rent', freq: 'daily', priority: 0.9 },
-    { path: '/properties', freq: 'daily', priority: 0.9 },
+    // The four category hubs, plus the FSBO hub.
+    ...HUBS.map((h) => ({ path: h.path, freq: 'daily' as const, priority: 0.9 })),
+    { path: '/owner', freq: 'daily', priority: 0.8 },
     { path: '/sell', freq: 'weekly', priority: 0.8 },
-    { path: '/post-rent', freq: 'weekly', priority: 0.6 },
-    { path: '/plots', freq: 'daily', priority: 0.8 },
-    { path: '/commercial', freq: 'daily', priority: 0.8 },
-    { path: '/fsbo', freq: 'weekly', priority: 0.7 },
     { path: '/agents', freq: 'weekly', priority: 0.7 },
+    { path: '/sitemap-page', freq: 'weekly', priority: 0.6 },
     { path: '/market-insights', freq: 'weekly', priority: 0.7 },
     { path: '/reviews', freq: 'weekly', priority: 0.6 },
     { path: '/pricing', freq: 'monthly', priority: 0.7 },
@@ -47,16 +62,8 @@ function staticSection(now: Date): SitemapEntry[] {
     { path: '/about', freq: 'monthly', priority: 0.5 },
     { path: '/privacy', freq: 'yearly', priority: 0.5 },
     { path: '/terms', freq: 'yearly', priority: 0.5 },
-    { path: '/guides', freq: 'weekly', priority: 0.8 },
-    { path: '/tools', freq: 'monthly', priority: 0.8 },
-    ...TOOL_SLUGS.map((slug) => ({
-      path: `/tools/${slug}`,
-      freq: 'monthly' as const,
-      priority: 0.7,
-    })),
   ]
-  // /commercial appears twice above (the dedicated category landing + the static list);
-  // de-dupe by path so we never emit duplicate <loc> entries.
+  // De-dupe by path so we never emit duplicate <loc> entries.
   const seen = new Set<string>()
   const out: SitemapEntry[] = []
   for (const p of pages) {
@@ -103,19 +110,139 @@ async function propertiesSection(
   }
 }
 
+
 /**
- * The ordered list of logical sections. Each is sharded into <=MAX_PER_SITEMAP chunks.
+ * Location URLs for one purpose, emitted ONLY where the gate passes.
  *
- * Location sections (city/area/subarea) are intentionally absent until the
- * purpose-first tree exists — a sitemap must never advertise a URL that 404s.
+ * A sitemap must never advertise a page we mark noindex — that wastes crawl
+ * budget and sends a contradictory signal. Pages appear here automatically as
+ * inventory crosses the threshold.
+ */
+async function locationsSection(purpose: Purpose, now: Date): Promise<SitemapEntry[]> {
+  try {
+    const listingType = listingTypeForPurpose(purpose)
+    const fsboOnly = purpose === 'owner'
+    const out: SitemapEntry[] = []
+
+    const types = [
+      getTypeDef(ALL_TYPES_SLUG)!,
+      ...typesForCategory('residential'),
+      ...typesForCategory('commercial'),
+    ]
+
+    for (const type of types) {
+      // Type root — always indexable, it is curated navigation.
+      out.push({
+        url: `${BASE_URL}${buildTreeUrl({ purpose, typeSlug: type.slug })}`,
+        lastModified: now,
+        changeFrequency: 'daily',
+        priority: 0.8,
+      })
+
+      for (const city of CITIES) {
+        const cityCount = await countFor({
+          listingType,
+          types: type.types,
+          citySlug: city.slug,
+          fsboOnly,
+        })
+        if (!inSitemap('city', cityCount)) continue
+
+        out.push({
+          url: `${BASE_URL}${buildTreeUrl({ purpose, typeSlug: type.slug, citySlug: city.slug })}`,
+          lastModified: now,
+          changeFrequency: 'daily',
+          priority: 0.7,
+        })
+
+        // The /owner tree stops at city; Tier B types have no area depth.
+        if (purpose === 'owner' || type.tier !== 'A') continue
+
+        for (const area of city.areas) {
+          const areaCount = await countFor({
+            listingType,
+            types: type.types,
+            citySlug: city.slug,
+            areaSlug: area.slug,
+          })
+          if (!inSitemap('area', areaCount)) continue
+
+          out.push({
+            url: `${BASE_URL}${buildTreeUrl({
+              purpose,
+              typeSlug: type.slug,
+              citySlug: city.slug,
+              areaSlug: area.slug,
+            })}`,
+            lastModified: now,
+            changeFrequency: 'daily',
+            priority: 0.6,
+          })
+
+          for (const sub of area.subAreas ?? []) {
+            const subCount = await countFor({
+              listingType,
+              types: type.types,
+              citySlug: city.slug,
+              areaSlug: area.slug,
+              subAreaSlug: sub.slug,
+            })
+            if (!inSitemap('subarea', subCount)) continue
+
+            out.push({
+              url: `${BASE_URL}${buildTreeUrl({
+                purpose,
+                typeSlug: type.slug,
+                citySlug: city.slug,
+                areaSlug: area.slug,
+                subAreaSlug: sub.slug,
+              })}`,
+              lastModified: now,
+              changeFrequency: 'weekly',
+              priority: 0.5,
+            })
+          }
+        }
+      }
+    }
+
+    return out
+  } catch (error) {
+    console.error('locationsSection failed', error)
+    return []
+  }
+}
+
+function toolsSection(now: Date): SitemapEntry[] {
+  return [
+    { url: `${BASE_URL}/tools`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
+    ...TOOL_SLUGS.map((slug) => ({
+      url: `${BASE_URL}/tools/${slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
+  ]
+}
+
+/**
+ * The ordered list of logical sections. Each is sharded into
+ * <=MAX_PER_SITEMAP chunks, suffixed -1, -2, … when it spans more than one.
+ *
+ * Empty sections are skipped entirely, so with no inventory the index holds
+ * only pages/guides/tools. That is correct, not a bug.
  */
 function sections(): Section[] {
   const now = new Date()
   return [
-    { name: 'static', build: () => staticSection(now) },
+    { name: 'pages', build: () => staticSection(now) },
     { name: 'guides', build: () => guidesSection(now) },
-    { name: 'properties-sale', build: () => propertiesSection('FOR_SALE') },
-    { name: 'properties-rent', build: () => propertiesSection('FOR_RENT') },
+    { name: 'tools', build: () => toolsSection(now) },
+    { name: 'for-sale-locations', build: () => locationsSection('for-sale', now) },
+    { name: 'for-rent-locations', build: () => locationsSection('for-rent', now) },
+    { name: 'owner-locations', build: () => locationsSection('owner', now) },
+    { name: 'listings-sale', build: () => propertiesSection('FOR_SALE') },
+    { name: 'listings-rent', build: () => propertiesSection('FOR_RENT') },
   ]
 }
 
@@ -125,13 +252,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
   return out
 }
 
-/**
- * Build every section, shard each into <=MAX_PER_SITEMAP chunks, and return named shards.
- * A single-chunk section keeps its base name (e.g. `static`); multi-chunk sections are
- * suffixed `-1`, `-2`, … (e.g. `residential-areas-1`, `properties-sale-2`).
- * Because property counts are dynamic, this is computed at request time.
- */
-export async function getAllShards(): Promise<{ name: string; entries: SitemapEntry[] }[]> {
+async function computeShards(): Promise<{ name: string; entries: SitemapEntry[] }[]> {
   const shards: { name: string; entries: SitemapEntry[] }[] = []
   for (const section of sections()) {
     const entries = await section.build()
@@ -147,6 +268,22 @@ export async function getAllShards(): Promise<{ name: string; entries: SitemapEn
   }
   return shards
 }
+
+/**
+ * Build every section, shard each into <=MAX_PER_SITEMAP chunks, and return
+ * named shards. A single-chunk section keeps its base name (`guides`);
+ * multi-chunk sections are suffixed `-1`, `-2`, …
+ *
+ * Cached: this was previously recomputed on every shard request AND again by
+ * getShardEntries, so one sitemap fetch ran the full location sweep twice.
+ *
+ * Cache is time-based rather than push-invalidated because PM2 runs in cluster
+ * mode — revalidateTag would only reach the process that served the request.
+ */
+export const getAllShards = unstable_cache(computeShards, ['sitemap-shards-v2'], {
+  revalidate: 600,
+  tags: ['sitemaps'],
+})
 
 /** Shard names for the sitemap index (computed at request time). */
 export async function getSitemapIndexEntries(): Promise<string[]> {

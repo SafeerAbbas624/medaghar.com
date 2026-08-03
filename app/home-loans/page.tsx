@@ -200,7 +200,7 @@ export default function HomeLoansPage() {
                   <Link href="/guides/home-loan-pakistan-guide" className="flex items-center justify-between text-[14px] text-cyan-700 hover:text-cyan-700 font-medium py-[5px]">
                     Home Loan Guide <FaArrowRight className="text-[12px]" />
                   </Link>
-                  <Link href="/buy" className="flex items-center justify-between text-[14px] text-cyan-700 hover:text-cyan-700 font-medium py-[5px]">
+                  <Link href="/residential-for-sale" className="flex items-center justify-between text-[14px] text-cyan-700 hover:text-cyan-700 font-medium py-[5px]">
                     Browse Houses for Sale <FaArrowRight className="text-[12px]" />
                   </Link>
                 </div>
