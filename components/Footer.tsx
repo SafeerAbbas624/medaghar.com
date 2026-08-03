@@ -97,12 +97,12 @@ export default function Footer() {
             <h3 className="text-white font-bold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/buy" className="hover:text-white transition text-sm">
+                <Link href="/residential-for-sale" className="hover:text-white transition text-sm">
                   Buy Property
                 </Link>
               </li>
               <li>
-                <Link href="/rent" className="hover:text-white transition text-sm">
+                <Link href="/residential-for-rent" className="hover:text-white transition text-sm">
                   Rent Property
                 </Link>
               </li>
@@ -112,17 +112,17 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/plots" className="hover:text-white transition text-sm">
+                <Link href="/for-sale/plot" className="hover:text-white transition text-sm">
                   Plots & Land
                 </Link>
               </li>
               <li>
-                <Link href="/commercial" className="hover:text-white transition text-sm">
+                <Link href="/commercial-for-sale" className="hover:text-white transition text-sm">
                   Commercial
                 </Link>
               </li>
               <li>
-                <Link href="/fsbo" className="hover:text-white transition text-sm">
+                <Link href="/owner" className="hover:text-white transition text-sm">
                   FSBO Listings
                 </Link>
               </li>
@@ -134,14 +134,32 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Popular Cities */}
+          {/* Popular Cities — link into the tree, both purposes */}
           <div>
             <h3 className="text-white font-bold text-lg mb-4">Popular Cities</h3>
             <ul className="space-y-2">
-              {['Lahore', 'Karachi', 'Islamabad', 'Rawalpindi', 'Faisalabad', 'Multan', 'Peshawar'].map((city) => (
-                <li key={city}>
-                  <Link href={`/properties?city=${encodeURIComponent(city)}`} className="hover:text-white transition text-sm">
-                    Properties in {city}
+              {[
+                { name: 'Lahore', slug: 'lahore' },
+                { name: 'Karachi', slug: 'karachi' },
+                { name: 'Islamabad', slug: 'islamabad' },
+                { name: 'Rawalpindi', slug: 'rawalpindi' },
+                { name: 'Faisalabad', slug: 'faisalabad' },
+                { name: 'Multan', slug: 'multan' },
+                { name: 'Peshawar', slug: 'peshawar' },
+              ].map((city) => (
+                <li key={city.slug} className="text-sm">
+                  <Link
+                    href={`/for-sale/property/${city.slug}`}
+                    className="hover:text-white transition"
+                  >
+                    Property for sale in {city.name}
+                  </Link>
+                  <span className="text-gray-600 mx-1.5">·</span>
+                  <Link
+                    href={`/for-rent/property/${city.slug}`}
+                    className="hover:text-white transition"
+                  >
+                    rent
                   </Link>
                 </li>
               ))}

@@ -11,6 +11,9 @@ import AdSlot from '@/components/AdSlot'
 import LeadForm from '@/components/LeadForm'
 import { absoluteUrl, breadcrumbJsonLd, formatPkr, propertyJsonLd } from '@/lib/seo'
 import type { PropertyDetail } from '@/lib/getProperty'
+import Breadcrumbs from '@/components/tree/Breadcrumbs'
+import { getTypeDef, hubFor, typeSlugForEnum, PURPOSE_LABEL } from '@/lib/taxonomy'
+import { buildTreeUrl } from '@/lib/tree/urls'
 
 export default function PropertyDetailView({ property }: { property: PropertyDetail }) {
   // Handle features - could be JSON array or comma-separated string
@@ -54,19 +57,51 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
     return parts.join(' • ') || 'N/A'
   }
 
+  // Breadcrumb chain into the tree: Home > Hub > Type > City > Area > listing.
+  const purpose = property.listingType === 'FOR_RENT' ? 'for-rent' : 'for-sale'
+  const typeSlug = typeSlugForEnum(property.propertyType as never)
+  const typeDef = typeSlug ? getTypeDef(typeSlug) : null
+
+  const crumbs: { name: string; path: string }[] = [{ name: 'Home', path: '/' }]
+  if (typeDef) {
+    const hub = hubFor(typeDef.category, purpose)
+    crumbs.push({ name: hub.title.replace(' in Pakistan', ''), path: hub.path })
+    crumbs.push({
+      name: `${typeDef.pluralLabel} ${PURPOSE_LABEL[purpose]}`,
+      path: buildTreeUrl({ purpose, typeSlug: typeDef.slug }),
+    })
+    if (property.citySlug) {
+      crumbs.push({
+        name: property.city,
+        path: buildTreeUrl({ purpose, typeSlug: typeDef.slug, citySlug: property.citySlug }),
+      })
+      if (property.areaSlug && property.area) {
+        crumbs.push({
+          name: property.area,
+          path: buildTreeUrl({
+            purpose,
+            typeSlug: typeDef.slug,
+            citySlug: property.citySlug,
+            areaSlug: property.areaSlug,
+          }),
+        })
+      }
+    }
+  }
+  crumbs.push({
+    name: property.title || property.address,
+    path: `/properties/${property.slug || property.id}`,
+  })
+
   return (
     <div className="min-h-screen bg-slate-50">
-      <JsonLd
-        data={[
-          propertyJsonLd(property),
-          breadcrumbJsonLd([
-            { name: 'Home', path: '/' },
-            { name: 'Properties', path: '/properties' },
-            { name: property.city, path: `/properties?city=${encodeURIComponent(property.city)}` },
-            { name: property.title || property.address, path: `/properties/${property.slug || property.id}` },
-          ]),
-        ]}
-      />
+      <JsonLd data={[propertyJsonLd(property), breadcrumbJsonLd(crumbs)]} />
+
+      {/* Visible trail, mirroring the JSON-LD above. Listing URLs are flat, so
+          this is how the hierarchy is communicated to search engines. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <Breadcrumbs items={crumbs} />
+      </div>
       {/* Image Slider */}
       {property.images && property.images.length > 0 && (
         <div className="bg-white pt-14 md:pt-24 lg:pt-28">

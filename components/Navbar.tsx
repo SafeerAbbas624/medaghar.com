@@ -6,20 +6,22 @@ import { FaHeart, FaUser, FaBars, FaTimes, FaSignOutAlt, FaCog, FaEnvelope, FaCh
 import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 
+// Point at the canonical tree targets, not the legacy flat pages — those
+// 301 into these in Phase 5, and nav should never route through a redirect.
 const PRIMARY_LINKS = [
-  { href: '/buy', label: 'Buy' },
-  { href: '/rent', label: 'Rent' },
+  { href: '/residential-for-sale', label: 'Buy' },
+  { href: '/residential-for-rent', label: 'Rent' },
   { href: '/sell', label: 'Sell' },
-  { href: '/plots', label: 'Plots' },
-  { href: '/commercial', label: 'Commercial' },
+  { href: '/for-sale/plot', label: 'Plots' },
+  { href: '/commercial-for-sale', label: 'Commercial' },
   { href: '/agents', label: 'Agents' },
   { href: '/guides', label: 'Guides' },
   { href: '/tools', label: 'Tools' },
 ]
 
 const MORE_LINKS = [
-  { href: '/fsbo', label: 'FSBO Listings' },
-  { href: '/rent-by-owner', label: 'Rent by Owner' },
+  { href: '/owner', label: 'By Owner — No Commission' },
+  { href: '/commercial-for-rent', label: 'Commercial for Rent' },
   { href: '/market-insights', label: 'Market Insights' },
   { href: '/home-loans', label: 'Home Loans' },
   { href: '/pricing', label: 'Pricing & Featured' },

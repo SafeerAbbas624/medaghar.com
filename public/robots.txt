@@ -19,7 +19,6 @@ Disallow: /signup/
 Disallow: /reviews/my-reviews/
 Disallow: /reviews/write/
 Disallow: /properties/*/edit/
-Disallow: /sitemap-page/
 
 # Sitemap
 Sitemap: https://medaghar.com/sitemap.xml
