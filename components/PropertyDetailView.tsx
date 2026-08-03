@@ -5,6 +5,7 @@ import PropertyMap from '@/components/PropertyMap'
 import SavePropertyButton from '@/components/SavePropertyButton'
 import VirtualTour from '@/components/VirtualTour'
 import NeighborhoodInfo from '@/components/NeighborhoodInfo'
+import PriceHistoryChart from '@/components/PriceHistoryChart'
 import ImageSlider from '@/components/ImageSlider'
 import JsonLd from '@/components/JsonLd'
 import AdSlot from '@/components/AdSlot'
@@ -288,6 +289,17 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
             </div>
 
 
+
+            {/* Price history — renders nothing when there is no history */}
+            {property.priceHistory && property.priceHistory.length > 0 && (
+              <div className="mb-6">
+                <PriceHistoryChart
+                  priceHistory={property.priceHistory}
+                  currentPrice={property.price}
+                  listingType={property.listingType}
+                />
+              </div>
+            )}
 
             {/* Neighborhood Data */}
             <NeighborhoodInfo

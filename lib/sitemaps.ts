@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { BASE_URL } from '@/lib/seo'
 import { GUIDES } from '@/content/guides'
 import { CITIES } from '@/lib/locations'
-import { countFor } from '@/lib/listingCounts'
+import { countsByLevel } from '@/lib/listingCounts'
 import { inSitemap } from '@/lib/tree/gating'
 import { buildTreeUrl } from '@/lib/tree/urls'
 import {
@@ -130,8 +130,21 @@ async function locationsSection(purpose: Purpose, now: Date): Promise<SitemapEnt
       ...typesForCategory('commercial'),
     ]
 
+    // Resolve counts for every level in one pass per type, rather than a
+    // countFor() call per city/area/subarea — that was ~1,600 awaits and
+    // timed out the build.
     for (const type of types) {
-      // Type root — always indexable, it is curated navigation.
+      const [cityCounts, areaCounts, subCounts] = await Promise.all([
+        countsByLevel({ listingType, types: type.types, fsboOnly }, 'city'),
+        purpose === 'owner' || type.tier !== 'A'
+          ? Promise.resolve(new Map<string, number>())
+          : countsByLevel({ listingType, types: type.types }, 'area'),
+        purpose === 'owner' || type.tier !== 'A'
+          ? Promise.resolve(new Map<string, number>())
+          : countsByLevel({ listingType, types: type.types }, 'subarea'),
+      ])
+
+      // Type root — curated navigation, always included.
       out.push({
         url: `${BASE_URL}${buildTreeUrl({ purpose, typeSlug: type.slug })}`,
         lastModified: now,
@@ -140,13 +153,7 @@ async function locationsSection(purpose: Purpose, now: Date): Promise<SitemapEnt
       })
 
       for (const city of CITIES) {
-        const cityCount = await countFor({
-          listingType,
-          types: type.types,
-          citySlug: city.slug,
-          fsboOnly,
-        })
-        if (!inSitemap('city', cityCount)) continue
+        if (!inSitemap('city', cityCounts.get(city.slug) ?? 0)) continue
 
         out.push({
           url: `${BASE_URL}${buildTreeUrl({ purpose, typeSlug: type.slug, citySlug: city.slug })}`,
@@ -155,17 +162,10 @@ async function locationsSection(purpose: Purpose, now: Date): Promise<SitemapEnt
           priority: 0.7,
         })
 
-        // The /owner tree stops at city; Tier B types have no area depth.
         if (purpose === 'owner' || type.tier !== 'A') continue
 
         for (const area of city.areas) {
-          const areaCount = await countFor({
-            listingType,
-            types: type.types,
-            citySlug: city.slug,
-            areaSlug: area.slug,
-          })
-          if (!inSitemap('area', areaCount)) continue
+          if (!inSitemap('area', areaCounts.get(`${city.slug}/${area.slug}`) ?? 0)) continue
 
           out.push({
             url: `${BASE_URL}${buildTreeUrl({
@@ -180,14 +180,8 @@ async function locationsSection(purpose: Purpose, now: Date): Promise<SitemapEnt
           })
 
           for (const sub of area.subAreas ?? []) {
-            const subCount = await countFor({
-              listingType,
-              types: type.types,
-              citySlug: city.slug,
-              areaSlug: area.slug,
-              subAreaSlug: sub.slug,
-            })
-            if (!inSitemap('subarea', subCount)) continue
+            const key = `${city.slug}/${area.slug}/${sub.slug}`
+            if (!inSitemap('subarea', subCounts.get(key) ?? 0)) continue
 
             out.push({
               url: `${BASE_URL}${buildTreeUrl({

@@ -193,3 +193,41 @@ export async function subAreasWithInventory(
   }
   return out
 }
+
+/**
+ * Counts keyed by location, for a whole level at once.
+ *
+ * Keys: 'city' -> "lahore", 'area' -> "lahore/dha-defence",
+ *       'subarea' -> "lahore/dha-defence/phase-6".
+ *
+ * One pass over the cached rows. Sitemap generation needs counts for every
+ * location simultaneously; calling countFor() per node was ~1,600 awaits and
+ * timed the build out.
+ */
+export async function countsByLevel(
+  q: Omit<CountQuery, 'citySlug' | 'areaSlug' | 'subAreaSlug'>,
+  level: 'city' | 'area' | 'subarea'
+): Promise<Map<string, number>> {
+  const rows = await loadRows()
+  const out = new Map<string, number>()
+
+  for (const row of rows) {
+    if (!matches(row, q)) continue
+    if (!row.citySlug) continue
+
+    let key: string | null = row.citySlug
+    if (level === 'area') {
+      key = row.areaSlug ? `${row.citySlug}/${row.areaSlug}` : null
+    } else if (level === 'subarea') {
+      key =
+        row.areaSlug && row.subAreaSlug
+          ? `${row.citySlug}/${row.areaSlug}/${row.subAreaSlug}`
+          : null
+    }
+    if (!key) continue
+
+    out.set(key, (out.get(key) ?? 0) + row.count)
+  }
+
+  return out
+}

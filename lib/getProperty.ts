@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 /** Shared include shape for the property detail view. */
 const detailInclude = {
   images: { orderBy: { order: 'asc' as const } },
+  priceHistory: { orderBy: { eventDate: 'asc' as const } },
   agent: { include: { user: true } },
   owner: {
     select: {
