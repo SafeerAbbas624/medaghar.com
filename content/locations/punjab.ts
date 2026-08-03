@@ -38,16 +38,138 @@ const cities: City[] = [
           { slug: 'overseas-enclave', name: 'Overseas Enclave' },
         ],
       },
-      { slug: 'gulberg', name: 'Gulberg' },
-      { slug: 'johar-town', name: 'Johar Town' },
-      { slug: 'model-town', name: 'Model Town' },
-      { slug: 'wapda-town', name: 'Wapda Town' },
-      { slug: 'lake-city', name: 'Lake City' },
+      {
+        slug: 'gulberg',
+        name: 'Gulberg',
+        subAreas: [
+          { slug: 'gulberg-1', name: 'Gulberg I' },
+          { slug: 'gulberg-2', name: 'Gulberg II' },
+          { slug: 'gulberg-3', name: 'Gulberg III' },
+          { slug: 'gulberg-5', name: 'Gulberg V' },
+          { slug: 'mini-market', name: 'Mini Market' },
+          { slug: 'main-boulevard', name: 'Main Boulevard' },
+        ],
+      },
+      {
+        slug: 'johar-town',
+        name: 'Johar Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+          { slug: 'block-i', name: 'Block I' },
+          { slug: 'block-j', name: 'Block J' },
+          { slug: 'block-k', name: 'Block K' },
+          { slug: 'block-l', name: 'Block L' },
+          { slug: 'block-m', name: 'Block M' },
+          { slug: 'block-n', name: 'Block N' },
+          { slug: 'block-o', name: 'Block O' },
+          { slug: 'block-p', name: 'Block P' },
+          { slug: 'block-q', name: 'Block Q' },
+          { slug: 'block-r', name: 'Block R' },
+        ],
+      },
+      {
+        slug: 'model-town',
+        name: 'Model Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+          { slug: 'block-i', name: 'Block I' },
+          { slug: 'block-j', name: 'Block J' },
+          { slug: 'block-k', name: 'Block K' },
+          { slug: 'block-l', name: 'Block L' },
+          { slug: 'block-m', name: 'Block M' },
+          { slug: 'block-n', name: 'Block N' },
+          { slug: 'block-o', name: 'Block O' },
+          { slug: 'block-p', name: 'Block P' },
+          { slug: 'block-q', name: 'Block Q' },
+          { slug: 'block-r', name: 'Block R' },
+        ],
+      },
+      {
+        slug: 'wapda-town',
+        name: 'Wapda Town',
+        subAreas: [
+          { slug: 'phase-1', name: 'Phase 1' },
+          { slug: 'phase-2', name: 'Phase 2' },
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+          { slug: 'block-i', name: 'Block I' },
+          { slug: 'block-j', name: 'Block J' },
+        ],
+      },
+      {
+        slug: 'lake-city',
+        name: 'Lake City',
+        subAreas: [
+          { slug: 'sector-m1', name: 'Sector M-1' },
+          { slug: 'sector-m2', name: 'Sector M-2' },
+          { slug: 'sector-m3', name: 'Sector M-3' },
+          { slug: 'sector-m5', name: 'Sector M-5' },
+          { slug: 'sector-m7', name: 'Sector M-7' },
+        ],
+      },
       { slug: 'lda-avenue', name: 'LDA Avenue' },
-      { slug: 'askari', name: 'Askari' },
+      {
+        slug: 'askari',
+        name: 'Askari',
+        subAreas: [
+          { slug: 'askari-1', name: 'Askari 1' },
+          { slug: 'askari-2', name: 'Askari 2' },
+          { slug: 'askari-3', name: 'Askari 3' },
+          { slug: 'askari-4', name: 'Askari 4' },
+          { slug: 'askari-5', name: 'Askari 5' },
+          { slug: 'askari-6', name: 'Askari 6' },
+          { slug: 'askari-7', name: 'Askari 7' },
+          { slug: 'askari-8', name: 'Askari 8' },
+          { slug: 'askari-9', name: 'Askari 9' },
+          { slug: 'askari-10', name: 'Askari 10' },
+          { slug: 'askari-11', name: 'Askari 11' },
+        ],
+      },
       { slug: 'cantt', name: 'Cantt' },
-      { slug: 'allama-iqbal-town', name: 'Allama Iqbal Town' },
-      { slug: 'valencia', name: 'Valencia' },
+      {
+        slug: 'allama-iqbal-town',
+        name: 'Allama Iqbal Town',
+        subAreas: [
+          { slug: 'nargis-block', name: 'Nargis Block' },
+          { slug: 'karim-block', name: 'Karim Block' },
+          { slug: 'hunza-block', name: 'Hunza Block' },
+          { slug: 'neelam-block', name: 'Neelam Block' },
+          { slug: 'zeenat-block', name: 'Zeenat Block' },
+          { slug: 'umar-block', name: 'Umar Block' },
+          { slug: 'pak-block', name: 'Pak Block' },
+          { slug: 'raza-block', name: 'Raza Block' },
+        ],
+      },
+      {
+        slug: 'valencia',
+        name: 'Valencia',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+        ],
+      },
       { slug: 'garden-town', name: 'Garden Town' },
       { slug: 'faisal-town', name: 'Faisal Town' },
       { slug: 'township', name: 'Township' },
@@ -58,7 +180,16 @@ const cities: City[] = [
       { slug: 'sundar', name: 'Sundar Industrial Estate' },
       { slug: 'multan-road', name: 'Multan Road' },
       { slug: 'canal-road', name: 'Canal Road' },
-      { slug: 'paragon-city', name: 'Paragon City' },
+      {
+        slug: 'paragon-city',
+        name: 'Paragon City',
+        subAreas: [
+          { slug: 'imperial-block', name: 'Imperial Block' },
+          { slug: 'orchard-block', name: 'Orchard Block' },
+          { slug: 'executive-block', name: 'Executive Block' },
+          { slug: 'woods-block', name: 'Woods Block' },
+        ],
+      },
       { slug: 'state-life-housing', name: 'State Life Housing Society' },
     ],
   },
@@ -71,17 +202,80 @@ const cities: City[] = [
     marketNote:
       'Faisalabad property demand is led by Madina Town, Peoples Colony and the growing Citi Housing and Eden Valley schemes.',
     areas: [
-      { slug: 'madina-town', name: 'Madina Town' },
-      { slug: 'peoples-colony', name: 'Peoples Colony' },
+      {
+        slug: 'madina-town',
+        name: 'Madina Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+        ],
+      },
+      {
+        slug: 'peoples-colony',
+        name: 'Peoples Colony',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-z', name: 'Block Z' },
+        ],
+      },
       { slug: 'eden-valley', name: 'Eden Valley' },
-      { slug: 'citi-housing', name: 'Citi Housing' },
+      {
+        slug: 'citi-housing',
+        name: 'Citi Housing',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+        ],
+      },
       { slug: 'susan-road', name: 'Susan Road' },
       { slug: 'satiana-road', name: 'Satiana Road' },
       { slug: 'jaranwala-road', name: 'Jaranwala Road' },
       { slug: 'canal-road', name: 'Canal Road' },
       { slug: 'gulberg', name: 'Gulberg' },
       { slug: 'samanabad', name: 'Samanabad' },
-      { slug: 'wapda-city', name: 'Wapda City' },
+      {
+        slug: 'wapda-city',
+        name: 'Wapda City',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+        ],
+      },
+      {
+        slug: 'fda-city',
+        name: 'FDA City',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+        ],
+      },
+      { slug: 'jinnah-colony', name: 'Jinnah Colony' },
+      { slug: 'millat-town', name: 'Millat Town' },
+      { slug: 'ghulam-muhammadabad', name: 'Ghulam Muhammadabad' },
+      { slug: 'iqbal-town', name: 'Iqbal Town' },
+      { slug: 'model-city', name: 'Model City' },
+      { slug: 'sitara-valley', name: 'Sitara Valley' },
+      { slug: 'royal-city', name: 'Royal City' },
+      { slug: 'canal-view-housing', name: 'Canal View Housing' },
+      { slug: 'sargodha-road', name: 'Sargodha Road' },
+      { slug: 'tech-town', name: 'Tech Town' },
     ],
   },
   {
@@ -159,6 +353,52 @@ const cities: City[] = [
       { slug: 'wapda-town', name: 'Wapda Town' },
       { slug: 'northern-bypass', name: 'Northern Bypass' },
       { slug: 'mumtazabad', name: 'Mumtazabad' },
+    
+      {
+        slug: 'dha-multan',
+        name: 'DHA Multan',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+          { slug: 'block-i', name: 'Block I' },
+          { slug: 'block-j', name: 'Block J' },
+          { slug: 'block-k', name: 'Block K' },
+          { slug: 'block-l', name: 'Block L' },
+          { slug: 'block-m', name: 'Block M' },
+          { slug: 'block-n', name: 'Block N' },
+          { slug: 'block-o', name: 'Block O' },
+          { slug: 'block-p', name: 'Block P' },
+          { slug: 'block-q', name: 'Block Q' },
+          { slug: 'block-r', name: 'Block R' },
+          { slug: 'block-s', name: 'Block S' },
+          { slug: 'block-t', name: 'Block T' },
+          { slug: 'block-u', name: 'Block U' },
+          { slug: 'block-v', name: 'Block V' },
+          { slug: 'block-w', name: 'Block W' },
+          { slug: 'block-x', name: 'Block X' },
+          { slug: 'villas', name: 'DHA Villas' },
+        ],
+      },
+      {
+        slug: 'bahria-town',
+        name: 'Bahria Town Multan',
+        subAreas: [
+          { slug: 'phase-1', name: 'Phase 1' },
+          { slug: 'phase-2', name: 'Phase 2' },
+        ],
+      },
+      { slug: 'buch-villas', name: 'Buch Villas' },
+      { slug: 'mda-officers-colony', name: 'MDA Officers Colony' },
+      { slug: 'royal-orchard', name: 'Royal Orchard' },
+      { slug: 'mattital-road', name: 'Mattital Road' },
+      { slug: 'khanewal-road', name: 'Khanewal Road' },
+      { slug: 'al-falah-modern-city', name: 'Al Falah Modern City' },
     ],
   },
   {
@@ -170,14 +410,67 @@ const cities: City[] = [
     marketNote:
       'DC Colony and Citi Housing lead Gujranwala values, supported by the established Model Town and Satellite Town belts.',
     areas: [
-      { slug: 'dc-colony', name: 'DC Colony' },
-      { slug: 'citi-housing', name: 'Citi Housing' },
+      {
+        slug: 'dc-colony',
+        name: 'DC Colony',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+        ],
+      },
+      {
+        slug: 'citi-housing',
+        name: 'Citi Housing',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+        ],
+      },
       { slug: 'wapda-town', name: 'Wapda Town' },
-      { slug: 'model-town', name: 'Model Town' },
-      { slug: 'satellite-town', name: 'Satellite Town' },
+      {
+        slug: 'model-town',
+        name: 'Model Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
+      {
+        slug: 'satellite-town',
+        name: 'Satellite Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+        ],
+      },
       { slug: 'gt-road', name: 'GT Road' },
-      { slug: 'master-city', name: 'Master City' },
+      {
+        slug: 'master-city',
+        name: 'Master City',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'peoples-colony', name: 'Peoples Colony' },
+    
+      { slug: 'palm-city', name: 'Palm City' },
+      { slug: 'gulshan-e-iqbal', name: 'Gulshan-e-Iqbal' },
+      { slug: 'sialkot-bypass', name: 'Sialkot Bypass' },
     ],
   },
   {
@@ -190,12 +483,54 @@ const cities: City[] = [
       'Sialkot demand centres on Cantt, Model Town and the newer Citi Housing scheme.',
     areas: [
       { slug: 'cantt', name: 'Cantt' },
-      { slug: 'model-town', name: 'Model Town' },
-      { slug: 'citi-housing', name: 'Citi Housing' },
+      {
+        slug: 'model-town',
+        name: 'Model Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
+      {
+        slug: 'citi-housing',
+        name: 'Citi Housing',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+        ],
+      },
       { slug: 'defence-road', name: 'Defence Road' },
       { slug: 'kashmir-road', name: 'Kashmir Road' },
       { slug: 'paris-road', name: 'Paris Road' },
       { slug: 'aziz-shaheed-road', name: 'Aziz Shaheed Road' },
+    
+      {
+    
+        slug: 'satellite-town',
+    
+        name: 'Satellite Town',
+    
+        subAreas: [
+    
+          { slug: 'block-a', name: 'Block A' },
+    
+          { slug: 'block-b', name: 'Block B' },
+    
+          { slug: 'block-c', name: 'Block C' },
+    
+        ],
+    
+      },
+      { slug: 'sialkot-bypass', name: 'Sialkot Bypass' },
+      { slug: 'pasrur-road', name: 'Pasrur Road' },
+      { slug: 'daska-road', name: 'Daska Road' },
     ],
   },
   {
@@ -217,10 +552,33 @@ const cities: City[] = [
         ],
       },
       { slug: 'model-town', name: 'Model Town' },
-      { slug: 'satellite-town', name: 'Satellite Town' },
+      {
+        slug: 'satellite-town',
+        name: 'Satellite Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'cantt', name: 'Cantt' },
       { slug: 'noor-mahal-colony', name: 'Noor Mahal Colony' },
       { slug: 'yazman-road', name: 'Yazman Road' },
+    
+      {
+        slug: 'dha-bahawalpur',
+        name: 'DHA Bahawalpur',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+        ],
+      },
+      { slug: 'trust-colony', name: 'Trust Colony' },
+      { slug: 'noor-mahal-road', name: 'Noor Mahal Road' },
+      { slug: 'bahawalpur-cantt', name: 'Bahawalpur Cantt' },
     ],
   },
   {
@@ -232,12 +590,35 @@ const cities: City[] = [
     marketNote:
       'Sargodha demand is led by Satellite Town, Model Town City and the newer Citi Housing scheme.',
     areas: [
-      { slug: 'satellite-town', name: 'Satellite Town' },
+      {
+        slug: 'satellite-town',
+        name: 'Satellite Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'model-town-city', name: 'Model Town City' },
       { slug: 'citi-housing', name: 'Citi Housing' },
       { slug: 'university-road', name: 'University Road' },
       { slug: 'cantt', name: 'Cantt' },
       { slug: 'old-civil-lines', name: 'Old Civil Lines' },
+    
+      {
+        slug: 'royal-orchard',
+        name: 'Royal Orchard',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+        ],
+      },
+      { slug: 'rose-valley', name: 'Rose Valley' },
+      { slug: 'gulberg', name: 'Gulberg' },
+      { slug: 'faisalabad-road', name: 'Faisalabad Road' },
+      { slug: 'block-z', name: 'Block Z' },
     ],
   },
   {
@@ -254,6 +635,9 @@ const cities: City[] = [
       { slug: 'gt-road', name: 'GT Road' },
       { slug: 'faisalabad-road', name: 'Faisalabad Road' },
       { slug: 'sharaqpur-road', name: 'Sharaqpur Road' },
+    
+      { slug: 'gulshan-e-iqbal', name: 'Gulshan-e-Iqbal' },
+      { slug: 'lahore-road', name: 'Lahore Road' },
     ],
   },
   {
@@ -265,10 +649,20 @@ const cities: City[] = [
     marketNote:
       'Jhang property demand concentrates on Satellite Town and Civil Lines.',
     areas: [
-      { slug: 'satellite-town', name: 'Satellite Town' },
+      {
+        slug: 'satellite-town',
+        name: 'Satellite Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'faisalabad-road', name: 'Faisalabad Road' },
       { slug: 'gojra-road', name: 'Gojra Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
     ],
   },
   {
@@ -297,11 +691,30 @@ const cities: City[] = [
       'Gujrat demand is supported by Citi Housing, Satellite Town and strong overseas remittance flows.',
     areas: [
       { slug: 'citi-housing', name: 'Citi Housing' },
-      { slug: 'satellite-town', name: 'Satellite Town' },
-      { slug: 'model-town', name: 'Model Town' },
+      {
+        slug: 'satellite-town',
+        name: 'Satellite Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
+      {
+        slug: 'model-town',
+        name: 'Model Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'gt-road', name: 'GT Road' },
       { slug: 'bhimber-road', name: 'Bhimber Road' },
       { slug: 'rehman-shaheed-road', name: 'Rehman Shaheed Road' },
+    
+      { slug: 'shadman-colony', name: 'Shadman Colony' },
+      { slug: 'kutchery-road', name: 'Kutchery Road' },
     ],
   },
   {
@@ -317,6 +730,9 @@ const cities: City[] = [
       { slug: 'railway-road', name: 'Railway Road' },
       { slug: 'lahore-road', name: 'Lahore Road' },
       { slug: 'ferozepur-road', name: 'Ferozepur Road' },
+    
+      { slug: 'kot-usman', name: 'Kot Usman' },
+      { slug: 'raiwind-road', name: 'Raiwind Road' },
     ],
   },
   {
@@ -332,6 +748,19 @@ const cities: City[] = [
       { slug: 'stadium-road', name: 'Stadium Road' },
       { slug: 'high-street', name: 'High Street' },
       { slug: 'jahanzeb-block', name: 'Jahanzeb Block' },
+    
+      {
+        slug: 'model-town',
+        name: 'Model Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
+      { slug: 'gulshan-e-iqbal', name: 'Gulshan-e-Iqbal' },
+      { slug: 'canal-colony', name: 'Canal Colony' },
+      { slug: 'jahaz-ground', name: 'Jahaz Ground' },
     ],
   },
   {
@@ -347,6 +776,9 @@ const cities: City[] = [
       { slug: 'cantt', name: 'Cantt' },
       { slug: 'gt-road', name: 'GT Road' },
       { slug: 'depalpur-road', name: 'Depalpur Road' },
+    
+      { slug: 'gulshan-e-iqbal', name: 'Gulshan-e-Iqbal' },
+      { slug: 'canal-colony', name: 'Canal Colony' },
     ],
   },
   {
@@ -358,10 +790,21 @@ const cities: City[] = [
     marketNote:
       'Wah Cantt demand is led by Lalazar and the planned POF housing sectors.',
     areas: [
-      { slug: 'lalazar', name: 'Lalazar' },
+      {
+        slug: 'lalazar',
+        name: 'Lalazar',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'gudwal', name: 'Gudwal' },
       { slug: 'pof-housing', name: 'POF Housing' },
       { slug: 'gt-road', name: 'GT Road' },
+    
+      { slug: 'gulshan-e-mehran', name: 'Gulshan-e-Mehran' },
+      { slug: 'pof-colony', name: 'POF Colony' },
     ],
   },
   {
@@ -377,6 +820,10 @@ const cities: City[] = [
       { slug: 'block-20', name: 'Block 20' },
       { slug: 'jampur-road', name: 'Jampur Road' },
       { slug: 'cantt', name: 'Cantt' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'block-x', name: 'Block X' },
+      { slug: 'multan-road', name: 'Multan Road' },
     ],
   },
   {
@@ -392,6 +839,9 @@ const cities: City[] = [
       { slug: 'cantt', name: 'Cantt' },
       { slug: 'gt-road', name: 'GT Road' },
       { slug: 'machine-mohallah', name: 'Machine Mohallah' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'jhelum-cantt', name: 'Jhelum Cantt' },
     ],
   },
   {
@@ -406,6 +856,9 @@ const cities: City[] = [
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'sargodha-road', name: 'Sargodha Road' },
       { slug: 'rajoa-road', name: 'Rajoa Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'faisalabad-road', name: 'Faisalabad Road' },
     ],
   },
   {
@@ -420,6 +873,8 @@ const cities: City[] = [
       { slug: 'model-town', name: 'Model Town' },
       { slug: 'officers-colony', name: 'Officers Colony' },
       { slug: 'multan-road', name: 'Multan Road' },
+    
+      { slug: 'kutchery-road', name: 'Kutchery Road' },
     ],
   },
   {
@@ -434,6 +889,10 @@ const cities: City[] = [
       { slug: 'satellite-town', name: 'Satellite Town' },
       { slug: 'jail-road', name: 'Jail Road' },
       { slug: 'gt-road', name: 'GT Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'gujranwala-road', name: 'Gujranwala Road' },
+      { slug: 'jalalpur-road', name: 'Jalalpur Road' },
     ],
   },
   {
@@ -448,6 +907,9 @@ const cities: City[] = [
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'government-colony', name: 'Government Colony' },
       { slug: 'rasul-road', name: 'Rasul Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'gt-road', name: 'GT Road' },
     ],
   },
   {
@@ -462,6 +924,9 @@ const cities: City[] = [
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'cantt', name: 'Cantt' },
       { slug: 'gt-road', name: 'GT Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'attock-cantt', name: 'Attock Cantt' },
     ],
   },
   {
@@ -476,6 +941,8 @@ const cities: City[] = [
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'talagang-road', name: 'Talagang Road' },
       { slug: 'pindi-road', name: 'Pindi Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
     ],
   },
   {
@@ -504,6 +971,8 @@ const cities: City[] = [
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'gojra-road', name: 'Gojra Road' },
       { slug: 'rajana-road', name: 'Rajana Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
     ],
   },
   {
@@ -560,6 +1029,9 @@ const cities: City[] = [
       { slug: 'civil-lines', name: 'Civil Lines' },
       { slug: 'samundri-road', name: 'Samundri Road' },
       { slug: 'jhang-road', name: 'Jhang Road' },
+    
+      { slug: 'model-town', name: 'Model Town' },
+      { slug: 'toba-road', name: 'Toba Road' },
     ],
   },
   {
@@ -574,6 +1046,8 @@ const cities: City[] = [
       { slug: 'model-town', name: 'Model Town' },
       { slug: 'multan-road', name: 'Multan Road' },
       { slug: 'college-road', name: 'College Road' },
+    
+      { slug: 'vehari-road', name: 'Vehari Road' },
     ],
   },
 ]

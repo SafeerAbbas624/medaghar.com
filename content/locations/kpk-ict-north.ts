@@ -257,6 +257,93 @@ const cities: City[] = [
         slug: 'e-16',
         name: 'E-16',
       },
+    
+      {
+        slug: 'g-6',
+        name: 'G-6',
+        subAreas: [
+          { slug: 'g-6-markaz', name: 'G-6 Markaz' },
+          { slug: 'g-6-1', name: 'G-6/1' },
+          { slug: 'g-6-2', name: 'G-6/2' },
+          { slug: 'g-6-3', name: 'G-6/3' },
+          { slug: 'g-6-4', name: 'G-6/4' },
+        ],
+      },
+      {
+        slug: 'g-7',
+        name: 'G-7',
+        subAreas: [
+          { slug: 'g-7-markaz', name: 'G-7 Markaz' },
+          { slug: 'g-7-1', name: 'G-7/1' },
+          { slug: 'g-7-2', name: 'G-7/2' },
+          { slug: 'g-7-3', name: 'G-7/3' },
+          { slug: 'g-7-4', name: 'G-7/4' },
+        ],
+      },
+      {
+        slug: 'g-8',
+        name: 'G-8',
+        subAreas: [
+          { slug: 'g-8-markaz', name: 'G-8 Markaz' },
+          { slug: 'g-8-1', name: 'G-8/1' },
+          { slug: 'g-8-2', name: 'G-8/2' },
+          { slug: 'g-8-3', name: 'G-8/3' },
+          { slug: 'g-8-4', name: 'G-8/4' },
+        ],
+      },
+      { slug: 'f-15', name: 'F-15' },
+      { slug: 'f-17', name: 'F-17' },
+      { slug: 'i-11', name: 'I-11' },
+      { slug: 'i-12', name: 'I-12' },
+      {
+        slug: 'top-city-1',
+        name: 'Top City-1',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+        ],
+      },
+      { slug: 'faisal-town', name: 'Faisal Town' },
+      {
+        slug: 'mumtaz-city',
+        name: 'Mumtaz City',
+        subAreas: [
+          { slug: 'executive-block', name: 'Executive Block' },
+          { slug: 'rose-block', name: 'Rose Block' },
+          { slug: 'gulberg-block', name: 'Gulberg Block' },
+        ],
+      },
+      {
+        slug: 'capital-smart-city',
+        name: 'Capital Smart City',
+        subAreas: [
+          { slug: 'overseas-block', name: 'Overseas Block' },
+          { slug: 'executive-block', name: 'Executive Block' },
+          { slug: 'harmony-park', name: 'Harmony Park' },
+        ],
+      },
+      { slug: 'nova-city', name: 'Nova City' },
+      {
+        slug: 'park-view-city',
+        name: 'Park View City',
+        subAreas: [
+          { slug: 'overseas-block', name: 'Overseas Block' },
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+          { slug: 'block-d', name: 'Block D' },
+          { slug: 'block-e', name: 'Block E' },
+          { slug: 'block-f', name: 'Block F' },
+          { slug: 'block-g', name: 'Block G' },
+          { slug: 'block-h', name: 'Block H' },
+          { slug: 'block-i', name: 'Block I' },
+          { slug: 'block-j', name: 'Block J' },
+        ],
+      },
     ],
   },
 
@@ -285,8 +372,25 @@ const cities: City[] = [
           { slug: 'phase-7', name: 'Phase 7' },
         ],
       },
-      { slug: 'dha-peshawar', name: 'DHA Peshawar' },
-      { slug: 'regi-model-town', name: 'Regi Model Town' },
+      {
+        slug: 'dha-peshawar',
+        name: 'DHA Peshawar',
+        subAreas: [
+          { slug: 'phase-1', name: 'Phase 1' },
+          { slug: 'phase-2', name: 'Phase 2' },
+        ],
+      },
+      {
+        slug: 'regi-model-town',
+        name: 'Regi Model Town',
+        subAreas: [
+          { slug: 'zone-1', name: 'Zone 1' },
+          { slug: 'zone-2', name: 'Zone 2' },
+          { slug: 'zone-3', name: 'Zone 3' },
+          { slug: 'zone-4', name: 'Zone 4' },
+          { slug: 'zone-5', name: 'Zone 5' },
+        ],
+      },
       { slug: 'university-road', name: 'University Road' },
       { slug: 'warsak-road', name: 'Warsak Road' },
       { slug: 'ring-road', name: 'Ring Road' },
@@ -294,6 +398,30 @@ const cities: City[] = [
       { slug: 'faqirabad', name: 'Faqirabad' },
       { slug: 'tehkal', name: 'Tehkal' },
       { slug: 'peshawar-cantt', name: 'Peshawar Cantt' },
+    
+      {
+    
+        slug: 'university-town',
+    
+        name: 'University Town',
+    
+        subAreas: [
+    
+          { slug: 'block-a', name: 'Block A' },
+    
+          { slug: 'block-b', name: 'Block B' },
+    
+          { slug: 'block-c', name: 'Block C' },
+    
+          { slug: 'block-d', name: 'Block D' },
+    
+          { slug: 'block-e', name: 'Block E' },
+    
+        ],
+    
+      },
+      { slug: 'jamrud-road', name: 'Jamrud Road' },
+      { slug: 'nasir-bagh-road', name: 'Nasir Bagh Road' },
     ],
   },
   {
@@ -304,7 +432,14 @@ const cities: City[] = [
       'Mardan is the second-largest city of Khyber Pakhtunkhwa and a busy agricultural and commercial hub in the fertile Peshawar valley. Its property market centres on established neighbourhoods near the cantonment and along the main arteries connecting it to the motorway. Affordable plot prices keep local end-user demand healthy.',
     marketNote: 'Plots near the Cantt and Sheikh Maltoon Town attract the bulk of residential interest.',
     areas: [
-      { slug: 'sheikh-maltoon-town', name: 'Sheikh Maltoon Town' },
+      {
+        slug: 'sheikh-maltoon-town',
+        name: 'Sheikh Maltoon Town',
+        subAreas: [
+          { slug: 'phase-1', name: 'Phase 1' },
+          { slug: 'phase-2', name: 'Phase 2' },
+        ],
+      },
       { slug: 'mardan-cantt', name: 'Mardan Cantt' },
       { slug: 'bank-road', name: 'Bank Road' },
       { slug: 'par-hoti', name: 'Par Hoti' },
@@ -325,6 +460,8 @@ const cities: City[] = [
       { slug: 'green-chowk', name: 'Green Chowk' },
       { slug: 'rahimabad', name: 'Rahimabad' },
       { slug: 'amankot', name: 'Amankot' },
+    
+      { slug: 'gulkada', name: 'Gulkada' },
     ],
   },
   {
@@ -335,12 +472,34 @@ const cities: City[] = [
       'Abbottabad is a cool hill station in the Hazara region, long favoured as a summer retreat and home to the Pakistan Military Academy at Kakul. Its temperate climate and well-regarded schools sustain steady demand for both permanent homes and second residences. Planned localities such as Jinnahabad have become the preferred address for modern housing.',
     marketNote: 'A mix of education, military presence and pleasant weather keeps Abbottabad property in demand for end-users.',
     areas: [
-      { slug: 'mandian', name: 'Mandian' },
+      {
+        slug: 'mandian',
+        name: 'Mandian',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'supply', name: 'Supply' },
       { slug: 'pma-road', name: 'PMA Road' },
-      { slug: 'jinnahabad', name: 'Jinnahabad' },
+      {
+        slug: 'jinnahabad',
+        name: 'Jinnahabad',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'kaghan-colony', name: 'Kaghan Colony' },
       { slug: 'abbottabad-cantt', name: 'Abbottabad Cantt' },
+    
+      { slug: 'hassan-town', name: 'Hassan Town' },
+      { slug: 'sukoon-city', name: 'Sukoon City' },
+      { slug: 'bilqias-town', name: 'Bilqias Town' },
+      { slug: 'supply-bazaar', name: 'Supply Bazaar' },
+      { slug: 'kakul-road', name: 'Kakul Road' },
     ],
   },
   {
@@ -369,6 +528,8 @@ const cities: City[] = [
       { slug: 'railway-road', name: 'Railway Road' },
       { slug: 'mandan', name: 'Mandan' },
       { slug: 'township', name: 'Township' },
+    
+      { slug: 'kohat-road', name: 'Kohat Road' },
     ],
   },
   {
@@ -383,6 +544,10 @@ const cities: City[] = [
       { slug: 'topanwala', name: 'Topanwala' },
       { slug: 'south-circular-road', name: 'South Circular Road' },
       { slug: 'gomal-university-road', name: 'Gomal University Road' },
+    
+      { slug: 'cantt-area', name: 'Cantt Area' },
+      { slug: 'tank-road', name: 'Tank Road' },
+      { slug: 'circular-road', name: 'Circular Road' },
     ],
   },
   {
@@ -439,6 +604,9 @@ const cities: City[] = [
       { slug: 'lahor', name: 'Lahor' },
       { slug: 'jehangira', name: 'Jehangira' },
       { slug: 'mardan-road', name: 'Mardan Road' },
+    
+      { slug: 'swabi-cantt', name: 'Swabi Cantt' },
+      { slug: 'topi-road', name: 'Topi Road' },
     ],
   },
   {
@@ -453,6 +621,9 @@ const cities: City[] = [
       { slug: 'ghazi', name: 'Ghazi' },
       { slug: 'sarai-saleh', name: 'Sarai Saleh' },
       { slug: 'hattar', name: 'Hattar' },
+    
+      { slug: 'hattar-road', name: 'Hattar Road' },
+      { slug: 'gt-road', name: 'GT Road' },
     ],
   },
   {
@@ -512,6 +683,11 @@ const cities: City[] = [
       { slug: 'gojra', name: 'Gojra' },
       { slug: 'domel', name: 'Domel' },
       { slug: 'university-road', name: 'University Road' },
+    
+      { slug: 'upper-adda', name: 'Upper Adda' },
+      { slug: 'chattar', name: 'Chattar' },
+      { slug: 'gojra-bala', name: 'Gojra Bala' },
+      { slug: 'neelum-road', name: 'Neelum Road' },
     ],
   },
   {
@@ -529,6 +705,9 @@ const cities: City[] = [
       { slug: 'allama-iqbal-road', name: 'Allama Iqbal Road' },
       { slug: 'kotli-road', name: 'Kotli Road' },
       { slug: 'jinnah-avenue', name: 'Jinnah Avenue' },
+    
+      { slug: 'sector-a', name: 'Sector A' },
+      { slug: 'sector-f', name: 'Sector F' },
     ],
   },
   {
@@ -543,6 +722,8 @@ const cities: City[] = [
       { slug: 'hajira-road', name: 'Hajira Road' },
       { slug: 'khaigala', name: 'Khaigala' },
       { slug: 'city-center', name: 'City Center' },
+    
+      { slug: 'bank-road', name: 'Bank Road' },
     ],
   },
   {
@@ -602,6 +783,10 @@ const cities: City[] = [
       { slug: 'konodas', name: 'Konodas' },
       { slug: 'amphary', name: 'Amphary' },
       { slug: 'nagral', name: 'Nagral' },
+    
+      { slug: 'danyore', name: 'Danyore' },
+      { slug: 'airport-road', name: 'Airport Road' },
+      { slug: 'gilgit-cantt', name: 'Gilgit Cantt' },
     ],
   },
   {
@@ -616,6 +801,8 @@ const cities: City[] = [
       { slug: 'hussainabad', name: 'Hussainabad' },
       { slug: 'naya-bazaar', name: 'Naya Bazaar' },
       { slug: 'sadpara', name: 'Sadpara' },
+    
+      { slug: 'airport-road', name: 'Airport Road' },
     ],
   },
   {

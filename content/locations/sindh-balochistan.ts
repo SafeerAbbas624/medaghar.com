@@ -178,6 +178,73 @@ const cities: City[] = [
         slug: 'tariq-road',
         name: 'Tariq Road',
       },
+    
+      {
+        slug: 'bahria-town',
+        name: 'Bahria Town Karachi',
+        subAreas: [
+          { slug: 'precinct-1', name: 'Precinct 1' },
+          { slug: 'precinct-2', name: 'Precinct 2' },
+          { slug: 'precinct-3', name: 'Precinct 3' },
+          { slug: 'precinct-4', name: 'Precinct 4' },
+          { slug: 'precinct-6', name: 'Precinct 6' },
+          { slug: 'precinct-7', name: 'Precinct 7' },
+          { slug: 'precinct-8', name: 'Precinct 8' },
+          { slug: 'precinct-9', name: 'Precinct 9' },
+          { slug: 'precinct-10', name: 'Precinct 10' },
+          { slug: 'precinct-10-a', name: 'Precinct 10-a' },
+          { slug: 'precinct-10-b', name: 'Precinct 10-b' },
+          { slug: 'precinct-11', name: 'Precinct 11' },
+          { slug: 'precinct-12', name: 'Precinct 12' },
+          { slug: 'precinct-14', name: 'Precinct 14' },
+          { slug: 'precinct-15', name: 'Precinct 15' },
+          { slug: 'precinct-16', name: 'Precinct 16' },
+          { slug: 'precinct-17', name: 'Precinct 17' },
+          { slug: 'precinct-18', name: 'Precinct 18' },
+          { slug: 'precinct-19', name: 'Precinct 19' },
+          { slug: 'precinct-20', name: 'Precinct 20' },
+          { slug: 'precinct-21', name: 'Precinct 21' },
+          { slug: 'precinct-22', name: 'Precinct 22' },
+          { slug: 'precinct-23', name: 'Precinct 23' },
+          { slug: 'precinct-24', name: 'Precinct 24' },
+          { slug: 'precinct-25', name: 'Precinct 25' },
+          { slug: 'precinct-25-a', name: 'Precinct 25-a' },
+          { slug: 'precinct-26', name: 'Precinct 26' },
+          { slug: 'precinct-26-a', name: 'Precinct 26-a' },
+          { slug: 'precinct-27', name: 'Precinct 27' },
+          { slug: 'precinct-27-a', name: 'Precinct 27-a' },
+          { slug: 'precinct-28', name: 'Precinct 28' },
+          { slug: 'precinct-29', name: 'Precinct 29' },
+          { slug: 'precinct-30', name: 'Precinct 30' },
+          { slug: 'precinct-31', name: 'Precinct 31' },
+          { slug: 'precinct-32', name: 'Precinct 32' },
+          { slug: 'precinct-33', name: 'Precinct 33' },
+          { slug: 'sports-city', name: 'Bahria Sports City' },
+          { slug: 'paradise', name: 'Bahria Paradise' },
+          { slug: 'bahria-heights', name: 'Bahria Heights' },
+          { slug: 'bahria-apartments', name: 'Bahria Apartments' },
+        ],
+      },
+      {
+        slug: 'gulshan-e-hadeed',
+        name: 'Gulshan-e-Hadeed',
+        subAreas: [
+          { slug: 'phase-1', name: 'Phase 1' },
+          { slug: 'phase-2', name: 'Phase 2' },
+          { slug: 'phase-3', name: 'Phase 3' },
+        ],
+      },
+      { slug: 'quetta-town', name: 'Quetta Town' },
+      { slug: 'kda-scheme-1', name: 'KDA Scheme 1' },
+      { slug: 'garden-east', name: 'Garden East' },
+      { slug: 'garden-west', name: 'Garden West' },
+      { slug: 'model-colony', name: 'Model Colony' },
+      { slug: 'shah-faisal-colony', name: 'Shah Faisal Colony' },
+      { slug: 'lyari', name: 'Lyari' },
+      { slug: 'orangi-town', name: 'Orangi Town' },
+      { slug: 'new-karachi', name: 'New Karachi' },
+      { slug: 'buffer-zone', name: 'Buffer Zone' },
+      { slug: 'liaquatabad', name: 'Liaquatabad' },
     ],
   },
   {
@@ -227,6 +294,10 @@ const cities: City[] = [
         slug: 'wadhu-wah-road',
         name: 'Wadhu Wah Road',
       },
+    
+      { slug: 'gulshan-e-shahbaz', name: 'Gulshan-e-Shahbaz' },
+      { slug: 'hyderabad-cantt', name: 'Hyderabad Cantt' },
+      { slug: 'saddar', name: 'Saddar' },
     ],
   },
   {
@@ -244,6 +315,8 @@ const cities: City[] = [
       { slug: 'barrage-colony', name: 'Barrage Colony' },
       { slug: 'new-pind', name: 'New Pind' },
       { slug: 'sindhi-muslim-society', name: 'Sindhi Muslim Cooperative Housing Society' },
+    
+      { slug: 'sukkur-bypass', name: 'Sukkur Bypass' },
     ],
   },
   {
@@ -260,6 +333,8 @@ const cities: City[] = [
       { slug: 'bakrani-road', name: 'Bakrani Road' },
       { slug: 'vip-road', name: 'VIP Road' },
       { slug: 'rashidabad', name: 'Rashidabad' },
+    
+      { slug: 'shahi-bazaar', name: 'Shahi Bazaar' },
     ],
   },
   {
@@ -337,6 +412,8 @@ const cities: City[] = [
       { slug: 'kotri-road', name: 'Kotri Kabir Road' },
       { slug: 'thari-mirwah-road', name: 'Thari Mirwah Road' },
       { slug: 'luqman-colony', name: 'Luqman Colony' },
+    
+      { slug: 'model-town', name: 'Model Town' },
     ],
   },
   {
@@ -478,7 +555,15 @@ const cities: City[] = [
     marketNote:
       'Quetta is Balochistan\'s premier property market, balancing established cantonment areas with fast-growing planned schemes.',
     areas: [
-      { slug: 'jinnah-town', name: 'Jinnah Town' },
+      {
+        slug: 'jinnah-town',
+        name: 'Jinnah Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
       { slug: 'samungli-road', name: 'Samungli Road' },
       { slug: 'chiltan-housing-scheme', name: 'Chiltan Housing Scheme' },
       { slug: 'airport-road', name: 'Airport Road' },
@@ -487,6 +572,26 @@ const cities: City[] = [
       { slug: 'cantt', name: 'Cantt' },
       { slug: 'brewery-road', name: 'Brewery Road' },
       { slug: 'shahbaz-town', name: 'Shahbaz Town' },
+    
+      {
+        slug: 'dha-quetta',
+        name: 'DHA Quetta',
+        subAreas: [
+          { slug: 'phase-1', name: 'Phase 1' },
+          { slug: 'phase-2', name: 'Phase 2' },
+        ],
+      },
+      { slug: 'chaman-housing-scheme', name: 'Chaman Housing Scheme' },
+      {
+        slug: 'satellite-town',
+        name: 'Satellite Town',
+        subAreas: [
+          { slug: 'block-a', name: 'Block A' },
+          { slug: 'block-b', name: 'Block B' },
+          { slug: 'block-c', name: 'Block C' },
+        ],
+      },
+      { slug: 'quetta-cantt', name: 'Quetta Cantt' },
     ],
   },
   {
@@ -502,6 +607,9 @@ const cities: City[] = [
       { slug: 'marine-drive', name: 'Marine Drive' },
       { slug: 'sangar-housing', name: 'Sangar Housing' },
       { slug: 'single-road', name: 'Single Road' },
+    
+      { slug: 'airport-road', name: 'Airport Road' },
+      { slug: 'singhar-housing', name: 'Singhar Housing Scheme' },
     ],
   },
   {
