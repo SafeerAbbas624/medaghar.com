@@ -2,7 +2,21 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa'
+import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaTiktok, FaWhatsapp } from 'react-icons/fa'
+
+/**
+ * Social profiles. Update these hrefs to the real accounts as they are
+ * created — they currently point at the platform handles for medaghar.
+ */
+const SOCIAL_LINKS = [
+  { label: 'Facebook', href: 'https://facebook.com/medaghar', Icon: FaFacebook },
+  { label: 'Instagram', href: 'https://instagram.com/medaghar', Icon: FaInstagram },
+  { label: 'TikTok', href: 'https://tiktok.com/@medaghar', Icon: FaTiktok },
+  { label: 'WhatsApp', href: 'https://wa.me/923000000000', Icon: FaWhatsapp },
+  { label: 'YouTube', href: 'https://youtube.com/@medaghar', Icon: FaYoutube },
+  { label: 'X (Twitter)', href: 'https://twitter.com/medaghar', Icon: FaTwitter },
+  { label: 'LinkedIn', href: 'https://linkedin.com/company/medaghar', Icon: FaLinkedin },
+]
 import { FaHome, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa'
 
 export default function Footer() {
@@ -42,52 +56,19 @@ export default function Footer() {
             {/* Social Media */}
             <div className="mt-6">
               <h4 className="text-white font-semibold mb-3">Follow Us</h4>
-              <div className="flex gap-3">
-                <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
-                  aria-label="Facebook"
-                >
-                  <FaFacebook className="text-xl" />
-                </a>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
-                  aria-label="Twitter"
-                >
-                  <FaTwitter className="text-xl" />
-                </a>
-                <a
-                  href="https://instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
-                  aria-label="Instagram"
-                >
-                  <FaInstagram className="text-xl" />
-                </a>
-                <a
-                  href="https://linkedin.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
-                  aria-label="LinkedIn"
-                >
-                  <FaLinkedin className="text-xl" />
-                </a>
-                <a
-                  href="https://youtube.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
-                  aria-label="YouTube"
-                >
-                  <FaYoutube className="text-xl" />
-                </a>
+              <div className="flex flex-wrap gap-3">
+                {SOCIAL_LINKS.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
+                    aria-label={s.label}
+                  >
+                    <s.Icon className="text-xl" />
+                  </a>
+                ))}
               </div>
             </div>
           </div>

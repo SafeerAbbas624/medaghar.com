@@ -13,14 +13,14 @@ const PRIMARY_LINKS = [
   { href: '/residential-for-rent', label: 'Rent' },
   { href: '/sell', label: 'Sell' },
   { href: '/for-sale/plot', label: 'Plots' },
-  { href: '/commercial-for-sale', label: 'Commercial' },
+  { href: '/owner', label: 'By Owner' },
   { href: '/agents', label: 'Agents' },
   { href: '/guides', label: 'Guides' },
   { href: '/tools', label: 'Tools' },
 ]
 
 const MORE_LINKS = [
-  { href: '/owner', label: 'By Owner — No Commission' },
+  { href: '/commercial-for-sale', label: 'Commercial for Sale' },
   { href: '/commercial-for-rent', label: 'Commercial for Rent' },
   { href: '/market-insights', label: 'Market Insights' },
   { href: '/home-loans', label: 'Home Loans' },

@@ -6,6 +6,7 @@ import SavePropertyButton from '@/components/SavePropertyButton'
 import VirtualTour from '@/components/VirtualTour'
 import NeighborhoodInfo from '@/components/NeighborhoodInfo'
 import PriceHistoryChart from '@/components/PriceHistoryChart'
+import RevealPhone from '@/components/RevealPhone'
 import ImageSlider from '@/components/ImageSlider'
 import JsonLd from '@/components/JsonLd'
 import AdSlot from '@/components/AdSlot'
@@ -378,9 +379,7 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
                   >
                     Contact Agent
                   </Link>
-                  <div className="text-center text-sm text-gray-600">
-                    {property.agent.phoneNumber}
-                  </div>
+                  <RevealPhone propertyId={property.id} party="agent" label="Show Agent Phone" />
                 </div>
               </div>
             )}
@@ -425,11 +424,7 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
                   >
                     Contact Owner
                   </Link>
-                  {property.owner.phone && (
-                    <div className="text-center text-sm text-gray-600">
-                      {property.owner.phone}
-                    </div>
-                  )}
+                  <RevealPhone propertyId={property.id} party="owner" label="Show Owner Phone" />
                 </div>
               </div>
             )}

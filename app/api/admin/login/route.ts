@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limit by client IP to prevent brute-force (5 attempts / 15 min)
     const clientIp = getClientIp(request)
-    const { loginRateLimiter } = await getRateLimiters()
+    const { loginRateLimiter } = getRateLimiters()
     const rl = await checkRateLimit(loginRateLimiter, `admin-login:${clientIp}`)
     if (!rl.allowed) {
       return NextResponse.json(
@@ -70,7 +70,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create session token
+    // Create session token. No fallback secret: signing with a default while
+    // the verifier requires the real one produces tokens that never validate.
+    const secret = process.env.NEXTAUTH_SECRET
+    if (!secret) {
+      console.error('NEXTAUTH_SECRET is not configured — cannot issue admin session')
+      return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
+    }
+
     const token = sign(
       {
         id: adminUser.id,
@@ -79,7 +86,7 @@ export async function POST(request: NextRequest) {
         roleId: adminUser.roleId,
         permissions: adminUser.role.permissions,
       },
-      process.env.NEXTAUTH_SECRET || 'your-secret-key',
+      secret,
       { expiresIn: '8h' }
     )
 

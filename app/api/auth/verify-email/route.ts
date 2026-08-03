@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { sendEmail, defaultHostingerConfig } from '@/lib/email'
+import { generateWelcomeEmail, generateWelcomeEmailText } from '@/lib/email-templates'
 
 const MAX_VERIFICATION_ATTEMPTS = 3
 const LOCKOUT_DURATION = 3 * 60 * 1000 // 3 minutes in milliseconds
@@ -25,6 +27,7 @@ export async function POST(request: NextRequest) {
         email: true,
         firstName: true,
         lastName: true,
+        role: true,
         emailVerified: true,
         verificationCode: true,
         verificationCodeExpiry: true,
@@ -130,6 +133,19 @@ export async function POST(request: NextRequest) {
         verificationAttempts: 0,
       },
     })
+
+    // Welcome email — the account only becomes usable at this point, so this
+    // is the right moment rather than at signup. Never block verification on it.
+    try {
+      await sendEmail(defaultHostingerConfig, {
+        to: user.email,
+        subject: 'Welcome to MedaGhar 🏡',
+        text: generateWelcomeEmailText({ firstName: user.firstName, role: user.role }),
+        html: generateWelcomeEmail({ firstName: user.firstName, role: user.role }),
+      })
+    } catch (emailError) {
+      console.error('Welcome email failed (verification still succeeded):', emailError)
+    }
 
     return NextResponse.json(
       {

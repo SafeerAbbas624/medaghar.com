@@ -106,6 +106,23 @@ export const authOptions: NextAuthOptions = {
                 emailVerified: new Date(), // OAuth emails are pre-verified
               },
             })
+
+            // OAuth users skip the verification code entirely, so this is the
+            // only point they would receive a welcome. Never block sign-in on it.
+            try {
+              const { sendEmail, defaultHostingerConfig } = await import('@/lib/email')
+              const { generateWelcomeEmail, generateWelcomeEmailText } = await import(
+                '@/lib/email-templates'
+              )
+              await sendEmail(defaultHostingerConfig, {
+                to: user.email!,
+                subject: 'Welcome to MedaGhar 🏡',
+                text: generateWelcomeEmailText({ firstName, role: 'BUYER' }),
+                html: generateWelcomeEmail({ firstName, role: 'BUYER' }),
+              })
+            } catch (emailError) {
+              console.error('Welcome email failed (OAuth sign-in still succeeded):', emailError)
+            }
           } else if (!existingUser.emailVerified) {
             // If user exists but email not verified, verify it now (OAuth emails are trusted)
             await prisma.user.update({

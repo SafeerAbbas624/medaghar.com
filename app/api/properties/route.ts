@@ -82,8 +82,14 @@ export async function GET(request: NextRequest) {
           orderBy: { order: 'asc' },
           take: 1,
         },
+        // Explicit select: `include` would return every Agent column,
+        // leaking phoneNumber into the public listing feed.
         agent: {
-          include: {
+          select: {
+            id: true,
+            rating: true,
+            reviewCount: true,
+            yearsExperience: true,
             user: {
               select: {
                 firstName: true,
