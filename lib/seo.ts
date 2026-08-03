@@ -153,3 +153,48 @@ export function propertyJsonLd(property: PropertyForJsonLd) {
       : undefined,
   }
 }
+
+/**
+ * CollectionPage JSON-LD for a category / location listing page.
+ * Tells search engines the page is a curated set rather than a single item.
+ */
+export function collectionPageJsonLd(args: {
+  name: string
+  description: string
+  path: string
+  itemCount: number
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: args.name,
+    description: args.description,
+    url: absoluteUrl(args.path),
+    isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: BASE_URL },
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: args.itemCount,
+    },
+  }
+}
+
+/**
+ * ItemList of listings shown on a category page, so each result can surface
+ * independently in search. Positions are 1-based and page-aware.
+ */
+export function itemListJsonLd(
+  properties: PropertyForJsonLd[],
+  startPosition = 1
+) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    numberOfItems: properties.length,
+    itemListElement: properties.map((p, i) => ({
+      '@type': 'ListItem',
+      position: startPosition + i,
+      url: absoluteUrl(`/properties/${p.slug || p.id}`),
+      name: p.title || `${p.propertyType} in ${p.area || p.city}`,
+    })),
+  }
+}

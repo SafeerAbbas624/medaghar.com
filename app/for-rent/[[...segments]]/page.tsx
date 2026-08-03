@@ -1,0 +1,45 @@
+import type { Metadata } from 'next'
+import { notFound, permanentRedirect, redirect } from 'next/navigation'
+import TreePage from '@/components/tree/TreePage'
+import { parseTreeSegments } from '@/lib/tree/parseSegments'
+import { loadTreePage, metadataFor, seedStaticParams } from '@/lib/tree/render'
+
+const PURPOSE = 'for-rent' as const
+
+interface Props {
+  params: Promise<{ segments?: string[] }>
+  searchParams: Promise<{ page?: string }>
+}
+
+/** ~25 seed paths; everything else renders on demand (dynamicParams default). */
+export function generateStaticParams() {
+  return seedStaticParams(PURPOSE)
+}
+
+/** Counts refresh here, so a page flips out of noindex without a deploy. */
+export const revalidate = 900
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { segments } = await params
+  const result = parseTreeSegments(PURPOSE, segments)
+  if (result.kind !== 'ok') return {}
+  return metadataFor(result.descriptor)
+}
+
+export default async function ForRentTreePage({ params, searchParams }: Props) {
+  const { segments } = await params
+  const { page: pageParam } = await searchParams
+  const result = parseTreeSegments(PURPOSE, segments)
+
+  if (result.kind === 'redirect') permanentRedirect(result.canonical)
+  if (result.kind === 'notFound') notFound()
+
+  // The bare /for-sale root would compete with the category hubs for
+  // "property for rent in Pakistan" — send it to the residential hub.
+  if (result.descriptor.level === 'root') redirect('/residential-for-rent')
+
+  const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
+  const data = await loadTreePage(result.descriptor, page)
+
+  return <TreePage descriptor={result.descriptor} {...data} />
+}
