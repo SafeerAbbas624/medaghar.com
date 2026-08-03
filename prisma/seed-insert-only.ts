@@ -1,5 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+// NOTE: this seeder writes free-text city/area/subArea and no slug. After
+// running it, populate the canonical fields with:
+//   npx tsx scripts/backfill-location-slugs.ts
+//   npx tsx scripts/backfill-listing-slugs.ts
+// Listings without citySlug are invisible to the SEO tree pages.
 
 const prisma = new PrismaClient();
 

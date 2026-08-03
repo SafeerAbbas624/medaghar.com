@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getCityCoordinates } from '@/lib/constants/cities'
+import { resolveLocation } from '@/lib/locations'
 
 export async function GET(
   request: NextRequest,
@@ -101,6 +102,15 @@ export async function PATCH(
     const latitude = body.latitude || cityCoords.lat
     const longitude = body.longitude || cityCoords.lng
 
+    // Re-resolve taxonomy slugs so an edited location moves the listing to the
+    // right tree pages. The listing `slug` itself is deliberately NOT touched —
+    // it is frozen at creation so the URL never breaks.
+    const resolved = resolveLocation({
+      city: body.city,
+      area: body.area,
+      subArea: body.subArea,
+    })
+
     // Update property
     const updatedProperty = await prisma.property.update({
       where: { id },
@@ -110,6 +120,10 @@ export async function PATCH(
         city: body.city,
         province: body.province,
         area: body.area || null,
+        subArea: body.subArea || null,
+        citySlug: body.citySlug || resolved.citySlug,
+        areaSlug: body.areaSlug || resolved.areaSlug,
+        subAreaSlug: body.subAreaSlug || resolved.subAreaSlug,
         zipCode: body.zipCode || null,
         latitude,
         longitude,

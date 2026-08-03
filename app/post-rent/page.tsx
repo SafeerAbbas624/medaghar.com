@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import HeroBg from '@/components/HeroBg'
+import LocationSelect from '@/components/LocationSelect'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -36,6 +37,9 @@ interface PropertyForm {
   province: string
   area: string
   subArea: string
+  citySlug: string | null
+  areaSlug: string | null
+  subAreaSlug: string | null
   zipCode: string
   latitude: number
   longitude: number
@@ -69,7 +73,6 @@ const PROPERTY_TYPES = [
   'OFFICE', 'SHOP', 'WAREHOUSE', 'BUILDING', 'OTHER'
 ]
 
-const PROVINCES = ['Punjab', 'Sindh', 'KPK', 'Balochistan', 'Islamabad']
 
 const POSSESSION_OPTIONS = ['Ready', 'Under Construction', 'Planned']
 
@@ -108,6 +111,9 @@ export default function PostRentPage() {
     province: '',
     area: '',
     subArea: '',
+    citySlug: null,
+    areaSlug: null,
+    subAreaSlug: null,
     zipCode: '',
     latitude: 31.5204, // Default to Lahore
     longitude: 74.3587,
@@ -687,57 +693,21 @@ export default function PostRentPage() {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleChange}
-                      placeholder="e.g., Lahore"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Province *</label>
-                    <select
-                      name="province"
-                      value={formData.province}
-                      onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                      required
-                    >
-                      <option value="">Select Province</option>
-                      {PROVINCES.map(p => <option key={p} value={p}>{p}</option>)}
-                    </select>
-                  </div>
-                </div>
+                <LocationSelect
+                  required
+                  value={{
+                    city: formData.city,
+                    province: formData.province,
+                    area: formData.area,
+                    subArea: formData.subArea,
+                    citySlug: formData.citySlug,
+                    areaSlug: formData.areaSlug,
+                    subAreaSlug: formData.subAreaSlug,
+                  }}
+                  onChange={(loc) => setFormData((prev) => ({ ...prev, ...loc }))}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Area / Society</label>
-                    <input
-                      type="text"
-                      name="area"
-                      value={formData.area}
-                      onChange={handleChange}
-                      placeholder="e.g., DHA Defence, Bahria Town, Gulshan-e-Iqbal"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Block / Phase / Sector</label>
-                    <input
-                      type="text"
-                      name="subArea"
-                      value={formData.subArea}
-                      onChange={handleChange}
-                      placeholder="e.g., Block 18, Phase 6, G-13/1"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                    />
-                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
                     <input

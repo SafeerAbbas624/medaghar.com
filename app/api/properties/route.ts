@@ -3,8 +3,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { normalizeAddress, calculateAddressHash } from '@/lib/addressNormalization'
-import { slugify } from '@/lib/slugify'
-import { getCityCoordinates, getCityProvince } from '@/lib/constants/cities'
+import { getCityCoordinates } from '@/lib/constants/cities'
+import { resolveLocation } from '@/lib/locations'
+import { withUniqueSlug } from '@/lib/listingSlug'
 
 // Quota limits by role
 const QUOTA_LIMITS = {
@@ -30,11 +31,21 @@ export async function GET(request: NextRequest) {
     const bathrooms = searchParams.get('bathrooms')
     const minMarla = searchParams.get('minMarla')
     const maxMarla = searchParams.get('maxMarla')
-    const propertyType = searchParams.get('propertyType')
+    // Repeatable: ?propertyType=RESIDENTIAL_PLOT&propertyType=PLOT_FILE — one
+    // URL type slug can cover several enum values (e.g. `plot`).
+    const propertyTypes = searchParams.getAll('propertyType').filter(Boolean)
     const listingType = searchParams.get('listingType')
     const isFSBO = searchParams.get('isFSBO')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+
+    // Exact-match taxonomy slugs, used by the SEO tree pages. These hit the
+    // composite indexes, unlike the legacy `contains` filters above.
+    const citySlug = searchParams.get('citySlug')
+    const areaSlug = searchParams.get('areaSlug')
+    const subAreaSlug = searchParams.get('subAreaSlug')
+
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const requestedLimit = parseInt(searchParams.get('limit') || '20')
+    const limit = Math.min(Math.max(1, requestedLimit || 20), 50)
 
     // Build where clause
     const where: any = {
@@ -46,16 +57,20 @@ export async function GET(request: NextRequest) {
     if (city) where.city = { contains: city, mode: 'insensitive' }
     if (province) where.province = { contains: province, mode: 'insensitive' }
     if (area) where.area = { contains: area, mode: 'insensitive' }
+    if (citySlug) where.citySlug = citySlug
+    if (areaSlug) where.areaSlug = areaSlug
+    if (subAreaSlug) where.subAreaSlug = subAreaSlug
     if (minPrice) where.price = { ...where.price, gte: parseFloat(minPrice) }
     if (maxPrice) where.price = { ...where.price, lte: parseFloat(maxPrice) }
     if (bedrooms) where.bedrooms = { gte: parseInt(bedrooms) }
     if (bathrooms) where.bathrooms = { gte: parseFloat(bathrooms) }
     if (minMarla) where.marla = { ...where.marla, gte: parseFloat(minMarla) }
     if (maxMarla) where.marla = { ...where.marla, lte: parseFloat(maxMarla) }
-    if (propertyType) where.propertyType = propertyType
+    if (propertyTypes.length === 1) where.propertyType = propertyTypes[0]
+    else if (propertyTypes.length > 1) where.propertyType = { in: propertyTypes }
     if (listingType) where.listingType = listingType
     if (isFSBO === 'true') where.isFSBO = true
-    
+
     // Get total count
     const total = await prisma.property.count({ where })
     
@@ -189,24 +204,38 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique slug from title
-    const baseSlug = slugify(body.title)
-    let slug = baseSlug
-    let counter = 1
-
-    // Check if slug already exists and make it unique
-    while (await prisma.property.findUnique({ where: { slug } })) {
-      slug = `${baseSlug}-${counter}`
-      counter++
-    }
-
     // Get coordinates from city if not provided
     const cityCoords = getCityCoordinates(body.city)
     const latitude = body.latitude || cityCoords.lat
     const longitude = body.longitude || cityCoords.lng
 
-    // Create property
-    const property = await prisma.property.create({
+    // Resolve the free-text location onto canonical taxonomy slugs. The form
+    // usually supplies these directly; resolving server-side also covers the
+    // manual-entry escape hatch and any non-browser client.
+    const resolved = resolveLocation({
+      city: body.city,
+      area: body.area,
+      subArea: body.subArea,
+    })
+    const citySlug = body.citySlug || resolved.citySlug
+    const areaSlug = body.areaSlug || resolved.areaSlug
+    const subAreaSlug = body.subAreaSlug || resolved.subAreaSlug
+
+    // Create property. The slug carries the keywords (the URL is flat) and is
+    // frozen from here on, so it survives later status/location edits.
+    const property = await withUniqueSlug(
+      {
+        title: body.title,
+        propertyType: body.propertyType,
+        listingType: body.listingType,
+        city: body.city,
+        area: body.area,
+        subArea: body.subArea,
+        marla: body.marla,
+        kanal: body.kanal,
+      },
+      (slug) =>
+        prisma.property.create({
       data: {
         title: body.title,
         slug,
@@ -215,6 +244,9 @@ export async function POST(request: NextRequest) {
         province: body.province,
         area: body.area || null,
         subArea: body.subArea || null,
+        citySlug,
+        areaSlug,
+        subAreaSlug,
         zipCode: body.zipCode || null,
         country: 'Pakistan',
         latitude,
@@ -249,7 +281,8 @@ export async function POST(request: NextRequest) {
       include: {
         images: true,
       },
-    })
+        })
+    )
 
     // Create images if provided
     if (body.images && Array.isArray(body.images)) {
