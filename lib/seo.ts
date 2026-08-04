@@ -1,3 +1,4 @@
+import { sameAsUrls } from '@/lib/social'
 export const BASE_URL = 'https://medaghar.com'
 export const SITE_NAME = 'MedaGhar'
 
@@ -15,6 +16,7 @@ export function absoluteUrl(path: string): string {
 
 /** Organization JSON-LD used site-wide. */
 export function organizationJsonLd() {
+  const sameAs = sameAsUrls()
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -25,6 +27,10 @@ export function organizationJsonLd() {
     description:
       'Free property listings in Pakistan. Buy, sell and rent houses, flats, plots and commercial properties across Lahore, Karachi, Islamabad and more.',
     areaServed: { '@type': 'Country', name: 'Pakistan' },
+    // Ties the social profiles to this entity for Google. Only confirmed
+    // accounts are listed — sameAs is a claim of ownership, and naming a
+    // handle somebody else holds hands them the association.
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   }
 }
 

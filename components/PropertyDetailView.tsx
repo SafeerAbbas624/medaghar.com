@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { FaBed, FaBath, FaRuler, FaCar, FaSwimmingPool, FaCalendar, FaMapMarkerAlt, FaHeart, FaStar, FaPen } from 'react-icons/fa'
 import PropertyMap from '@/components/PropertyMap'
 import SavePropertyButton from '@/components/SavePropertyButton'
+import ShareButtons from '@/components/ShareButtons'
 import VirtualTour from '@/components/VirtualTour'
 import NeighborhoodInfo from '@/components/NeighborhoodInfo'
 import PriceHistoryChart from '@/components/PriceHistoryChart'
@@ -153,6 +154,16 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
                 <div className="flex-shrink-0">
                   <SavePropertyButton propertyId={property.id} size="lg" />
                 </div>
+              </div>
+
+              {/* Share. WhatsApp first — in Pakistan a listing is far more
+                  likely to be forwarded to family than posted publicly, and
+                  that forward is how most listings actually travel. */}
+              <div className="pt-4 border-t border-gray-200">
+                <ShareButtons
+                  url={absoluteUrl(`/properties/${property.slug || property.id}`)}
+                  title={property.title}
+                />
               </div>
 
               {/* Key Details */}

@@ -3,20 +3,23 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaTiktok, FaWhatsapp } from 'react-icons/fa'
+import type { IconType } from 'react-icons'
+import { liveProfiles, whatsappHref } from '@/lib/social'
 
-/**
- * Social profiles. Update these hrefs to the real accounts as they are
- * created — they currently point at the platform handles for medaghar.
- */
-const SOCIAL_LINKS = [
-  { label: 'Facebook', href: 'https://facebook.com/medaghar', Icon: FaFacebook },
-  { label: 'Instagram', href: 'https://instagram.com/medaghar', Icon: FaInstagram },
-  { label: 'TikTok', href: 'https://tiktok.com/@medaghar', Icon: FaTiktok },
-  { label: 'WhatsApp', href: 'https://wa.me/923000000000', Icon: FaWhatsapp },
-  { label: 'YouTube', href: 'https://youtube.com/@medaghar', Icon: FaYoutube },
-  { label: 'X (Twitter)', href: 'https://twitter.com/medaghar', Icon: FaTwitter },
-  { label: 'LinkedIn', href: 'https://linkedin.com/company/medaghar', Icon: FaLinkedin },
-]
+const SOCIAL_ICONS: Record<string, IconType> = {
+  facebook: FaFacebook,
+  instagram: FaInstagram,
+  tiktok: FaTiktok,
+  youtube: FaYoutube,
+  twitter: FaTwitter,
+  linkedin: FaLinkedin,
+}
+
+// Both are empty until real accounts exist. The block below disappears
+// entirely rather than showing icons that lead nowhere — a dead social link
+// costs more trust than an absent one.
+const SOCIALS = liveProfiles()
+const WHATSAPP = whatsappHref('Hi MedaGhar, I have a question about a property.')
 import { FaHome, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa'
 
 export default function Footer() {
@@ -54,23 +57,39 @@ export default function Footer() {
             </div>
 
             {/* Social Media */}
-            <div className="mt-6">
-              <h4 className="text-white font-semibold mb-3">Follow Us</h4>
-              <div className="flex flex-wrap gap-3">
-                {SOCIAL_LINKS.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
-                    aria-label={s.label}
-                  >
-                    <s.Icon className="text-xl" />
-                  </a>
-                ))}
+            {(SOCIALS.length > 0 || WHATSAPP) && (
+              <div className="mt-6">
+                <h4 className="text-white font-semibold mb-3">Follow Us</h4>
+                <div className="flex flex-wrap gap-3">
+                  {SOCIALS.map((s) => {
+                    const Icon = SOCIAL_ICONS[s.icon]
+                    return (
+                      <a
+                        key={s.label}
+                        href={s.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
+                        aria-label={s.label}
+                      >
+                        <Icon className="text-xl" />
+                      </a>
+                    )
+                  })}
+                  {WHATSAPP && (
+                    <a
+                      href={WHATSAPP}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white/10 p-2 rounded-full hover:bg-cyan-700 transition"
+                      aria-label="WhatsApp"
+                    >
+                      <FaWhatsapp className="text-xl" />
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Quick Links */}
