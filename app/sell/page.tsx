@@ -8,6 +8,8 @@ import {
   BACKUP_POWER,
   WATER_SOURCES,
   TENANT_PREFERENCES,
+  NEARBY_AMENITIES,
+  DISTANCE_BANDS,
   isLandType,
   asksFloorNumber,
   asksRoomCounts,
@@ -100,6 +102,9 @@ interface PropertyForm {
   drawingRoom: boolean
   tvLounge: boolean
   servantQuarter: boolean
+  // What is around the property
+  nearbyLandmark: string
+  nearbyPlaces: { type: string; distance: string }[]
 }
 
 const PROPERTY_TYPES = [
@@ -201,9 +206,31 @@ export default function SellPage() {
     drawingRoom: false,
     tvLounge: false,
     servantQuarter: false,
+    nearbyLandmark: '',
+    nearbyPlaces: [],
   })
 
   // State for features input
+  /** Tick or untick an amenity. New ticks default to walking distance. */
+  const toggleNearby = (type: string) => {
+    setFormData(prev => {
+      const exists = prev.nearbyPlaces.some(p => p.type === type)
+      return {
+        ...prev,
+        nearbyPlaces: exists
+          ? prev.nearbyPlaces.filter(p => p.type !== type)
+          : [...prev.nearbyPlaces, { type, distance: DISTANCE_BANDS[0] }],
+      }
+    })
+  }
+
+  const setNearbyDistance = (type: string, distance: string) => {
+    setFormData(prev => ({
+      ...prev,
+      nearbyPlaces: prev.nearbyPlaces.map(p => (p.type === type ? { ...p, distance } : p)),
+    }))
+  }
+
   const [featureInput, setFeatureInput] = useState('')
 
   // File upload states
@@ -1353,6 +1380,66 @@ export default function SellPage() {
                     placeholder="e.g., Modern kitchen, Marble flooring, CCTV..."
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
                   />
+                </div>
+
+                {/* What's nearby. Pakistani buyers ask about walking distance
+                    to the masjid, school and market before almost anything
+                    else, and describe locations by landmark. */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">What&apos;s Nearby</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Tick everything close to the property and say how far. This is the first thing
+                    most buyers and tenants ask about.
+                  </p>
+
+                  <div className="mb-5">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nearest Landmark</label>
+                    <input
+                      type="text"
+                      name="nearbyLandmark"
+                      value={formData.nearbyLandmark}
+                      onChange={handleChange}
+                      placeholder="e.g. Opposite Emporium Mall, near Jamia Masjid Al-Noor"
+                      maxLength={120}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {NEARBY_AMENITIES.map(a => {
+                      const selected = formData.nearbyPlaces.find(p => p.type === a.key)
+                      return (
+                        <div
+                          key={a.key}
+                          className={`rounded-lg border p-3 transition ${
+                            selected ? 'border-cyan-500 bg-cyan-50/60' : 'border-gray-200 bg-white'
+                          }`}
+                        >
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!selected}
+                              onChange={() => toggleNearby(a.key)}
+                              className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
+                            />
+                            <span className="text-sm font-medium text-gray-900">{a.label}</span>
+                          </label>
+                          {selected && (
+                            <select
+                              value={selected.distance}
+                              onChange={e => setNearbyDistance(a.key, e.target.value)}
+                              aria-label={`Distance to ${a.label}`}
+                              className="mt-3 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-500"
+                            >
+                              {DISTANCE_BANDS.map(d => (
+                                <option key={d} value={d}>{d}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             )}

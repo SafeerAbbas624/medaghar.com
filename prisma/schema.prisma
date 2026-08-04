@@ -151,7 +151,6 @@ model Property {
 
   // Additional Info
   maintenanceFees Float?
-  taxAmount       Float?
   parkingSpaces   Int?
   garage          Boolean @default(false)
   pool            Boolean @default(false)
@@ -198,12 +197,15 @@ model Property {
   tvLounge       Boolean  @default(false)
   servantQuarter Boolean  @default(false)
 
-  // Neighborhood Data
-  walkScore    Int?
-  transitScore Int?
-  crimeScore   String? // Low, Medium, High
-  schoolRating Float?
-  nearbyPlaces String? // JSON array of nearby amenities
+  // Neighbourhood.
+  //
+  // Walk Score, transit score and school ratings are US/Canada services with
+  // no Pakistani equivalent, so they were always null here. What actually
+  // sells a property in Pakistan is what is within walking distance: the
+  // masjid, the school, the commercial market, the main road.
+  nearbyPlaces   String? // JSON: [{ type, distance, name? }]
+  nearbyLandmark String? // "Opposite Emporium Mall" — how addresses are really given
+  crimeScore     String? // Low, Medium, High
 
   // Agent/Listing Info
   agentId    String?
@@ -213,9 +215,10 @@ model Property {
   listedDate DateTime @default(now())
   views      Int      @default(0)
 
-  // MLS Integration (future)
-  mlsNumber String?
-  mlsSource String?
+  /// Where the listing came from: null for a normal user post, 'SHOWCASE' for
+  /// demo data, or an import name later. Replaces the old mlsSource, which the
+  /// showcase seeder had been borrowing as a cleanup tag.
+  listingSource String?
 
   // Relations
   savedBy      SavedProperty[]

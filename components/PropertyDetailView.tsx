@@ -30,16 +30,6 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
     }
   }
 
-  // Handle nearbyPlaces - could be JSON array or comma-separated string
-  let nearbyPlaces: string[] = []
-  if (property.nearbyPlaces) {
-    try {
-      nearbyPlaces = JSON.parse(property.nearbyPlaces)
-    } catch {
-      nearbyPlaces = property.nearbyPlaces.split(',').map((p: string) => p.trim()).filter(Boolean)
-    }
-  }
-
   const formatPrice = (price: number) => {
     if (property.listingType === 'FOR_RENT') {
       return `PKR ${price.toLocaleString()}/month`
@@ -380,11 +370,9 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
 
             {/* Neighborhood Data */}
             <NeighborhoodInfo
-              walkScore={property.walkScore}
-              transitScore={property.transitScore}
-              crimeScore={property.crimeScore}
-              schoolRating={property.schoolRating}
               nearbyPlaces={property.nearbyPlaces}
+              nearbyLandmark={property.nearbyLandmark}
+              crimeScore={property.crimeScore}
             />
 
             {/* Map Location */}

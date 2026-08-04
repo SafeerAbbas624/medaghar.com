@@ -98,6 +98,113 @@ export function plotDimensions(width?: number | null, length?: number | null): s
   return `${fmt(width)} x ${fmt(length)} ft`
 }
 
+// ---------------------------------------------------------------------------
+// Nearby amenities
+//
+// Walk Score, transit score and school ratings are US/Canada services with no
+// Pakistani equivalent, so those columns were always null. What actually moves
+// a property here is what a buyer can reach on foot: the masjid, the school,
+// the commercial market, the main road. Pakistani listings on Zameen and
+// Graana describe exactly these, usually as "walking distance".
+// ---------------------------------------------------------------------------
+
+export interface NearbyAmenityDef {
+  /** Stored value. Never rename — it is persisted in the nearbyPlaces JSON. */
+  key: string
+  label: string
+  /** react-icons name, resolved by the display component. */
+  icon: string
+}
+
+export const NEARBY_AMENITIES: NearbyAmenityDef[] = [
+  { key: 'masjid', label: 'Masjid', icon: 'mosque' },
+  { key: 'school', label: 'School', icon: 'school' },
+  { key: 'university', label: 'College / University', icon: 'university' },
+  { key: 'hospital', label: 'Hospital / Clinic', icon: 'hospital' },
+  { key: 'pharmacy', label: 'Pharmacy / Medical Store', icon: 'pharmacy' },
+  { key: 'park', label: 'Park / Playground', icon: 'park' },
+  { key: 'market', label: 'Commercial Market / Bazaar', icon: 'market' },
+  { key: 'superstore', label: 'Superstore / Grocery', icon: 'cart' },
+  { key: 'mall', label: 'Shopping Mall', icon: 'mall' },
+  { key: 'restaurant', label: 'Restaurants / Food Street', icon: 'food' },
+  { key: 'mainroad', label: 'Main Road / Boulevard', icon: 'road' },
+  { key: 'transport', label: 'Metro / Bus Stop', icon: 'bus' },
+  { key: 'bank', label: 'Bank / ATM', icon: 'bank' },
+  { key: 'petrol', label: 'Petrol Pump / CNG', icon: 'fuel' },
+  { key: 'gym', label: 'Gym / Sports Complex', icon: 'gym' },
+  { key: 'community', label: 'Community Centre / Club', icon: 'community' },
+]
+
+/** How Pakistani listings actually express proximity. */
+export const DISTANCE_BANDS = [
+  'Walking distance',
+  'Under 5 min drive',
+  '5-10 min drive',
+  '10-20 min drive',
+] as const
+
+export type DistanceBand = (typeof DISTANCE_BANDS)[number]
+
+export interface NearbyPlace {
+  type: string
+  distance: string
+  /** Optional specific name, e.g. "Jamia Masjid Al-Noor". */
+  name?: string
+}
+
+const AMENITY_BY_KEY = new Map(NEARBY_AMENITIES.map((a) => [a.key, a]))
+
+export function amenityLabel(key: string): string {
+  return AMENITY_BY_KEY.get(key)?.label ?? key
+}
+
+export function amenityIcon(key: string): string {
+  return AMENITY_BY_KEY.get(key)?.icon ?? 'pin'
+}
+
+/**
+ * Read the stored nearbyPlaces JSON.
+ *
+ * Tolerates the older shapes still in the database — a bare array of strings,
+ * or objects keyed on `name` rather than `type` — so an old listing renders
+ * rather than throwing.
+ */
+export function parseNearbyPlaces(raw: string | null | undefined): NearbyPlace[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+    return parsed
+      .map((entry): NearbyPlace | null => {
+        if (typeof entry === 'string') return { type: entry, distance: '' }
+        if (entry && typeof entry === 'object') {
+          const type = entry.type ?? entry.key ?? entry.name
+          if (!type) return null
+          return {
+            type: String(type),
+            distance: String(entry.distance ?? ''),
+            name: entry.name && entry.name !== type ? String(entry.name) : undefined,
+          }
+        }
+        return null
+      })
+      .filter((p): p is NearbyPlace => p !== null)
+  } catch {
+    // Very old rows stored a comma-separated string.
+    return raw
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .map((type) => ({ type, distance: '' }))
+  }
+}
+
+/** Serialise for storage, dropping anything not in the vocabulary. */
+export function serialiseNearbyPlaces(places: NearbyPlace[]): string | null {
+  const clean = places.filter((p) => AMENITY_BY_KEY.has(p.type))
+  return clean.length ? JSON.stringify(clean) : null
+}
+
 /**
  * Map a request body onto the Pakistan-specific columns.
  *
@@ -148,5 +255,10 @@ export function pakistanFieldsFrom(body: Record<string, unknown>) {
     drawingRoom: body.drawingRoom === true,
     tvLounge: body.tvLounge === true,
     servantQuarter: body.servantQuarter === true,
+
+    nearbyLandmark: str(body.nearbyLandmark),
+    nearbyPlaces: Array.isArray(body.nearbyPlaces)
+      ? serialiseNearbyPlaces(body.nearbyPlaces as NearbyPlace[])
+      : null,
   }
 }
