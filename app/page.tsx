@@ -1,12 +1,18 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { getGuideCover } from '@/lib/images'
-import SearchBar from '@/components/SearchBar'
+import HeroSearch from '@/components/HeroSearch'
 import PropertyCard from '@/components/PropertyCard'
 import AdSlot from '@/components/AdSlot'
 import { prisma } from '@/lib/prisma'
+import { absoluteUrl } from '@/lib/seo'
 import { GUIDES } from '@/content/guides'
 import { FaHome, FaBuilding, FaKey, FaMapMarkedAlt, FaStore, FaHandshake, FaChartLine, FaArrowRight, FaStar, FaCheckCircle, FaUserTie, FaAward, FaPhone, FaCalculator, FaRulerCombined, FaHardHat, FaFileInvoiceDollar, FaBookOpen, FaClock } from 'react-icons/fa'
+
+export const metadata: Metadata = {
+  alternates: { canonical: absoluteUrl('/') },
+}
 
 export default async function Home() {
   // Fetch featured properties
@@ -30,6 +36,25 @@ export default async function Home() {
     _count: true,
     where: { status: 'ACTIVE' },
   })
+
+  // Featured listings for the three headline cities, shown as their own
+  // sections so a visitor lands on real inventory rather than a link grid.
+  const CITY_SECTIONS = [
+    { slug: 'karachi', name: 'Karachi' },
+    { slug: 'lahore', name: 'Lahore' },
+    { slug: 'islamabad', name: 'Islamabad' },
+  ]
+  const cityFeatured = await Promise.all(
+    CITY_SECTIONS.map(async (c) => ({
+      ...c,
+      listings: await prisma.property.findMany({
+        where: { status: 'ACTIVE', citySlug: c.slug },
+        include: { images: { orderBy: { order: 'asc' }, take: 1 } },
+        orderBy: [{ isFeatured: 'desc' }, { listedDate: 'desc' }],
+        take: 3,
+      }),
+    }))
+  )
 
   // Fetch top-rated agents
   const featuredAgents = await prisma.agent.findMany({
@@ -88,7 +113,9 @@ export default async function Home() {
               Islamabad & across Pakistan — free listings, direct contact, no commission.
             </p>
           </div>
-          <SearchBar />
+          <div className="flex justify-center">
+            <HeroSearch />
+          </div>
 
           {/* Trust strip */}
           <div className="flex flex-wrap justify-center gap-x-[34px] gap-y-[13px] mt-[34px] text-[14px] text-slate-200/90">
@@ -99,46 +126,62 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* Featured Properties — first thing below the hero */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-[34px] lg:pt-[55px]">
+        <div className="flex justify-between items-center mb-[26px]">
+          <h2 className="text-[26px] lg:text-[34px] font-bold text-gray-900">Featured Properties</h2>
+          <Link href="/properties" className="text-cyan-700 hover:text-cyan-800 font-medium text-[15px] flex items-center gap-[8px]">
+            View all <FaArrowRight className="text-[13px]" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[21px]">
+          {featuredProperties.map((property) => (
+            <PropertyCard key={property.id} property={property} />
+          ))}
+        </div>
+      </section>
+
       {/* Quick Links - Fibonacci spacing: py-[55px] */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-[34px] lg:py-[55px]">
         {/* Fibonacci grid: 6 columns (Fibonacci number) with gap-[21px] */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-[13px] lg:gap-[21px]">
-          <Link href="/residential-for-sale" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
-            <FaHome className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">Buy</p>
-            <p className="text-[13px] text-gray-600 hidden sm:block">Houses, Flats & More</p>
-          </Link>
-          <Link href="/residential-for-rent" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
-            <FaKey className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">Rent</p>
-            <p className="text-[13px] text-gray-600 hidden sm:block">Apartments & Portions</p>
-          </Link>
-          <Link href="/sell" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
-            <FaBuilding className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">Sell</p>
-            <p className="text-[13px] text-gray-600 hidden sm:block">List Your Property</p>
-          </Link>
-          <Link href="/owner" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
-            <FaHandshake className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">FSBO</p>
-            <p className="text-[13px] text-gray-600 hidden sm:block">For Sale By Owner</p>
-          </Link>
-          <Link href="/for-sale/plot" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
-            <FaMapMarkedAlt className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">Plots</p>
-            <p className="text-[13px] text-gray-600 hidden sm:block">Residential & Commercial</p>
-          </Link>
-          <Link href="/commercial-for-sale" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group">
-            <FaStore className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">Commercial</p>
-            <p className="text-[13px] text-gray-600 hidden sm:block">Offices & Shops</p>
-          </Link>
-          <Link href="/market-insights" className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center col-span-2 lg:col-span-2 group">
-            <FaChartLine className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
-            <p className="text-[16px] font-semibold mb-[8px]">Market Insights</p>
-            <p className="text-[13px] text-gray-600">Trends & Analytics</p>
-          </Link>
+          {[
+            { href: '/residential-for-sale', Icon: FaHome, label: 'Buy', sub: 'Houses, Flats & More' },
+            { href: '/residential-for-rent', Icon: FaKey, label: 'Rent', sub: 'Apartments & Portions' },
+            { href: '/sell', Icon: FaBuilding, label: 'Sell', sub: 'List Your Property' },
+            { href: '/owner', Icon: FaHandshake, label: 'By Owner', sub: 'No Commission' },
+            { href: '/for-sale/plot', Icon: FaMapMarkedAlt, label: 'Plots', sub: 'Residential & Commercial' },
+            { href: '/commercial-for-sale', Icon: FaStore, label: 'Commercial', sub: 'Offices & Shops' },
+          ].map((c) => (
+            <Link
+              key={c.href}
+              href={c.href}
+              className="bg-white p-[21px] rounded-xl shadow-md hover:shadow-xl transition text-center group"
+            >
+              <c.Icon className="text-[34px] text-cyan-600 mx-auto mb-[13px] group-hover:scale-110 transition-transform" />
+              <p className="text-[16px] font-semibold mb-[5px]">{c.label}</p>
+              <p className="text-[13px] text-gray-600 hidden sm:block">{c.sub}</p>
+            </Link>
+          ))}
         </div>
+
+        {/* Market Insights — full width, so the second row is not half empty */}
+        <Link
+          href="/market-insights"
+          className="mt-[13px] lg:mt-[21px] group flex flex-col sm:flex-row items-center gap-[21px] bg-gradient-to-r from-slate-900 via-slate-800 to-cyan-900 text-white rounded-xl p-[21px] lg:p-[26px] shadow-md hover:shadow-xl transition"
+        >
+          <FaChartLine className="text-[42px] text-cyan-300 flex-shrink-0 group-hover:scale-110 transition-transform" />
+          <div className="flex-1 text-center sm:text-left">
+            <p className="text-[18px] lg:text-[21px] font-bold mb-[5px]">Market Insights</p>
+            <p className="text-[14px] text-slate-300">
+              Average prices per marla, rental yields and demand trends across Pakistani cities —
+              updated from live listings.
+            </p>
+          </div>
+          <span className="flex items-center gap-[8px] text-[14px] font-semibold text-cyan-200 whitespace-nowrap">
+            Explore trends <FaArrowRight className="text-[12px]" />
+          </span>
+        </Link>
 
         {/* For Landlords Section with photo */}
         <div className="mt-[34px] relative rounded-2xl overflow-hidden text-white shadow-lg">
@@ -190,22 +233,33 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Featured Properties - Fibonacci spacing: py-[55px] */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-[55px]">
-        <div className="flex justify-between items-center mb-[34px]">
-          {/* Fibonacci typography: text-[34px] */}
-          <h2 className="text-[26px] lg:text-[34px] font-bold text-gray-900">Featured Properties</h2>
-          <Link href="/properties" className="text-cyan-700 hover:text-cyan-700 font-medium text-[16px] flex items-center gap-[8px]">
-            View All <FaArrowRight className="text-[13px]" />
-          </Link>
+      {/* Featured listings for the three biggest markets */}
+      {cityFeatured.some((c) => c.listings.length > 0) && (
+        <div className="py-[55px] space-y-[55px]">
+          {cityFeatured
+            .filter((c) => c.listings.length > 0)
+            .map((c) => (
+              <section key={c.slug} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex justify-between items-center mb-[26px]">
+                  <h2 className="text-[26px] lg:text-[34px] font-bold text-gray-900">
+                    Featured in {c.name}
+                  </h2>
+                  <Link
+                    href={`/for-sale/property/${c.slug}`}
+                    className="text-cyan-700 hover:text-cyan-800 font-medium text-[15px] flex items-center gap-[8px] whitespace-nowrap"
+                  >
+                    View all <FaArrowRight className="text-[13px]" />
+                  </Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[21px]">
+                  {c.listings.map((property) => (
+                    <PropertyCard key={property.id} property={property} />
+                  ))}
+                </div>
+              </section>
+            ))}
         </div>
-        {/* Fibonacci grid: 3 columns with gap-[21px] */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[21px]">
-          {featuredProperties.map((property) => (
-            <PropertyCard key={property.id} property={property} />
-          ))}
-        </div>
-      </div>
+      )}
 
       {/* Ad placement between content sections */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
