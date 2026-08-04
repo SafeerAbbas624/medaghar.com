@@ -24,16 +24,6 @@ const RENT_BANDS = [
   { label: 'Above 2 Lakh', min: '200000', max: '' },
 ]
 
-const TYPES = [
-  { slug: '', label: 'All types' },
-  { slug: 'house', label: 'Houses' },
-  { slug: 'flat', label: 'Flats' },
-  { slug: 'plot', label: 'Plots' },
-  { slug: 'upper-portion', label: 'Upper Portions' },
-  { slug: 'shop', label: 'Shops' },
-  { slug: 'office', label: 'Offices' },
-]
-
 /**
  * Hero search.
  *
@@ -46,7 +36,6 @@ export default function HeroSearch() {
   const router = useRouter()
   const [purpose, setPurpose] = useState<'for-sale' | 'for-rent'>('for-sale')
   const [term, setTerm] = useState('')
-  const [typeSlug, setTypeSlug] = useState('')
   const [citySlug, setCitySlug] = useState('')
   const [band, setBand] = useState(0)
   const [cities, setCities] = useState<CityOption[]>([])
@@ -101,15 +90,16 @@ export default function HeroSearch() {
     if (text && !typedCity && !typedArea) {
       qs.set('search', text)
       if (city) qs.set('citySlug', city)
-      if (typeSlug) qs.set('typeSlug', typeSlug)
       qs.set('listingType', purpose === 'for-rent' ? 'FOR_RENT' : 'FOR_SALE')
       router.push(`/properties?${qs.toString()}`)
       return
     }
 
-    // Otherwise build the tree path: /{purpose}/{type}/{city}[/{area}]
+    // Otherwise build the tree path: /{purpose}/property/{city}[/{area}].
+    // The hero deliberately has no type filter — visitors narrow by type on
+    // the destination page, where the sidebar can show live counts per type.
     const resolvedCity = typedCity?.slug ?? city
-    const segments = [purpose, typeSlug || 'property']
+    const segments = [purpose, 'property']
     if (resolvedCity) {
       segments.push(resolvedCity)
       if (typedArea) segments.push(typedArea.slug)
@@ -139,9 +129,9 @@ export default function HeroSearch() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-[13px]">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[13px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[13px]">
           {/* Free text */}
-          <div className="sm:col-span-3 lg:col-span-1 relative" ref={boxRef}>
+          <div className="sm:col-span-2 lg:col-span-1 relative" ref={boxRef}>
             <FaSearch className="absolute left-[16px] top-1/2 -translate-y-1/2 text-gray-400 text-[14px] pointer-events-none" />
             <input
               type="text"
@@ -193,24 +183,13 @@ export default function HeroSearch() {
             ))}
           </select>
 
-          {/* Type */}
-          <select
-            value={typeSlug}
-            onChange={(e) => setTypeSlug(e.target.value)}
-            aria-label="Property type"
-            className="w-full px-[16px] py-[13px] border border-gray-300 rounded-xl text-[15px] text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          >
-            {TYPES.map((t) => (
-              <option key={t.slug} value={t.slug}>{t.label}</option>
-            ))}
-          </select>
 
           {/* Price */}
           <select
             value={band}
             onChange={(e) => setBand(Number(e.target.value))}
             aria-label={purpose === 'for-rent' ? 'Monthly rent range' : 'Price range'}
-            className="w-full px-[16px] py-[13px] border border-gray-300 rounded-xl text-[15px] text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500 sm:col-span-2 lg:col-span-1"
+            className="w-full px-[16px] py-[13px] border border-gray-300 rounded-xl text-[15px] text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
           >
             {bands.map((b, i) => (
               <option key={b.label} value={i}>{b.label}</option>
