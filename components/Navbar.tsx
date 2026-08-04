@@ -5,32 +5,15 @@ import { useState, useEffect, useRef } from 'react'
 import { FaHeart, FaUser, FaBars, FaTimes, FaSignOutAlt, FaCog, FaEnvelope, FaChevronDown } from 'react-icons/fa'
 import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
-
-// Point at the canonical tree targets, not the legacy flat pages — those
-// 301 into these in Phase 5, and nav should never route through a redirect.
-const PRIMARY_LINKS = [
-  { href: '/residential-for-sale', label: 'Buy' },
-  { href: '/residential-for-rent', label: 'Rent' },
-  { href: '/sell', label: 'Sell' },
-  { href: '/for-sale/plot', label: 'Plots' },
-  { href: '/owner', label: 'By Owner' },
-  { href: '/agents', label: 'Agents' },
-  { href: '/guides', label: 'Guides' },
-  { href: '/tools', label: 'Tools' },
-]
-
-const MORE_LINKS = [
-  { href: '/commercial-for-sale', label: 'Commercial for Sale' },
-  { href: '/commercial-for-rent', label: 'Commercial for Rent' },
-  { href: '/market-insights', label: 'Market Insights' },
-  { href: '/home-loans', label: 'Home Loans' },
-  { href: '/pricing', label: 'Pricing & Featured' },
-]
+import MegaMenuTrigger from '@/components/nav/MegaMenuTrigger'
+import { MEGA_MENUS, SIMPLE_LINKS, MORE_LINKS } from '@/lib/nav/menus'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isMoreOpen, setIsMoreOpen] = useState(false)
+  const [openMenu, setOpenMenu] = useState<string | null>(null)
+  const [openSection, setOpenSection] = useState<string | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
   const { data: session, status } = useSession()
   const moreRef = useRef<HTMLDivElement>(null)
@@ -90,7 +73,15 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-1 xl:gap-2">
-            {PRIMARY_LINKS.map((link) => (
+            {MEGA_MENUS.map((menu) => (
+              <MegaMenuTrigger
+                key={menu.label}
+                menu={menu}
+                openMenu={openMenu}
+                setOpenMenu={setOpenMenu}
+              />
+            ))}
+            {SIMPLE_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -265,7 +256,55 @@ export default function Navbar() {
                   <p className="text-xs text-gray-500">{session.user.email}</p>
                 </div>
               )}
-              {[...PRIMARY_LINKS, ...MORE_LINKS].map((link) => (
+              {/* Mega menus collapse to accordions — a three-column panel is
+                  unusable on a phone, but the links still need to be reachable. */}
+              {MEGA_MENUS.map((menu) => {
+                const expanded = openSection === menu.label
+                return (
+                  <div key={menu.label}>
+                    <button
+                      type="button"
+                      aria-expanded={expanded}
+                      onClick={() => setOpenSection(expanded ? null : menu.label)}
+                      className="w-full flex items-center justify-between text-gray-700 hover:text-cyan-700 hover:bg-cyan-50 font-medium px-4 py-2.5 rounded-lg transition"
+                    >
+                      {menu.label}
+                      <FaChevronDown
+                        className={`text-[11px] text-gray-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+                      />
+                    </button>
+                    {expanded && (
+                      <div className="pl-4 pb-2">
+                        <Link
+                          href={menu.href}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-[14px] font-semibold text-cyan-700 px-4 py-2"
+                        >
+                          All {menu.label.toLowerCase()} listings
+                        </Link>
+                        {menu.columns.map((col) => (
+                          <div key={col.heading} className="mt-2">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 px-4 py-1">
+                              {col.heading}
+                            </p>
+                            {col.links.map((link) => (
+                              <Link
+                                key={link.href}
+                                href={link.href}
+                                onClick={() => setIsMenuOpen(false)}
+                                className="block text-[14px] text-gray-600 hover:text-cyan-700 px-4 py-2 rounded-lg"
+                              >
+                                {link.label}
+                              </Link>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+              {[...SIMPLE_LINKS, ...MORE_LINKS].map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
