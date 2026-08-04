@@ -18,9 +18,9 @@ export const SITE = 'https://medaghar.com'
 const STYLES = `
   body { margin:0; padding:0; background-color:#f5f5f5; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; }
   .wrap { max-width:600px; margin:0 auto; background:#ffffff; }
-  .header { background-color:#0e7490; padding:32px 24px; text-align:center; }
-  .logo-img { width:64px; height:64px; object-fit:contain; }
-  .logo-text { color:#ffffff; font-size:26px; font-weight:700; margin:8px 0 0; }
+  .header { background-color:#0e7490; padding:28px 24px 24px; text-align:center; }
+  .logo-img { width:200px; height:131px; display:block; margin:0 auto; border:0; }
+  .logo-text { color:#ffffff; font-size:28px; font-weight:700; margin:6px 0 0; }
   .body { padding:32px 24px; color:#334155; font-size:15px; line-height:1.65; }
   h2 { color:#0f172a; font-size:21px; margin:0 0 16px; }
   a { color:#0e7490; }
@@ -51,7 +51,7 @@ export function layout(title: string, content: string, footerNote?: string): str
 <body>
   <div class="wrap">
     <div class="header">
-      <img src="${SITE}/logo.png" alt="MedaGhar" class="logo-img" />
+      <img src="${SITE}/email-logo.png" alt="MedaGhar" class="logo-img" width="200" height="131" />
       <h1 class="logo-text">MedaGhar</h1>
     </div>
 
