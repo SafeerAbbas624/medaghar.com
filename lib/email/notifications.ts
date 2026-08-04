@@ -232,3 +232,117 @@ Meet at the property during daylight and take someone with you. MedaGhar does
 not verify the identity of buyers or sellers.
 ${textFooter()}`
 }
+
+export interface PasswordResetEmailData {
+  firstName: string
+  code: string
+  /** Minutes until the code expires, for the copy. */
+  expiryMinutes: number
+}
+
+/**
+ * Password reset code.
+ *
+ * The warning is not boilerplate. Property portals are a standing target for
+ * account takeover — a hijacked seller account means a fraudster answering
+ * enquiries about somebody else's house — and the usual attack is simply
+ * phoning the owner and asking them to read out the code.
+ */
+export function generatePasswordResetEmail(d: PasswordResetEmailData): string {
+  return layout(
+    'Reset your MedaGhar password',
+    `      <h2>Reset your password</h2>
+
+      <p>Hello ${esc(d.firstName)}, we received a request to reset the password on your
+      MedaGhar account. Use the code below to set a new one.</p>
+
+      <div class="code">
+        <div class="code-label">Password reset code</div>
+        <div class="code-value">${esc(d.code)}</div>
+        <div class="muted">This code expires in ${d.expiryMinutes} minutes</div>
+      </div>
+
+      <p style="text-align:center;">
+        <a href="${SITE}/reset-password" class="cta">Set a new password</a>
+      </p>
+
+      <div class="warn">
+        <strong>Never share this code with anyone.</strong> Nobody from MedaGhar will
+        ever ask you for it — not by phone, not by email, not on WhatsApp. If
+        someone calls asking you to read out a code, it is a fraud attempt. Hang up.
+      </div>
+
+      <p class="muted" style="margin-top:24px;">
+        If you did not ask to reset your password, you can ignore this email — your
+        password has not changed and your account is unaffected. If you keep getting
+        these, reply and tell us.
+      </p>`,
+    'You are receiving this because a password reset was requested for your account.'
+  )
+}
+
+export function generatePasswordResetEmailText(d: PasswordResetEmailData): string {
+  return `Reset your password
+
+Hello ${d.firstName}, we received a request to reset the password on your
+MedaGhar account.
+
+Your password reset code: ${d.code}
+
+This code expires in ${d.expiryMinutes} minutes.
+Set a new password: ${SITE}/reset-password
+
+Never share this code with anyone. Nobody from MedaGhar will ever ask you for
+it. If someone calls asking you to read out a code, it is a fraud attempt.
+
+If you did not ask to reset your password, ignore this email — your password
+has not changed.
+${textFooter()}`
+}
+
+export interface PasswordChangedEmailData {
+  firstName: string
+  /** When the change happened, already formatted for display. */
+  when: string
+}
+
+/**
+ * Confirmation that the password actually changed.
+ *
+ * This is the email that saves an account: if the owner did not do it, this
+ * is the only signal they will get that somebody else did.
+ */
+export function generatePasswordChangedEmail(d: PasswordChangedEmailData): string {
+  return layout(
+    'Your MedaGhar password was changed',
+    `      <h2>Your password was changed</h2>
+
+      <p>Hello ${esc(d.firstName)}, the password on your MedaGhar account was changed on
+      <strong>${esc(d.when)}</strong>.</p>
+
+      <p>If that was you, nothing further is needed.</p>
+
+      <div class="warn">
+        <strong>If this was not you, act now.</strong> Reset your password again
+        immediately using the link below, and reply to this email so we can look at
+        the account. Anyone with access could contact buyers as though they were you.
+      </div>
+
+      <p style="text-align:center; margin-top:24px;">
+        <a href="${SITE}/forgot-password" class="cta">Reset your password</a>
+      </p>`,
+    'You are receiving this because the password on your account was changed.'
+  )
+}
+
+export function generatePasswordChangedEmailText(d: PasswordChangedEmailData): string {
+  return `Your password was changed
+
+Hello ${d.firstName}, the password on your MedaGhar account was changed on ${d.when}.
+
+If that was you, nothing further is needed.
+
+If this was NOT you, reset your password immediately at
+${SITE}/forgot-password and reply to this email so we can look at the account.
+${textFooter()}`
+}

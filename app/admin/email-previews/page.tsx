@@ -8,6 +8,8 @@ import {
   generateListingLiveEmail,
   generateStaleListingEmail,
   generateTourRequestEmail,
+  generatePasswordResetEmail,
+  generatePasswordChangedEmail,
 } from '@/lib/email/notifications'
 
 export const metadata: Metadata = {
@@ -40,6 +42,16 @@ const PREVIEWS: { name: string; note: string; html: string }[] = [
     name: 'Welcome (agent)',
     note: 'Same template, agent allowance. Both read from the shared quota table.',
     html: generateWelcomeEmail({ firstName: 'Safeer', role: 'AGENT' }),
+  },
+  {
+    name: 'Password reset code',
+    note: 'Wired: sent by /api/auth/forgot-password. Code is stored as a bcrypt hash, expires in 15 minutes, dies after 5 wrong guesses.',
+    html: generatePasswordResetEmail({ firstName: 'Safeer', code: '731204', expiryMinutes: 15 }),
+  },
+  {
+    name: 'Password changed',
+    note: 'Wired: sent after a successful reset. If it was not the owner, this is the only warning they get.',
+    html: generatePasswordChangedEmail({ firstName: 'Safeer', when: 'Monday 4 August 2026 at 11:42' }),
   },
   {
     name: 'New enquiry',

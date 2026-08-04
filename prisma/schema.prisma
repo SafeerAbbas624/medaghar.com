@@ -28,6 +28,14 @@ model User {
   verificationAttempts   Int       @default(0) // Track failed verification attempts
   lastVerificationSentAt DateTime? // Track when last verification email was sent
 
+  // Password reset. The code is stored as a bcrypt hash, not in the clear:
+  // a leaked database should not hand over every account, and a 6-digit code
+  // is trivially reversible from a fast hash.
+  passwordResetCodeHash   String?
+  passwordResetExpiry     DateTime?
+  passwordResetAttempts   Int       @default(0)
+  lastPasswordResetSentAt DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
