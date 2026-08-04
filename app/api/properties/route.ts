@@ -334,6 +334,37 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Confirm to the seller that the listing is live. Best-effort — the
+    // listing exists either way.
+    try {
+      const { sendEmail, defaultHostingerConfig } = await import('@/lib/email')
+      const { generateListingLiveEmail, generateListingLiveEmailText } = await import(
+        '@/lib/email/notifications'
+      )
+      const owner = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { email: true, firstName: true },
+      })
+      if (owner) {
+        const payload = {
+          firstName: owner.firstName,
+          propertyTitle: property.title,
+          propertySlug: property.slug ?? property.id,
+          price: property.price,
+          forRent: property.listingType === 'FOR_RENT',
+          imageCount: Array.isArray(body.images) ? body.images.length : 0,
+        }
+        await sendEmail(defaultHostingerConfig, {
+          to: owner.email,
+          subject: 'Your listing is live on MedaGhar',
+          text: generateListingLiveEmailText(payload),
+          html: generateListingLiveEmail(payload),
+        })
+      }
+    } catch (emailError) {
+      console.error('Listing-live email failed (listing was still created):', emailError)
+    }
+
     // Fetch the created property with images
     const createdProperty = await prisma.property.findUnique({
       where: { id: property.id },

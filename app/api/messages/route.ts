@@ -90,10 +90,38 @@ export async function POST(request: NextRequest) {
             id: true,
             address: true,
             city: true,
+            slug: true,
+            title: true,
           },
         },
       },
     })
+
+    // Tell the recipient by email. Best-effort: a mail failure must never
+    // lose a message that is already saved.
+    if (message.property) {
+      try {
+        const { sendEmail, defaultHostingerConfig } = await import('@/lib/email')
+        const { generateEnquiryEmail, generateEnquiryEmailText } = await import(
+          '@/lib/email/notifications'
+        )
+        const payload = {
+          ownerFirstName: message.receiver.firstName,
+          senderName: `${message.sender.firstName} ${message.sender.lastName}`.trim(),
+          message: content,
+          propertyTitle: message.property.title,
+          propertySlug: message.property.slug ?? message.property.id,
+        }
+        await sendEmail(defaultHostingerConfig, {
+          to: message.receiver.email,
+          subject: `New enquiry: ${message.property.title}`,
+          text: generateEnquiryEmailText(payload),
+          html: generateEnquiryEmail(payload),
+        })
+      } catch (emailError) {
+        console.error('Enquiry email failed (message was still saved):', emailError)
+      }
+    }
 
     return NextResponse.json({ message }, { status: 201 })
   } catch (error) {
