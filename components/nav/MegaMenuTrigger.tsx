@@ -100,7 +100,7 @@ export default function MegaMenuTrigger({ menu, openMenu, setOpenMenu }: Props) 
           }
         }}
         onFocus={openNow}
-        className={`flex items-center gap-1.5 font-medium text-[15px] px-3 py-2 rounded-lg transition whitespace-nowrap ${
+        className={`flex items-center gap-1.5 font-medium text-[14px] xl:text-[15px] px-2 xl:px-3 py-2 rounded-lg transition whitespace-nowrap ${
           open ? 'text-cyan-700 bg-cyan-50' : 'text-gray-700 hover:text-cyan-700 hover:bg-cyan-50'
         }`}
       >
@@ -118,7 +118,7 @@ export default function MegaMenuTrigger({ menu, openMenu, setOpenMenu }: Props) 
       {open && menu.simple && (
         <div
           id={panelId}
-          className="absolute right-0 mt-2 z-50 w-60"
+          className="absolute right-0 mt-2 z-50 w-60 max-h-[calc(100vh-110px)] overflow-y-auto overscroll-contain"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >
@@ -140,7 +140,7 @@ export default function MegaMenuTrigger({ menu, openMenu, setOpenMenu }: Props) 
       {open && !menu.simple && (
         <div
           id={panelId}
-          className="fixed left-1/2 -translate-x-1/2 mt-2 z-50 w-[min(1120px,calc(100vw-2rem))]"
+          className="fixed left-1/2 -translate-x-1/2 mt-2 z-50 w-[min(1120px,calc(100vw-2rem))] max-h-[calc(100vh-110px)] overflow-y-auto overscroll-contain"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}
         >

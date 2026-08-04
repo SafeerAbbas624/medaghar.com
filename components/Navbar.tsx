@@ -61,9 +61,9 @@ export default function Navbar() {
               height={72}
               priority
               sizes="(max-width: 1024px) 56px, 72px"
-              className="h-14 w-14 lg:h-[72px] lg:w-[72px] object-contain"
+              className="h-14 w-14 lg:h-16 lg:w-16 xl:h-[72px] xl:w-[72px] object-contain"
             />
-            <span className="text-2xl lg:text-[28px] font-bold text-cyan-700 tracking-tight">
+            <span className="text-2xl lg:text-[26px] xl:text-[28px] font-bold text-cyan-700 tracking-tight">
               Meda<span className="text-gray-900">Ghar</span>
             </span>
           </Link>
@@ -82,7 +82,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-gray-700 hover:text-cyan-700 hover:bg-cyan-50 font-medium text-[15px] px-3 py-2 rounded-lg transition whitespace-nowrap"
+                className="text-gray-700 hover:text-cyan-700 hover:bg-cyan-50 font-medium text-[14px] xl:text-[15px] px-2 xl:px-3 py-2 rounded-lg transition whitespace-nowrap"
               >
                 {link.label}
               </Link>
