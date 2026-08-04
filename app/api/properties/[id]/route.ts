@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getCityCoordinates } from '@/lib/constants/cities'
 import { resolveLocation } from '@/lib/locations'
+import { bumpListingsVersion } from '@/lib/redis'
 
 export async function GET(
   request: NextRequest,
@@ -18,14 +19,22 @@ export async function GET(
         images: {
           orderBy: { order: 'asc' },
         },
+        // Explicit select — `include` would return Agent.phoneNumber, and
+        // user.email/phone are contact details. Those are served only from
+        // the authenticated /api/properties/[id]/contact endpoint.
         agent: {
-          include: {
+          select: {
+            id: true,
+            bio: true,
+            rating: true,
+            reviewCount: true,
+            yearsExperience: true,
+            officeAddress: true,
+            website: true,
             user: {
               select: {
                 firstName: true,
                 lastName: true,
-                email: true,
-                phone: true,
                 avatar: true,
               },
             },
@@ -176,6 +185,9 @@ export async function PATCH(
       where: { id },
       include: { images: { orderBy: { order: 'asc' } } },
     })
+
+    // Edited location/price/type changes what searches return.
+    await bumpListingsVersion()
 
     return NextResponse.json({ message: 'Property updated successfully', property: result })
   } catch (error) {

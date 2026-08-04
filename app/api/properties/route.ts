@@ -6,6 +6,7 @@ import { normalizeAddress, calculateAddressHash } from '@/lib/addressNormalizati
 import { getCityCoordinates } from '@/lib/constants/cities'
 import { resolveLocation } from '@/lib/locations'
 import { withUniqueSlug } from '@/lib/listingSlug'
+import { cacheGet, cacheSet, getListingsVersion, bumpListingsVersion } from '@/lib/redis'
 
 // Quota limits by role
 const QUOTA_LIMITS = {
@@ -71,6 +72,19 @@ export async function GET(request: NextRequest) {
     if (listingType) where.listingType = listingType
     if (isFSBO === 'true') where.isFSBO = true
 
+    // Cached read. The key embeds a generation counter that every write
+    // bumps, so a new/edited listing invalidates all cached queries at once —
+    // no SCAN, no partial state, consistent across PM2 workers.
+    const version = await getListingsVersion()
+    const cacheKey = `q:${version}:${Buffer.from(
+      JSON.stringify({ where, page, limit })
+    ).toString('base64url')}`
+
+    const cached = await cacheGet<{ properties: unknown[]; pagination: unknown }>(cacheKey)
+    if (cached) {
+      return NextResponse.json(cached, { headers: { 'X-Cache': 'HIT' } })
+    }
+
     // Get total count
     const total = await prisma.property.count({ where })
     
@@ -105,7 +119,7 @@ export async function GET(request: NextRequest) {
       take: limit,
     })
     
-    return NextResponse.json({
+    const payload = {
       properties,
       pagination: {
         page,
@@ -113,7 +127,13 @@ export async function GET(request: NextRequest) {
         total,
         totalPages: Math.ceil(total / limit),
       },
-    })
+    }
+
+    // Short TTL as a second line of defence: even if a write somehow misses
+    // the version bump, stale results cannot outlive a minute.
+    await cacheSet(cacheKey, payload, 60)
+
+    return NextResponse.json(payload, { headers: { 'X-Cache': 'MISS' } })
   } catch (error) {
     console.error('Error fetching properties:', error)
     return NextResponse.json(
@@ -309,6 +329,9 @@ export async function POST(request: NextRequest) {
       where: { id: property.id },
       include: { images: true },
     })
+
+    // New listing must appear in filtered results immediately.
+    await bumpListingsVersion()
 
     return NextResponse.json({
       message: 'Property listed successfully',

@@ -8,7 +8,7 @@ const PURPOSE = 'for-rent' as const
 
 interface Props {
   params: Promise<{ segments?: string[] }>
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<Record<string, string | undefined>>
 }
 
 /** ~25 seed paths; everything else renders on demand (dynamicParams default). */
@@ -28,7 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ForRentTreePage({ params, searchParams }: Props) {
   const { segments } = await params
-  const { page: pageParam } = await searchParams
+  const sp = await searchParams
+  const pageParam = sp.page
   const result = parseTreeSegments(PURPOSE, segments)
 
   if (result.kind === 'redirect') permanentRedirect(result.canonical)
@@ -39,7 +40,15 @@ export default async function ForRentTreePage({ params, searchParams }: Props) {
   if (result.descriptor.level === 'root') redirect('/residential-for-rent')
 
   const page = Math.max(1, parseInt(pageParam ?? '1', 10) || 1)
-  const data = await loadTreePage(result.descriptor, page)
+  const data = await loadTreePage(result.descriptor, page, {
+    minPrice: sp.minPrice,
+    maxPrice: sp.maxPrice,
+    bedrooms: sp.bedrooms,
+    bathrooms: sp.bathrooms,
+    minMarla: sp.minMarla,
+    maxMarla: sp.maxMarla,
+    areaSlug: sp.areaSlug,
+  })
 
   return <TreePage descriptor={result.descriptor} {...data} />
 }

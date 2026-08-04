@@ -7,8 +7,8 @@
 
 import type { Metadata } from 'next'
 import { absoluteUrl } from '@/lib/seo'
-import { statsFor, areasWithInventory, subAreasWithInventory, citiesWithInventory, countFor } from '@/lib/listingCounts'
-import { getListingsForNode } from '@/lib/tree/queries'
+import { statsFor, areasWithInventory, subAreasWithInventory, citiesWithInventory } from '@/lib/listingCounts'
+import { getFilteredListings, getFeaturedForNode, type ExtraFilters } from '@/lib/tree/queries'
 import { robotsFor } from '@/lib/tree/gating'
 import { buildTreeUrl } from '@/lib/tree/urls'
 import { metaDescription, pageTitle } from '@/lib/tree/copy'
@@ -16,7 +16,6 @@ import { getCity, CITIES } from '@/lib/locations'
 import {
   hubFor,
   listingTypeForPurpose,
-  typesForCategory,
   ALL_TYPES_SLUG,
   PURPOSE_LABEL,
   type Purpose,
@@ -72,20 +71,26 @@ export async function metadataFor(d: TreeDescriptor): Promise<Metadata> {
 
 export interface TreePageData {
   stats: Awaited<ReturnType<typeof statsFor>>
-  listings: Awaited<ReturnType<typeof getListingsForNode>>
+  listings: Awaited<ReturnType<typeof getFilteredListings>>
+  featured: Awaited<ReturnType<typeof getFeaturedForNode>>
   breadcrumbs: Crumb[]
   childLinks: LocationLink[]
   childTitle: string
-  siblingTypes: LocationLink[]
   canonicalPath: string
+  queryString: string
 }
 
 /** Everything TreePage needs, in one call. */
-export async function loadTreePage(d: TreeDescriptor, page = 1): Promise<TreePageData> {
+export async function loadTreePage(
+  d: TreeDescriptor,
+  page = 1,
+  extra: ExtraFilters = {}
+): Promise<TreePageData> {
   const listingType = listingTypeForPurpose(d.purpose)
   const fsboOnly = d.purpose === 'owner'
+  const hasExtra = Object.values(extra).some(Boolean)
 
-  const [stats, listings] = await Promise.all([
+  const [baseStats, listings, featured] = await Promise.all([
     statsFor({
       listingType,
       types: d.type?.types,
@@ -94,20 +99,28 @@ export async function loadTreePage(d: TreeDescriptor, page = 1): Promise<TreePag
       subAreaSlug: d.subArea?.slug,
       fsboOnly,
     }),
-    getListingsForNode(d, page),
+    getFilteredListings(d, page, extra),
+    getFeaturedForNode(d, extra),
   ])
 
+  // With query filters applied the cached node count no longer describes the
+  // result set, so use the live filtered total instead.
+  const stats = hasExtra ? { ...baseStats, count: listings.total } : baseStats
+
   const { childLinks, childTitle } = await loadChildren(d)
-  const siblingTypes = await loadSiblingTypes(d)
+
+  const qs = new URLSearchParams()
+  for (const [k, v] of Object.entries(extra)) if (v) qs.set(k, String(v))
 
   return {
     stats,
     listings,
+    featured,
     breadcrumbs: buildCrumbs(d),
     childLinks,
     childTitle,
-    siblingTypes,
     canonicalPath: canonicalFor(d),
+    queryString: qs.toString(),
   }
 }
 
@@ -181,35 +194,6 @@ async function loadChildren(
   }
 
   return { childLinks: [], childTitle: '' }
-}
-
-/** Other property types available in the same location. */
-async function loadSiblingTypes(d: TreeDescriptor): Promise<LocationLink[]> {
-  if (!d.city || !d.type) return []
-  const listingType = listingTypeForPurpose(d.purpose)
-
-  const candidates = [
-    ...typesForCategory('residential'),
-    ...typesForCategory('commercial'),
-  ].filter((t) => t.slug !== d.type!.slug)
-
-  const links: LocationLink[] = []
-  for (const t of candidates) {
-    const count = await countFor({
-      listingType,
-      types: t.types,
-      citySlug: d.city.slug,
-      fsboOnly: d.purpose === 'owner',
-    })
-    if (count === 0) continue
-    links.push({
-      name: `${t.pluralLabel} in ${d.city.name}`,
-      count,
-      href: buildTreeUrl({ purpose: d.purpose, typeSlug: t.slug, citySlug: d.city.slug }),
-    })
-  }
-  links.sort((a, b) => b.count - a.count)
-  return links.slice(0, 8)
 }
 
 /** Home > Hub > Type > City > Area > Sub-area */

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { bumpListingsVersion } from '@/lib/redis'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -82,6 +83,9 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         updatedAt: true
       }
     })
+
+    // A status change adds or removes the listing from every active search.
+    await bumpListingsVersion()
 
     // If marking as SOLD, add to price history
     if (status === 'SOLD') {
