@@ -6,17 +6,15 @@ import { FaHeart, FaUser, FaBars, FaTimes, FaSignOutAlt, FaCog, FaEnvelope, FaCh
 import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import MegaMenuTrigger from '@/components/nav/MegaMenuTrigger'
-import { MEGA_MENUS, SIMPLE_LINKS, MORE_LINKS } from '@/lib/nav/menus'
+import { MEGA_MENUS, SIMPLE_LINKS, MORE_LINKS, MORE_MENU } from '@/lib/nav/menus'
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
-  const [isMoreOpen, setIsMoreOpen] = useState(false)
   const [openMenu, setOpenMenu] = useState<string | null>(null)
   const [openSection, setOpenSection] = useState<string | null>(null)
   const [unreadCount, setUnreadCount] = useState(0)
   const { data: session, status } = useSession()
-  const moreRef = useRef<HTMLDivElement>(null)
   const userRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -31,7 +29,6 @@ export default function Navbar() {
   // Close dropdowns on outside click
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setIsMoreOpen(false)
       if (userRef.current && !userRef.current.contains(e.target as Node)) setIsUserMenuOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
@@ -91,29 +88,11 @@ export default function Navbar() {
               </Link>
             ))}
 
-            {/* More dropdown */}
-            <div className="relative" ref={moreRef}>
-              <button
-                onClick={() => setIsMoreOpen(!isMoreOpen)}
-                className="flex items-center gap-1.5 text-gray-700 hover:text-cyan-700 hover:bg-cyan-50 font-medium text-[15px] px-3 py-2 rounded-lg transition"
-              >
-                More <FaChevronDown className={`text-[10px] transition-transform ${isMoreOpen ? 'rotate-180' : ''}`} />
-              </button>
-              {isMoreOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
-                  {MORE_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => setIsMoreOpen(false)}
-                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-700 transition"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+            <MegaMenuTrigger
+              menu={MORE_MENU}
+              openMenu={openMenu}
+              setOpenMenu={setOpenMenu}
+            />
 
             <div className="w-px h-6 bg-gray-200 mx-1" />
 

@@ -111,12 +111,35 @@ export default function MegaMenuTrigger({ menu, openMenu, setOpenMenu }: Props) 
         />
       </button>
 
-      {open && (
+      {/* A simple menu is a plain list, so it hangs off its own trigger and
+          stays narrow. The wide panels are anchored to the viewport instead:
+          three columns are far wider than the button and would otherwise
+          overflow the right edge on the last item. */}
+      {open && menu.simple && (
         <div
           id={panelId}
-          // Anchored to the viewport rather than the trigger: a three-column
-          // panel is far wider than its button and would otherwise overflow
-          // the right edge on the last item.
+          className="absolute right-0 mt-2 z-50 w-60"
+          onMouseEnter={cancelClose}
+          onMouseLeave={scheduleClose}
+        >
+          <div className="bg-white rounded-xl shadow-xl border border-gray-100 py-2">
+            {menu.columns[0]?.links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={dismiss}
+                className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-700 transition"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {open && !menu.simple && (
+        <div
+          id={panelId}
           className="fixed left-1/2 -translate-x-1/2 mt-2 z-50 w-[min(1120px,calc(100vw-2rem))]"
           onMouseEnter={cancelClose}
           onMouseLeave={scheduleClose}

@@ -28,6 +28,12 @@ export interface MegaMenu {
   /** Where the trigger itself goes when clicked/tapped. */
   href: string
   columns: MenuColumn[]
+  /**
+   * Render as a narrow single-column dropdown anchored to the trigger,
+   * rather than a full-width panel. Used for menus that are a plain list of
+   * pages with nothing to group.
+   */
+  simple?: boolean
   /** Promoted panel on the right-hand side. */
   feature?: {
     title: string
@@ -183,3 +189,11 @@ export const MORE_LINKS: MenuLink[] = [
   { href: '/home-loans', label: 'Home Loans' },
   { href: '/pricing', label: 'Pricing & Featured' },
 ]
+
+/** Same links as a dropdown, so More behaves like every other nav item. */
+export const MORE_MENU: MegaMenu = {
+  label: 'More',
+  href: '/tools',
+  simple: true,
+  columns: [{ heading: 'More', links: MORE_LINKS }],
+}
