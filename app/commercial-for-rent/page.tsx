@@ -10,9 +10,15 @@ export const revalidate = 900
 
 export const metadata: Metadata = hubMetadata(TITLE, INTRO, PATH)
 
-export default function Page() {
+interface Props {
+  searchParams: Promise<Record<string, string | undefined>>
+}
+
+export default async function Page({ searchParams }: Props) {
+  const sp = await searchParams
   return (
     <CategoryHub
+      searchParams={sp}
       category="commercial"
       purpose="for-rent"
       listingType="FOR_RENT"
