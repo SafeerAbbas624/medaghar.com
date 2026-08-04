@@ -1,3 +1,4 @@
+import { limitsForRole } from '@/lib/quota'
 /**
  * Email Templates for MedaGhar
  * Professional HTML email templates for various user communications
@@ -245,12 +246,13 @@ export interface WelcomeEmailData {
   role?: string
 }
 
-/** Listing allowance per role, mirroring QUOTA_LIMITS in the properties API. */
+/** Listing allowance per role, read from the shared quota table. */
 function quotaLine(role?: string): string {
+  const { sell, rent } = limitsForRole(role)
   if (role === 'AGENT') {
-    return 'As an agent you can keep up to <strong>10 active listings for sale</strong> and <strong>10 for rent</strong> at any time.'
+    return `As an agent you can keep up to <strong>${sell} active listings for sale</strong> and <strong>${rent} for rent</strong> at any time.`
   }
-  return 'Your account can keep <strong>2 active listings for sale</strong> and <strong>2 for rent</strong> at a time. Mark one as sold or rented to free a slot — upgrade to an agent account if you need more.'
+  return `Your account can keep <strong>${sell} active listings for sale</strong> and <strong>${rent} for rent</strong> at a time. Mark one as sold or rented to free a slot — upgrade to an agent account if you need more.`
 }
 
 export function generateWelcomeEmail(data: WelcomeEmailData): string {

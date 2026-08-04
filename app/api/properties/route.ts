@@ -2,21 +2,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { imageCountError } from '@/lib/imageRules'
+import { pakistanFieldsFrom } from '@/lib/listingFields'
+import { limitFor, ACTIVE_STATUSES } from '@/lib/quota'
 import { normalizeAddress, calculateAddressHash } from '@/lib/addressNormalization'
 import { getCityCoordinates } from '@/lib/constants/cities'
 import { resolveLocation } from '@/lib/locations'
 import { withUniqueSlug } from '@/lib/listingSlug'
 import { cacheGet, cacheSet, getListingsVersion, bumpListingsVersion } from '@/lib/redis'
 
-// Quota limits by role
-const QUOTA_LIMITS = {
-  BUYER: 2,
-  SELLER: 2,
-  LANDLORD: 2,
-  TENANT: 2,
-  AGENT: 10,
-  ADMIN: 100,
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -167,21 +161,28 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check quota
+    const body = await request.json()
+
+    // Quota is per listing type: 2 for sale *and* 2 for rent on a personal
+    // account, 10 of each for an agent. Counting both together would refuse a
+    // rental the quota endpoint has already told the seller they can post.
+    const forRent = body.listingType === 'FOR_RENT'
     const activeListingsCount = await prisma.property.count({
       where: {
         ownerId: session.user.id,
-        status: {
-          in: ['ACTIVE', 'PENDING', 'UNDER_CONTRACT'],
-        },
+        listingType: forRent ? 'FOR_RENT' : 'FOR_SALE',
+        status: { in: [...ACTIVE_STATUSES] },
       },
     })
 
-    const maxListings = QUOTA_LIMITS[user.role as keyof typeof QUOTA_LIMITS] || 2
+    const maxListings = limitFor(user.role, body.listingType)
     if (activeListingsCount >= maxListings) {
+      const noun = forRent ? 'rental listings' : 'listings for sale'
       return NextResponse.json(
         {
-          error: `You have reached your maximum listing limit of ${maxListings}. Mark a property as SOLD to free up a slot.`,
+          error: `You have reached your limit of ${maxListings} active ${noun}. Mark one as ${
+            forRent ? 'rented' : 'sold'
+          } to free a slot.`,
           quotaExceeded: true,
           currentListings: activeListingsCount,
           maxListings,
@@ -189,8 +190,6 @@ export async function POST(request: NextRequest) {
         { status: 403 }
       )
     }
-
-    const body = await request.json()
 
     // Validate required fields
     const requiredFields = ['title', 'address', 'city', 'province', 'price', 'bedrooms', 'bathrooms', 'propertyType', 'listingType', 'description']
@@ -201,6 +200,16 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+    }
+
+    // Photo minimum varies by property type. Enforced here as well as in the
+    // form, so a direct API call cannot create a listing with no photos.
+    const imageError = imageCountError(
+      body.propertyType,
+      Array.isArray(body.images) ? body.images.filter((i: { url?: string }) => i?.url?.trim()).length : 0
+    )
+    if (imageError) {
+      return NextResponse.json({ error: imageError }, { status: 400 })
     }
 
     // Determine if FSBO based on user role
@@ -303,6 +312,7 @@ export async function POST(request: NextRequest) {
         pricePerMarla: body.marla ? parseFloat(body.price) / parseFloat(body.marla) : null,
         normalizedAddress: normalizedAddr,
         addressHash,
+        ...pakistanFieldsFrom(body),
       },
       include: {
         images: true,

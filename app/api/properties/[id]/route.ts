@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { pakistanFieldsFrom } from '@/lib/listingFields'
 import { getCityCoordinates } from '@/lib/constants/cities'
 import { resolveLocation } from '@/lib/locations'
 import { bumpListingsVersion } from '@/lib/redis'
@@ -157,6 +158,7 @@ export async function PATCH(
         facing: body.facing || null,
         cornerProperty: body.cornerProperty || false,
         pricePerMarla: body.marla && body.price ? parseFloat(body.price) / parseFloat(body.marla) : null,
+        ...pakistanFieldsFrom(body),
       },
     })
 

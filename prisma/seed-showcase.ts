@@ -317,7 +317,6 @@ async function main() {
         maintenanceFees: ['FLAT', 'PENTHOUSE', 'OFFICE', 'SHOP'].includes(s.type)
           ? 5000 + (i % 5) * 2500
           : null,
-        taxAmount: Math.round(s.price * 0.01),
         parkingSpaces: s.beds > 0 ? Math.max(1, Math.round(s.beds / 2)) : 2 + (i % 4),
         garage: s.beds > 2,
         pool: s.price > 90000000,
@@ -333,7 +332,6 @@ async function main() {
         agentId: s.fsbo ? null : agents.length ? pick(agents, i).id : null,
         ownerId: s.fsbo && owners.length ? pick(owners, i).id : null,
         views: 40 + Math.floor(Math.random() * 900),
-        mlsNumber: `MG-${String(1000 + i)}`,
         mlsSource: TAG,
         listedDate: new Date(Date.now() - (i % 60) * 86400000),
       },
