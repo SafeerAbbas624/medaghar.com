@@ -34,8 +34,7 @@ export const SOCIAL_PROFILES: SocialProfile[] = [
   { label: 'TikTok', href: 'https://www.tiktok.com/@medaghar.com', live: true, icon: 'tiktok' },
   { label: 'YouTube', href: 'https://www.youtube.com/@medaghar-com', live: true, icon: 'youtube' },
   { label: 'X (Twitter)', href: 'https://x.com/medaghar', live: true, icon: 'twitter' },
-  // No LinkedIn page yet.
-  { label: 'LinkedIn', href: 'https://linkedin.com/company/medaghar', live: false, icon: 'linkedin' },
+  { label: 'LinkedIn', href: 'https://www.linkedin.com/company/medaghar-com/', live: true, icon: 'linkedin' },
 ]
 
 /** Profiles to show and to advertise. Empty until accounts are created. */
