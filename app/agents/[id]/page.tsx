@@ -355,12 +355,23 @@ export default async function AgentPage({ params }: AgentPageProps) {
                 )}
               </div>
 
-              <button className="w-full bg-cyan-700 text-white py-3 rounded-lg hover:bg-cyan-800 transition font-medium mb-3">
+              {/* These were plain buttons with no handler and did nothing at
+                  all when clicked. Both now open a conversation, matching the
+                  behaviour of the same buttons on a listing page. */}
+              <Link
+                href={`/messages?userId=${agent.user.id}&message=${encodeURIComponent(
+                  `Hi ${agent.user.firstName}, I would like to arrange a viewing. When are you available?`
+                )}`}
+                className="block w-full text-center bg-cyan-700 text-white py-3 rounded-lg hover:bg-cyan-800 transition font-medium mb-3"
+              >
                 Request a Tour
-              </button>
-              <button className="w-full bg-white border-2 border-cyan-600 text-cyan-600 py-3 rounded-lg hover:bg-cyan-50 transition font-medium">
+              </Link>
+              <Link
+                href={`/messages?userId=${agent.user.id}`}
+                className="block w-full text-center bg-white border-2 border-cyan-600 text-cyan-600 py-3 rounded-lg hover:bg-cyan-50 transition font-medium"
+              >
                 Send Message
-              </button>
+              </Link>
             </div>
           </div>
         </div>
