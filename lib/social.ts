@@ -27,11 +27,14 @@ export interface SocialProfile {
 }
 
 export const SOCIAL_PROFILES: SocialProfile[] = [
-  { label: 'Facebook', href: 'https://facebook.com/medaghar', live: false, icon: 'facebook' },
-  { label: 'Instagram', href: 'https://instagram.com/medaghar', live: false, icon: 'instagram' },
-  { label: 'TikTok', href: 'https://tiktok.com/@medaghar', live: false, icon: 'tiktok' },
-  { label: 'YouTube', href: 'https://youtube.com/@medaghar', live: false, icon: 'youtube' },
-  { label: 'X (Twitter)', href: 'https://twitter.com/medaghar', live: false, icon: 'twitter' },
+  // facebook.com rather than web.facebook.com: the latter is the desktop-only
+  // host and redirects on mobile, which is not what you want in sameAs.
+  { label: 'Facebook', href: 'https://www.facebook.com/medaghar', live: true, icon: 'facebook' },
+  { label: 'Instagram', href: 'https://www.instagram.com/medaghar_com/', live: true, icon: 'instagram' },
+  { label: 'TikTok', href: 'https://www.tiktok.com/@medaghar.com', live: true, icon: 'tiktok' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@medaghar-com', live: true, icon: 'youtube' },
+  { label: 'X (Twitter)', href: 'https://x.com/medaghar', live: true, icon: 'twitter' },
+  // No LinkedIn page yet.
   { label: 'LinkedIn', href: 'https://linkedin.com/company/medaghar', live: false, icon: 'linkedin' },
 ]
 
