@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import html
+import json
+import os
 import re
 from datetime import datetime, timezone
 from typing import Iterator
@@ -15,13 +17,12 @@ from common import (
 
 SQM_TO_SQFT = 10.7639
 
-# Zameen / Lamudi location ids. Verified: the rest can be passed with
-# --city-id Name=ID (open the city's page on zameen.com: /Homes/Sialkot-480-1.html).
-EMPG_CITY_IDS = {
-    "lahore": 1, "karachi": 2, "islamabad": 3, "multan": 15, "faisalabad": 16,
-    "peshawar": 17, "jhelum": 19, "gujrat": 20, "hyderabad": 30, "rawalpindi": 41,
-    "gujranwala": 327,
-}
+# Zameen / Lamudi location ids and URL names for all 228 Zameen cities
+# (zameen_cities.json, from zameen.com's own city list). Anything missing can
+# be passed with --city-id Name=ID.
+_ZC = json.load(open(os.path.join(os.path.dirname(__file__), "zameen_cities.json")))
+EMPG_CITY_IDS = {name: v["id"] for name, v in _ZC.items()}
+ZAMEEN_SLUGS = {name: v["slug"] for name, v in _ZC.items()}
 
 
 def _ts(dt: datetime) -> float:
@@ -91,7 +92,7 @@ def zameen(f: Fetcher, cities: list[str], cutoff: datetime, city_ids: dict, log,
         if not cid:
             log(f"zameen: no id for {city}; pass --city-id {city}=<id>")
             continue
-        slug = city.strip().title().replace(" ", "_")
+        slug = ZAMEEN_SLUGS.get(city.lower()) or city.strip().title().replace(" ", "_")
         for cat, _ in ZAMEEN_CATS:
             for page in range(1, max_pages + 1):
                 url = f"{f.base}/{cat}/{slug}-{cid}-{page}.html?sort=date_desc"
@@ -127,7 +128,7 @@ def lamudi(f: Fetcher, cities: list[str], cutoff: datetime, city_ids: dict, log,
         if not cid:
             log(f"lamudi: no id for {city}; pass --city-id {city}=<id>")
             continue
-        cslug = city.strip().lower().replace(" ", "-")
+        cslug = (ZAMEEN_SLUGS.get(city.lower()) or city.strip()).lower().replace("_", "-").replace(" ", "-")
         for cat in LAMUDI_CATS:
             for page in range(1, max_pages + 1):
                 url = f"{f.base}/{cslug}/{cat}-{cid}/?sort=date_desc" + (f"&page={page}" if page > 1 else "")
@@ -300,7 +301,6 @@ def _num(text: str | None) -> float | None:
 
 
 def nobroker(f: Fetcher, cities: list[str], cutoff: datetime, log, **_) -> Iterator[Listing]:
-    import json
     want = {c.lower() for c in cities}
     for url, mod in _sitemap_urls(f, f.base + "/sitemap_index.xml", "property-sitemap", cutoff, log):
         if not re.search(r"/property/[^/]+/?$", url):

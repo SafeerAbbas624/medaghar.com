@@ -191,8 +191,7 @@ export default function ScraperPage() {
               <label className={label}>Cities (comma separated)</label>
               <input className={input} value={form.cities} onChange={(e) => setForm({ ...form, cities: e.target.value })} />
               <p className="mt-1 text-xs text-slate-500">
-                Built in for Zameen/Lamudi: Lahore, Karachi, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar, Gujranwala,
-                Hyderabad, Gujrat, Jhelum. Others need a city id (Advanced).
+                All 228 Zameen cities are built in (Wah Cantt, Hub, Umerkot and similar spellings included). City ids under Advanced are only needed for places Zameen doesn’t list.
               </p>
             </div>
             <div>

@@ -13,10 +13,10 @@ import { promises as fs } from 'fs'
 import bcrypt from 'bcryptjs'
 import type { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
-import { resolveLocation } from '@/lib/locations'
+import { resolveLocation, cityCoordinates } from '@/lib/locations'
 import { withUniqueSlug } from '@/lib/listingSlug'
 import { normalizeAddress, calculateAddressHash } from '@/lib/addressNormalization'
-import { getCityCoordinates, CITY_COORDINATES } from '@/lib/constants/cities'
+import { CITY_COORDINATES } from '@/lib/constants/cities'
 import { serialiseNearbyPlaces, type NearbyPlace } from '@/lib/listingFields'
 import { processPropertyImage, validateImageFile, deletePropertyImages } from '@/lib/image-processing'
 import { resolveShortMapsLink, checkPair, type LatLng } from './geo'
@@ -230,11 +230,13 @@ export async function writeRow(r: CleanRow, opts: WriteOptions, warnings: string
     }
   }
   if (!coords) {
-    if (!CITY_COORDINATES[d.city as string]) {
+    const centre =
+      cityCoordinates(resolveLocation({ city: d.city as string }).citySlug ?? '') ??
+      CITY_COORDINATES[d.city as string]
+    if (!centre) {
       return { outcome: 'rejected', reasons: [`no coordinates and no known centre for city "${d.city}"`], warnings }
     }
-    const c = getCityCoordinates(d.city as string)
-    coords = { lat: c.lat, lng: c.lng }
+    coords = { lat: centre.lat, lng: centre.lng }
     if (!r.pendingMapsLink) warnings.push('no coordinates; placed at city centre')
   }
 

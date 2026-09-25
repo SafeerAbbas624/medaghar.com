@@ -11,7 +11,7 @@ import { PropertyType, ListingType } from '@prisma/client'
 import { checkPair, parseLatLngText, parseMapsUrl, isShortMapsLink, type LatLng } from './geo'
 import { minImagesFor, MAX_IMAGES } from '@/lib/imageRules'
 import { NEARBY_AMENITIES, type NearbyPlace } from '@/lib/listingFields'
-import { getCityProvince, CITY_PROVINCES } from '@/lib/constants/cities'
+import { resolveLocation, getCity } from '@/lib/locations'
 import { validatePakistaniPhone, formatPakistaniPhone, PAKISTAN_LANDLINE_REGEX } from '@/lib/phoneValidation'
 
 export type RawRow = Record<string, unknown>
@@ -385,7 +385,6 @@ function parseNearby(text: string, warnings: string[]): NearbyPlace[] {
 // Row
 // ---------------------------------------------------------------------------
 
-const KNOWN_CITIES = new Map(Object.keys(CITY_PROVINCES).map((c) => [c.toLowerCase(), c]))
 
 export function cleanRow(raw: RawRow, opts: ImportOptions): RowResult {
   const errors: string[] = []
@@ -413,9 +412,12 @@ export function cleanRow(raw: RawRow, opts: ImportOptions): RowResult {
   }
 
   // --- Location ---------------------------------------------------------------
-  const city = f.city ? KNOWN_CITIES.get(f.city.toLowerCase()) ?? f.city : ''
+  // Canonical name and province from the site's city list ("lhr", "Pindi"
+  // and misspellings resolve through its aliases).
+  const known = f.city ? getCity(resolveLocation({ city: f.city }).citySlug ?? '') : undefined
+  const city = known?.name ?? f.city ?? ''
   if (!city) errors.push('city is missing')
-  const province = f.province || (city && KNOWN_CITIES.has(city.toLowerCase()) ? getCityProvince(city) : '')
+  const province = known?.province ?? f.province ?? ''
   if (city && !province) errors.push(`province is missing and "${city}" is not a known city`)
   const address = f.address || [f.subArea, f.area].filter(Boolean).join(', ')
   if (!address) errors.push('address is missing')

@@ -122,19 +122,6 @@ const FURNISHING_OPTIONS = ['Furnished', 'Semi-Furnished', 'Unfurnished']
 
 const FACING_OPTIONS = ['North', 'South', 'East', 'West', 'North-East', 'North-West', 'South-East', 'South-West']
 
-// City coordinates for updating map when city changes
-const CITY_COORDINATES: { [key: string]: { lat: number; lng: number } } = {
-  'Lahore': { lat: 31.5204, lng: 74.3587 },
-  'Karachi': { lat: 24.8607, lng: 67.0011 },
-  'Islamabad': { lat: 33.6844, lng: 73.0479 },
-  'Rawalpindi': { lat: 33.5651, lng: 73.0169 },
-  'Faisalabad': { lat: 31.4504, lng: 73.1350 },
-  'Multan': { lat: 30.1575, lng: 71.5249 },
-  'Peshawar': { lat: 34.0151, lng: 71.5249 },
-  'Quetta': { lat: 30.1798, lng: 66.9750 },
-  'Sialkot': { lat: 32.4945, lng: 74.5229 },
-  'Gujranwala': { lat: 32.1617, lng: 74.1883 },
-}
 
 export default function SellPage() {
   const { data: session, status } = useSession()
@@ -276,15 +263,7 @@ export default function SellPage() {
       setFormData(prev => ({ ...prev, [name]: checked }))
     } else {
       setFormData(prev => {
-        const updated = { ...prev, [name]: value }
-
-        // Update coordinates when city changes
-        if (name === 'city' && CITY_COORDINATES[value]) {
-          updated.latitude = CITY_COORDINATES[value].lat
-          updated.longitude = CITY_COORDINATES[value].lng
-        }
-
-        return updated
+        return { ...prev, [name]: value }
       })
 
       // Auto-calculate property sizes

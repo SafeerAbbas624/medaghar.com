@@ -10,8 +10,18 @@ export const metadata: Metadata = {
 
 import { FaHome, FaUsers, FaChartLine, FaHandshake, FaAward, FaMapMarkedAlt } from 'react-icons/fa'
 import HeroBg from '@/components/HeroBg'
+import { getSiteStats, formatCount } from '@/lib/siteStats'
 
-export default function AboutUs() {
+export default async function AboutUs() {
+  // Real figures only; a tile with nothing to count yet is left out.
+  const stats = await getSiteStats()
+  const statTiles = [
+    { label: 'Properties Listed', value: formatCount(stats.listings), n: stats.listings },
+    { label: 'Visitors in the Last 30 Days', value: formatCount(stats.monthlyVisitors), n: stats.monthlyVisitors },
+    { label: 'Agents', value: formatCount(stats.agents), n: stats.agents },
+    { label: 'Cities Covered', value: formatCount(stats.cities), n: stats.cities },
+  ].filter((t) => t.n > 0)
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Hero Section */}
@@ -45,8 +55,8 @@ export default function AboutUs() {
             </p>
             <p className="text-[16px] text-gray-700 mb-[21px] leading-relaxed">
               From the bustling streets of Karachi to the scenic valleys of Islamabad, from the cultural heart of 
-              Lahore to the emerging markets of Faisalabad and Multan, we connect millions of Pakistanis with their 
-              dream properties every day.
+              Lahore to the emerging markets of Faisalabad and Multan, we help Pakistanis find their dream
+              property and deal directly with owners and agents.
             </p>
             <p className="text-[16px] text-gray-700 leading-relaxed">
               Our platform combines cutting-edge technology with deep local market knowledge, offering comprehensive 
@@ -147,23 +157,13 @@ export default function AboutUs() {
           <h2 className="text-[26px] lg:text-[34px] font-bold mb-[34px] text-center">
             Our Impact
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-[21px] text-center">
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[8px]">1M+</div>
-              <div className="text-[13px] lg:text-[16px] text-slate-300">Properties Listed</div>
-            </div>
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[8px]">5M+</div>
-              <div className="text-[13px] lg:text-[16px] text-slate-300">Monthly Visitors</div>
-            </div>
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[8px]">10K+</div>
-              <div className="text-[13px] lg:text-[16px] text-slate-300">Verified Agents</div>
-            </div>
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[8px]">50+</div>
-              <div className="text-[13px] lg:text-[16px] text-slate-300">Cities Covered</div>
-            </div>
+          <div className="flex flex-wrap justify-center gap-[21px] text-center">
+            {statTiles.map((t) => (
+              <div key={t.label} className="w-[calc(50%-11px)] md:w-[calc(25%-16px)]">
+                <div className="text-[34px] lg:text-[55px] font-bold mb-[8px]">{t.value}</div>
+                <div className="text-[13px] lg:text-[16px] text-slate-300">{t.label}</div>
+              </div>
+            ))}
           </div>
         </div>
 

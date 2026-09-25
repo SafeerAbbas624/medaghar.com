@@ -6,6 +6,7 @@ import HeroSearch from '@/components/HeroSearch'
 import PropertyCard from '@/components/PropertyCard'
 import AdSlot from '@/components/AdSlot'
 import { prisma } from '@/lib/prisma'
+import { getSiteStats, formatCount, formatPkrShort } from '@/lib/siteStats'
 import { absoluteUrl } from '@/lib/seo'
 import { GUIDES } from '@/content/guides'
 import { FaHome, FaBuilding, FaKey, FaMapMarkedAlt, FaStore, FaHandshake, FaChartLine, FaArrowRight, FaStar, FaCheckCircle, FaUserTie, FaAward, FaPhone, FaCalculator, FaRulerCombined, FaHardHat, FaFileInvoiceDollar, FaBookOpen, FaClock } from 'react-icons/fa'
@@ -15,6 +16,15 @@ export const metadata: Metadata = {
 }
 
 export default async function Home() {
+  // Real figures only; a tile with nothing to count yet is left out.
+  const stats = await getSiteStats()
+  const statTiles = [
+    { label: 'Properties Listed', value: formatCount(stats.listings), n: stats.listings },
+    { label: 'Agents', value: formatCount(stats.agents), n: stats.agents },
+    { label: 'Cities Covered', value: formatCount(stats.cities), n: stats.cities },
+    { label: 'Value of Properties for Sale', value: formatPkrShort(stats.saleValue), n: stats.saleValue },
+  ].filter((t) => t.n > 0)
+
   // Fetch featured properties
   const featuredProperties = await prisma.property.findMany({
     where: {
@@ -494,24 +504,14 @@ export default async function Home() {
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 text-white py-[55px] lg:py-[89px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Fibonacci grid: 4 columns with gap-[34px] */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-[21px] lg:gap-[34px] text-center">
-            <div>
-              {/* Fibonacci typography: text-[55px] */}
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[13px]">10+</div>
-              <div className="text-slate-300 text-[16px]">Properties Listed</div>
-            </div>
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[13px]">3</div>
-              <div className="text-slate-300 text-[16px]">Expert Agents</div>
-            </div>
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[13px]">5+</div>
-              <div className="text-slate-300 text-[16px]">Cities Covered</div>
-            </div>
-            <div>
-              <div className="text-[34px] lg:text-[55px] font-bold mb-[13px]">PKR 500M+</div>
-              <div className="text-slate-300 text-[16px]">Properties Value</div>
-            </div>
+          <div className="flex flex-wrap justify-center gap-[21px] lg:gap-[34px] text-center">
+            {statTiles.map((t) => (
+              <div key={t.label} className="w-[calc(50%-11px)] md:w-[calc(25%-26px)]">
+                {/* Fibonacci typography: text-[55px] */}
+                <div className="text-[34px] lg:text-[55px] font-bold mb-[13px]">{t.value}</div>
+                <div className="text-slate-300 text-[16px]">{t.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { FaHome, FaMapMarkerAlt, FaMoneyBillWave, FaImage, FaArrowLeft, FaSpinner, FaSave, FaVideo, FaCloudUploadAlt, FaTrash } from 'react-icons/fa'
 import LocationPicker from '@/components/LocationPicker'
+import LocationSelect from '@/components/LocationSelect'
 
 interface PropertyForm {
   title: string
@@ -14,6 +15,10 @@ interface PropertyForm {
   city: string
   province: string
   area: string
+  subArea: string
+  citySlug: string | null
+  areaSlug: string | null
+  subAreaSlug: string | null
   zipCode: string
   latitude: number
   longitude: number
@@ -47,19 +52,6 @@ const PROPERTY_TYPES = [
 
 const LISTING_TYPES = ['FOR_SALE', 'FOR_RENT']
 
-// City coordinates for updating map when city changes
-const CITY_COORDINATES: { [key: string]: { lat: number; lng: number } } = {
-  'Lahore': { lat: 31.5204, lng: 74.3587 },
-  'Karachi': { lat: 24.8607, lng: 67.0011 },
-  'Islamabad': { lat: 33.6844, lng: 73.0479 },
-  'Rawalpindi': { lat: 33.5651, lng: 73.0169 },
-  'Faisalabad': { lat: 31.4504, lng: 73.1350 },
-  'Multan': { lat: 30.1575, lng: 71.5249 },
-  'Peshawar': { lat: 34.0151, lng: 71.5249 },
-  'Quetta': { lat: 30.1798, lng: 66.9750 },
-  'Sialkot': { lat: 32.4945, lng: 74.5229 },
-  'Gujranwala': { lat: 32.1617, lng: 74.1883 },
-}
 
 export default function EditPropertyPage() {
   const { data: session, status } = useSession()
@@ -69,6 +61,7 @@ export default function EditPropertyPage() {
 
   const [formData, setFormData] = useState<PropertyForm>({
     title: '', address: '', city: '', province: '', area: '', zipCode: '',
+    subArea: '', citySlug: null, areaSlug: null, subAreaSlug: null,
     latitude: 31.5204, longitude: 74.3587, // Default to Lahore
     price: '', bedrooms: '', bathrooms: '', marla: '', kanal: '', squareFeet: '',
     yearBuilt: '', propertyType: 'HOUSE', listingType: 'FOR_SALE', description: '',
@@ -114,6 +107,10 @@ export default function EditPropertyPage() {
         city: data.city || '',
         province: data.province || '',
         area: data.area || '',
+        subArea: data.subArea || '',
+        citySlug: data.citySlug || null,
+        areaSlug: data.areaSlug || null,
+        subAreaSlug: data.subAreaSlug || null,
         zipCode: data.zipCode || '',
         latitude: data.latitude || 31.5204,
         longitude: data.longitude || 74.3587,
@@ -152,15 +149,7 @@ export default function EditPropertyPage() {
       setFormData(prev => ({ ...prev, [name]: checked }))
     } else {
       setFormData(prev => {
-        const updated = { ...prev, [name]: value }
-
-        // Update coordinates when city changes
-        if (name === 'city' && CITY_COORDINATES[value]) {
-          updated.latitude = CITY_COORDINATES[value].lat
-          updated.longitude = CITY_COORDINATES[value].lng
-        }
-
-        return updated
+        return { ...prev, [name]: value }
       })
     }
   }
@@ -277,34 +266,22 @@ export default function EditPropertyPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
                 <input type="text" name="address" value={formData.address} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" required />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                  <input type="text" name="city" value={formData.city} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" required />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Province *</label>
-                  <select name="province" value={formData.province} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" required>
-                    <option value="">Select Province</option>
-                    <option value="Punjab">Punjab</option>
-                    <option value="Sindh">Sindh</option>
-                    <option value="KPK">Khyber Pakhtunkhwa</option>
-                    <option value="Balochistan">Balochistan</option>
-                    <option value="Islamabad">Islamabad Capital Territory</option>
-                    <option value="AJK">Azad Jammu & Kashmir</option>
-                    <option value="GB">Gilgit-Baltistan</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Area/Sector</label>
-                  <input type="text" name="area" value={formData.area} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
-                  <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" />
-                </div>
+              <LocationSelect
+                required
+                value={{
+                  city: formData.city,
+                  province: formData.province,
+                  area: formData.area,
+                  subArea: formData.subArea,
+                  citySlug: formData.citySlug,
+                  areaSlug: formData.areaSlug,
+                  subAreaSlug: formData.subAreaSlug,
+                }}
+                onChange={(loc) => setFormData((prev) => ({ ...prev, ...loc }))}
+              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code</label>
+                <input type="text" name="zipCode" value={formData.zipCode} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-cyan-500" />
               </div>
 
               {/* Location Picker Map */}

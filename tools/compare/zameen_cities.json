@@ -1,0 +1,938 @@
+{
+"abbottabad": {
+"id": 385,
+"slug": "Abbottabad"
+},
+"abdul hakim": {
+"id": 10594,
+"slug": "Abdul_Hakim"
+},
+"ahmedpur east": {
+"id": 12360,
+"slug": "Ahmedpur_East"
+},
+"ali masjid": {
+"id": 18624,
+"slug": "Ali_Masjid"
+},
+"alipur": {
+"id": 10242,
+"slug": "Alipur"
+},
+"arifwala": {
+"id": 9517,
+"slug": "Arifwala"
+},
+"astore": {
+"id": 1763,
+"slug": "Astore"
+},
+"attock": {
+"id": 1233,
+"slug": "Attock"
+},
+"awaran": {
+"id": 1761,
+"slug": "Awaran"
+},
+"badin": {
+"id": 8857,
+"slug": "Badin"
+},
+"bagh": {
+"id": 966,
+"slug": "Bagh"
+},
+"bahawalnagar": {
+"id": 557,
+"slug": "Bahawalnagar"
+},
+"bahawalpur": {
+"id": 23,
+"slug": "Bahawalpur"
+},
+"balakot": {
+"id": 14226,
+"slug": "Balakot"
+},
+"bannu": {
+"id": 1735,
+"slug": "Bannu"
+},
+"barnala": {
+"id": 13977,
+"slug": "Barnala"
+},
+"batkhela": {
+"id": 13808,
+"slug": "Batkhela"
+},
+"battagram": {
+"id": 17727,
+"slug": "Battagram"
+},
+"bhakkar": {
+"id": 1720,
+"slug": "Bhakkar"
+},
+"bhalwal": {
+"id": 11142,
+"slug": "Bhalwal"
+},
+"bhimber": {
+"id": 1749,
+"slug": "Bhimber"
+},
+"buner": {
+"id": 11286,
+"slug": "Buner"
+},
+"burewala": {
+"id": 1059,
+"slug": "Burewala"
+},
+"chaghi": {
+"id": 1747,
+"slug": "Chaghi"
+},
+"chakwal": {
+"id": 751,
+"slug": "Chakwal"
+},
+"charsadda": {
+"id": 11420,
+"slug": "Charsadda"
+},
+"chichawatni": {
+"id": 8860,
+"slug": "Chichawatni"
+},
+"chilas": {
+"id": 17728,
+"slug": "Chilas"
+},
+"chiniot": {
+"id": 1469,
+"slug": "Chiniot"
+},
+"chishtian": {
+"id": 17729,
+"slug": "Chishtian"
+},
+"chishtian sharif": {
+"id": 10512,
+"slug": "Chishtian_Sharif"
+},
+"chitral": {
+"id": 1731,
+"slug": "Chitral"
+},
+"choa saidan shah": {
+"id": 14284,
+"slug": "Choa_Saidan_Shah"
+},
+"chunian": {
+"id": 1061,
+"slug": "Chunian"
+},
+"dadu": {
+"id": 1727,
+"slug": "Dadu"
+},
+"daharki": {
+"id": 11967,
+"slug": "Daharki"
+},
+"daska": {
+"id": 1509,
+"slug": "Daska"
+},
+"daur": {
+"id": 13599,
+"slug": "Daur"
+},
+"depalpur": {
+"id": 9178,
+"slug": "Depalpur"
+},
+"dera ghazi khan": {
+"id": 26,
+"slug": "Dera_Ghazi_Khan"
+},
+"dera ismail khan": {
+"id": 8244,
+"slug": "Dera_Ismail_Khan"
+},
+"dijkot": {
+"id": 10645,
+"slug": "Dijkot"
+},
+"dina": {
+"id": 12718,
+"slug": "Dina"
+},
+"dinga": {
+"id": 21670,
+"slug": "Dinga"
+},
+"dobian": {
+"id": 14195,
+"slug": "Dobian"
+},
+"duniya pur": {
+"id": 8474,
+"slug": "Duniya_Pur"
+},
+"faisalabad": {
+"id": 16,
+"slug": "Faisalabad"
+},
+"fata": {
+"id": 1737,
+"slug": "FATA"
+},
+"fateh jang": {
+"id": 1293,
+"slug": "Fateh_Jang"
+},
+"gaddani": {
+"id": 19047,
+"slug": "Gaddani"
+},
+"gadoon": {
+"id": 11915,
+"slug": "Gadoon"
+},
+"galyat": {
+"id": 8119,
+"slug": "Galyat"
+},
+"gambat": {
+"id": 18016,
+"slug": "Gambat"
+},
+"ghakhar": {
+"id": 13272,
+"slug": "Ghakhar"
+},
+"ghanche": {
+"id": 17730,
+"slug": "Ghanche"
+},
+"gharo": {
+"id": 636,
+"slug": "Gharo"
+},
+"ghizar": {
+"id": 17768,
+"slug": "Ghizar"
+},
+"ghotki": {
+"id": 8810,
+"slug": "Ghotki"
+},
+"gilgit": {
+"id": 1753,
+"slug": "Gilgit"
+},
+"gojra": {
+"id": 10281,
+"slug": "Gojra"
+},
+"gujar khan": {
+"id": 8338,
+"slug": "Gujar_Khan"
+},
+"gujranwala": {
+"id": 327,
+"slug": "Gujranwala"
+},
+"gujrat": {
+"id": 20,
+"slug": "Gujrat"
+},
+"gwadar": {
+"id": 389,
+"slug": "Gwadar"
+},
+"hafizabad": {
+"id": 1714,
+"slug": "Hafizabad"
+},
+"hala": {
+"id": 13607,
+"slug": "Hala"
+},
+"hangu": {
+"id": 11739,
+"slug": "Hangu"
+},
+"harappa": {
+"id": 11634,
+"slug": "Harappa"
+},
+"haripur": {
+"id": 1048,
+"slug": "Haripur"
+},
+"haroonabad": {
+"id": 1152,
+"slug": "Haroonabad"
+},
+"hasilpur": {
+"id": 9687,
+"slug": "Hasilpur"
+},
+"hassan abdal": {
+"id": 399,
+"slug": "Hassan_Abdal"
+},
+"haveli lakha": {
+"id": 10402,
+"slug": "Haveli_Lakha"
+},
+"hazro": {
+"id": 12823,
+"slug": "Hazro"
+},
+"hub": {
+"id": 9844,
+"slug": "Hub_Chowki"
+},
+"hub chowki": {
+"id": 9844,
+"slug": "Hub_Chowki"
+},
+"hujra shah muqeem": {
+"id": 13569,
+"slug": "Hujra_Shah_Muqeem"
+},
+"hunza": {
+"id": 1546,
+"slug": "Hunza"
+},
+"hyderabad": {
+"id": 30,
+"slug": "Hyderabad"
+},
+"islamabad": {
+"id": 3,
+"slug": "Islamabad"
+},
+"jacobabad": {
+"id": 32,
+"slug": "Jacobabad"
+},
+"jahanian": {
+"id": 11126,
+"slug": "Jahanian"
+},
+"jalalpur jattan": {
+"id": 11026,
+"slug": "Jalalpur_Jattan"
+},
+"jampur": {
+"id": 10484,
+"slug": "Jampur"
+},
+"jamshoro": {
+"id": 1178,
+"slug": "Jamshoro"
+},
+"jandola": {
+"id": 17731,
+"slug": "Jandola"
+},
+"jaranwala": {
+"id": 1363,
+"slug": "Faisalabad_Jaranwala"
+},
+"jatoi": {
+"id": 13706,
+"slug": "Jatoi"
+},
+"jauharabad": {
+"id": 8511,
+"slug": "Jauharabad"
+},
+"jhang": {
+"id": 1142,
+"slug": "Jhang"
+},
+"jhelum": {
+"id": 19,
+"slug": "Jhelum"
+},
+"kabirwala": {
+"id": 9873,
+"slug": "Kabirwala"
+},
+"kaghan": {
+"id": 9202,
+"slug": "Kaghan"
+},
+"kahror pakka": {
+"id": 10279,
+"slug": "Kahror_Pakka"
+},
+"kalat": {
+"id": 1750,
+"slug": "Kalat"
+},
+"kamalia": {
+"id": 10416,
+"slug": "Kamalia"
+},
+"kamoke": {
+"id": 10346,
+"slug": "Kamoki"
+},
+"kamoki": {
+"id": 10346,
+"slug": "Kamoki"
+},
+"kandiaro": {
+"id": 13611,
+"slug": "Kandiaro"
+},
+"karachi": {
+"id": 2,
+"slug": "Karachi"
+},
+"karak": {
+"id": 9484,
+"slug": "Karak"
+},
+"kasur": {
+"id": 544,
+"slug": "Kasur"
+},
+"khairpur": {
+"id": 8806,
+"slug": "Khairpur"
+},
+"khanewal": {
+"id": 1685,
+"slug": "Khanewal"
+},
+"khanpur": {
+"id": 10168,
+"slug": "Khanpur"
+},
+"khaplu": {
+"id": 17732,
+"slug": "Khaplu"
+},
+"kharian": {
+"id": 1305,
+"slug": "Kharian"
+},
+"khipro": {
+"id": 12390,
+"slug": "Khipro"
+},
+"khushab": {
+"id": 8510,
+"slug": "Khushab"
+},
+"khuzdar": {
+"id": 1757,
+"slug": "Khuzdar"
+},
+"kohat": {
+"id": 1430,
+"slug": "Kohat"
+},
+"kohistan": {
+"id": 17733,
+"slug": "Kohistan"
+},
+"kot addu": {
+"id": 9749,
+"slug": "Kot_Addu"
+},
+"kotli": {
+"id": 968,
+"slug": "Kotli"
+},
+"kotri": {
+"id": 8591,
+"slug": "Kotri"
+},
+"lahore": {
+"id": 1,
+"slug": "Lahore"
+},
+"lakki marwat": {
+"id": 10205,
+"slug": "Lakki_Marwat"
+},
+"lalamusa": {
+"id": 9837,
+"slug": "Lalamusa"
+},
+"landi kotal": {
+"id": 17734,
+"slug": "Landi_Kotal"
+},
+"larkana": {
+"id": 586,
+"slug": "Larkana"
+},
+"lasbela": {
+"id": 548,
+"slug": "Lasbela"
+},
+"layyah": {
+"id": 1661,
+"slug": "Layyah"
+},
+"liaquatpur": {
+"id": 11406,
+"slug": "Liaquatpur"
+},
+"lodhran": {
+"id": 9872,
+"slug": "Lodhran"
+},
+"loralai": {
+"id": 1742,
+"slug": "Loralai"
+},
+"lower dir": {
+"id": 10482,
+"slug": "Lower_Dir"
+},
+"mailsi": {
+"id": 9422,
+"slug": "Mailsi"
+},
+"makran": {
+"id": 1767,
+"slug": "Makran"
+},
+"malakand": {
+"id": 1384,
+"slug": "Malakand"
+},
+"malal": {
+"id": 21681,
+"slug": "Fateh_Jang_Malal"
+},
+"mandi bahauddin": {
+"id": 1496,
+"slug": "Mandi_Bahauddin"
+},
+"mangla": {
+"id": 14350,
+"slug": "Mangla"
+},
+"mansehra": {
+"id": 771,
+"slug": "Mansehra"
+},
+"mardan": {
+"id": 440,
+"slug": "Mardan"
+},
+"matiari": {
+"id": 8606,
+"slug": "Matiari"
+},
+"matli": {
+"id": 14120,
+"slug": "Matli"
+},
+"mehrabpur": {
+"id": 21624,
+"slug": "Mehrabpur"
+},
+"mian channu": {
+"id": 9636,
+"slug": "Mian_Channu"
+},
+"mianwali": {
+"id": 8310,
+"slug": "Mianwali"
+},
+"mingora": {
+"id": 13476,
+"slug": "Mingora"
+},
+"miran shah": {
+"id": 17735,
+"slug": "Miran_Shah"
+},
+"mirpur": {
+"id": 1349,
+"slug": "Mirpur"
+},
+"mirpur khas": {
+"id": 1558,
+"slug": "Mirpur_Khas"
+},
+"mirpur sakro": {
+"id": 10893,
+"slug": "Mirpur_Sakro"
+},
+"mitha tiwana": {
+"id": 13421,
+"slug": "Mitha_Tiwana"
+},
+"moro": {
+"id": 13603,
+"slug": "Moro"
+},
+"multan": {
+"id": 15,
+"slug": "Multan"
+},
+"muridke": {
+"id": 8116,
+"slug": "Muridke"
+},
+"murree": {
+"id": 36,
+"slug": "Murree"
+},
+"muzaffarabad": {
+"id": 977,
+"slug": "Muzaffarabad"
+},
+"muzaffargarh": {
+"id": 1722,
+"slug": "Muzaffargarh"
+},
+"nankana sahib": {
+"id": 1687,
+"slug": "Nankana_Sahib_"
+},
+"naran": {
+"id": 1258,
+"slug": "Naran"
+},
+"narowal": {
+"id": 541,
+"slug": "Narowal"
+},
+"nasirabad": {
+"id": 1752,
+"slug": "Nasirabad"
+},
+"naushahro feroze": {
+"id": 8801,
+"slug": "Naushahro_Feroze"
+},
+"nawabshah": {
+"id": 1704,
+"slug": "Nawabshah"
+},
+"nawabshah (shaheed benazirabad)": {
+"id": 1704,
+"slug": "Nawabshah"
+},
+"neelum": {
+"id": 1741,
+"slug": "Neelum"
+},
+"nowshera": {
+"id": 1424,
+"slug": "Nowshera"
+},
+"okara": {
+"id": 470,
+"slug": "Okara"
+},
+"pakpattan": {
+"id": 1716,
+"slug": "Pakpattan"
+},
+"pallandri": {
+"id": 17736,
+"slug": "Pallandri"
+},
+"parachinar": {
+"id": 17737,
+"slug": "Parachinar"
+},
+"pasrur": {
+"id": 17168,
+"slug": "Pasrur"
+},
+"pattoki": {
+"id": 8197,
+"slug": "Pattoki"
+},
+"peshawar": {
+"id": 17,
+"slug": "Peshawar"
+},
+"pind dadan khan": {
+"id": 10678,
+"slug": "Pind_Dadan_Khan"
+},
+"pindi bhattian": {
+"id": 975,
+"slug": "Pindi_Bhattian"
+},
+"pir mahal": {
+"id": 9508,
+"slug": "Pir_Mahal"
+},
+"poonch": {
+"id": 17711,
+"slug": "Poonch"
+},
+"qazi ahmed": {
+"id": 13617,
+"slug": "Qazi_Ahmed"
+},
+"quetta": {
+"id": 18,
+"slug": "Quetta"
+},
+"rahim yar khan": {
+"id": 40,
+"slug": "Rahim_Yar_Khan"
+},
+"raiwind": {
+"id": 17707,
+"slug": "Raiwind"
+},
+"rajanpur": {
+"id": 9645,
+"slug": "Rajanpur"
+},
+"rato dero": {
+"id": 17738,
+"slug": "Rato_Dero"
+},
+"rawalakot": {
+"id": 976,
+"slug": "Rawalakot"
+},
+"rawalpindi": {
+"id": 41,
+"slug": "Rawalpindi"
+},
+"renala khurd": {
+"id": 8151,
+"slug": "Renala_Khurd"
+},
+"rohri": {
+"id": 1725,
+"slug": "Rohri"
+},
+"sadiqabad": {
+"id": 9538,
+"slug": "Sadiqabad"
+},
+"sahiwal": {
+"id": 782,
+"slug": "Sahiwal"
+},
+"sakrand": {
+"id": 13438,
+"slug": "Sakrand"
+},
+"samundri": {
+"id": 10632,
+"slug": "Samundri"
+},
+"sanghar": {
+"id": 8609,
+"slug": "Sanghar"
+},
+"sangla hill": {
+"id": 8563,
+"slug": "Sangla_Hill"
+},
+"sarai alamgir": {
+"id": 1034,
+"slug": "Sarai_Alamgir"
+},
+"sargodha": {
+"id": 778,
+"slug": "Sargodha"
+},
+"sehwan": {
+"id": 8607,
+"slug": "Sehwan"
+},
+"shabqadar": {
+"id": 13211,
+"slug": "Shabqadar"
+},
+"shahdadpur": {
+"id": 9029,
+"slug": "Shahdadpur"
+},
+"shaheed benazirabad": {
+"id": 1704,
+"slug": "Nawabshah"
+},
+"shahkot": {
+"id": 8552,
+"slug": "Shahkot"
+},
+"shahpur chakar": {
+"id": 13614,
+"slug": "Shahpur_Chakar"
+},
+"shakargarh": {
+"id": 12170,
+"slug": "Shakargarh"
+},
+"shangla": {
+"id": 17739,
+"slug": "Shangla"
+},
+"shehr sultan": {
+"id": 13703,
+"slug": "Shehr_Sultan"
+},
+"sheikhupura": {
+"id": 44,
+"slug": "Sheikhupura"
+},
+"sher garh": {
+"id": 13570,
+"slug": "Sher_Garh"
+},
+"shikarpur": {
+"id": 8808,
+"slug": "Shikarpur"
+},
+"shorkot": {
+"id": 10334,
+"slug": "Shorkot"
+},
+"sialkot": {
+"id": 480,
+"slug": "Sialkot"
+},
+"sibi": {
+"id": 1744,
+"slug": "Sibi"
+},
+"skardu": {
+"id": 1545,
+"slug": "Skardu"
+},
+"sudhnoti": {
+"id": 1745,
+"slug": "Sudhnoti"
+},
+"sujawal": {
+"id": 14329,
+"slug": "Sujawal"
+},
+"sukkur": {
+"id": 45,
+"slug": "Sukkur"
+},
+"swabi": {
+"id": 3094,
+"slug": "Swabi"
+},
+"swat": {
+"id": 1506,
+"slug": "Swat"
+},
+"talagang": {
+"id": 12137,
+"slug": "Talagang"
+},
+"tando adam": {
+"id": 9028,
+"slug": "Tando_Adam"
+},
+"tando allahyar": {
+"id": 11315,
+"slug": "Tando_Allahyar"
+},
+"tando bago": {
+"id": 11700,
+"slug": "Tando_Bago"
+},
+"tando muhammad khan": {
+"id": 13166,
+"slug": "Tando_Muhammad_Khan"
+},
+"tank": {
+"id": 17740,
+"slug": "Tank"
+},
+"taxila": {
+"id": 464,
+"slug": "Taxila"
+},
+"tharparkar": {
+"id": 12439,
+"slug": "Tharparkar"
+},
+"thatta": {
+"id": 1729,
+"slug": "Thatta"
+},
+"toba tek singh": {
+"id": 1658,
+"slug": "Toba_Tek_Singh"
+},
+"torkham": {
+"id": 17741,
+"slug": "Torkham"
+},
+"turbat": {
+"id": 12271,
+"slug": "Turbat"
+},
+"umarkot": {
+"id": 17742,
+"slug": "Umarkot"
+},
+"umerkot": {
+"id": 17742,
+"slug": "Umarkot"
+},
+"upper dir": {
+"id": 17743,
+"slug": "Upper_Dir"
+},
+"vehari": {
+"id": 1432,
+"slug": "Vehari"
+},
+"wah": {
+"id": 459,
+"slug": "Wah"
+},
+"wah cantt": {
+"id": 459,
+"slug": "Wah"
+},
+"wana": {
+"id": 17744,
+"slug": "Wana"
+},
+"wazirabad": {
+"id": 1395,
+"slug": "Wazirabad"
+},
+"waziristan": {
+"id": 1765,
+"slug": "Waziristan"
+},
+"winder": {
+"id": 22263,
+"slug": "Winder"
+},
+"yazman": {
+"id": 12504,
+"slug": "Yazman"
+},
+"zhob": {
+"id": 1739,
+"slug": "Zhob"
+}
+}

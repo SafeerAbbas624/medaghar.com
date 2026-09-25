@@ -2,6 +2,8 @@ import type { City, Area, SubArea } from '@/content/locations/types'
 import punjab from '@/content/locations/punjab'
 import sindhBalochistan from '@/content/locations/sindh-balochistan'
 import kpkIctNorth from '@/content/locations/kpk-ict-north'
+import moreCities from '@/content/locations/more-cities'
+import { CITY_COORDS } from '@/content/locations/coordinates'
 import {
   AREA_ALIASES,
   CITY_ALIASES,
@@ -12,7 +14,7 @@ import {
 export type { City, Area, SubArea }
 
 /** All Pakistani cities, merged from the regional datasets, de-duped by slug. */
-export const CITIES: City[] = dedupe([...punjab, ...sindhBalochistan, ...kpkIctNorth])
+export const CITIES: City[] = dedupe([...punjab, ...sindhBalochistan, ...kpkIctNorth, ...moreCities])
 
 function dedupe(list: City[]): City[] {
   const seen = new Set<string>()
@@ -30,6 +32,11 @@ export const PROVINCES = Array.from(new Set(CITIES.map((c) => c.province)))
 export function getCity(slug: string): City | undefined {
   const s = slug.toLowerCase()
   return CITIES.find((c) => c.slug === s)
+}
+
+/** City centre, for maps and for listings with no pin. */
+export function cityCoordinates(slug: string): { lat: number; lng: number } | undefined {
+  return CITY_COORDS[slug.toLowerCase()]
 }
 
 export function getArea(city: City, areaSlug: string): Area | undefined {

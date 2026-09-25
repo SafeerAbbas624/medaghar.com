@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 export interface LocationValue {
   city: string
@@ -10,12 +10,17 @@ export interface LocationValue {
   citySlug: string | null
   areaSlug: string | null
   subAreaSlug: string | null
+  /** Set with the city centre when a city is picked, so the form's map can follow. */
+  latitude?: number
+  longitude?: number
 }
 
 interface CityOption {
   slug: string
   name: string
   province: string
+  lat?: number
+  lng?: number
 }
 
 interface AreaOption {
@@ -91,6 +96,22 @@ export default function LocationSelect({ value, onChange, required }: Props) {
     }
   }, [value.citySlug])
 
+  // A saved listing whose location is not in the taxonomy (older free-text
+  // entries) opens in manual mode, so its values are shown rather than blanked.
+  // Decided once, when a value first arrives (the edit form loads it async).
+  const decided = useRef(false)
+  useEffect(() => {
+    if (decided.current || !value.city) return
+    decided.current = true
+    if (
+      !value.citySlug ||
+      (value.area && !value.areaSlug) ||
+      (value.subArea && !value.subAreaSlug)
+    ) {
+      setManual(true)
+    }
+  }, [value.city, value.citySlug, value.area, value.areaSlug, value.subArea, value.subAreaSlug])
+
   const selectedArea = areas.find((a) => a.slug === value.areaSlug)
   const subAreas = selectedArea?.subAreas ?? []
 
@@ -98,7 +119,13 @@ export default function LocationSelect({ value, onChange, required }: Props) {
     const city = cities.find((c) => c.slug === slug)
     if (!city) return
     // Province comes from the taxonomy, so it can never disagree with the city.
-    onChange({ ...EMPTY, city: city.name, province: city.province, citySlug: city.slug })
+    onChange({
+      ...EMPTY,
+      city: city.name,
+      province: city.province,
+      citySlug: city.slug,
+      ...(city.lat !== undefined && city.lng !== undefined ? { latitude: city.lat, longitude: city.lng } : {}),
+    })
   }
 
   function pickArea(slug: string) {

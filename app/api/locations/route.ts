@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { CITIES } from '@/lib/locations'
+import { CITIES, cityCoordinates } from '@/lib/locations'
 
 /**
  * The city list for the cascading location picker.
@@ -13,6 +13,8 @@ export function GET() {
     slug: c.slug,
     name: c.name,
     province: c.province,
+    // Lets the listing forms recentre their map on the chosen city.
+    ...cityCoordinates(c.slug),
   }))
 
   return NextResponse.json(
