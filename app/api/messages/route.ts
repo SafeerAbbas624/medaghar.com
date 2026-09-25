@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, getRateLimiters } from '@/lib/rate-limiter'
 
 // POST - Send a new message
 export async function POST(request: NextRequest) {
@@ -12,6 +13,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    const { messageRateLimiter } = getRateLimiters()
+    const rl = await checkRateLimit(messageRateLimiter, `${session.user.id ?? session.user.email}`)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'You are sending messages too quickly. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter ?? 3600) } }
       )
     }
 

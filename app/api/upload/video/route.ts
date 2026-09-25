@@ -5,26 +5,7 @@ import { writeFile, mkdir, unlink } from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import ffmpeg from 'fluent-ffmpeg'
-import { existsSync } from 'fs'
-
-// Set FFmpeg path - try multiple locations
-const ffmpegPaths = [
-  'C:\\ffmpeg\\ffmpeg-8.0.1-essentials_build\\bin\\ffmpeg.exe',
-  'C:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe',
-  'ffmpeg' // System PATH
-]
-
-const ffmpegPath = ffmpegPaths.find(p => {
-  try {
-    return existsSync(p) || p === 'ffmpeg'
-  } catch {
-    return false
-  }
-})
-
-if (ffmpegPath && ffmpegPath !== 'ffmpeg') {
-  ffmpeg.setFfmpegPath(ffmpegPath)
-}
+import { checkRateLimit, getRateLimiters } from '@/lib/rate-limiter'
 
 export async function POST(request: Request) {
   let tempFilePath: string | null = null
@@ -34,6 +15,15 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { uploadRateLimiter } = getRateLimiters()
+    const rl = await checkRateLimit(uploadRateLimiter, `video:${session.user.id}`)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Too many video uploads. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter ?? 3600) } }
+      )
     }
 
     const formData = await request.formData()

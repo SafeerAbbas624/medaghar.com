@@ -53,6 +53,9 @@ const CONFIGS = {
   login: { points: 5, duration: 15 * 60, blockDuration: 15 * 60, keyPrefix: 'rl:login' },
   api: { points: 100, duration: 60, keyPrefix: 'rl:api' },
   email: { points: 10, duration: 60 * 60, keyPrefix: 'rl:email' },
+  form: { points: 5, duration: 10 * 60, keyPrefix: 'rl:form' },
+  upload: { points: 20, duration: 60 * 60, keyPrefix: 'rl:upload' },
+  message: { points: 30, duration: 60 * 60, keyPrefix: 'rl:message' },
 } satisfies Record<string, LimiterConfig>
 
 const cache = new Map<string, RateLimiterAbstract>()
@@ -94,6 +97,9 @@ export function getRateLimiters() {
     loginRateLimiter: limiter('login'),
     apiRateLimiter: limiter('api'),
     emailRateLimiter: limiter('email'),
+    formRateLimiter: limiter('form'),
+    uploadRateLimiter: limiter('upload'),
+    messageRateLimiter: limiter('message'),
   }
 }
 
@@ -115,10 +121,13 @@ export async function checkRateLimit(
   }
 }
 
+// nginx overwrites X-Real-IP with $remote_addr but only appends to
+// X-Forwarded-For, so XFF's first entry is client-controlled. Trust X-Real-IP,
+// then the last (proxy-appended) XFF hop.
 export function getClientIp(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')
   const realIp = request.headers.get('x-real-ip')
-  if (forwarded) return forwarded.split(',')[0].trim()
-  if (realIp) return realIp
+  if (realIp) return realIp.trim()
+  const forwarded = request.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',').pop()!.trim()
   return 'unknown'
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, getClientIp, getRateLimiters } from '@/lib/rate-limiter'
 
 /**
  * Property lead capture. Leads are stored as Contact submissions with a
@@ -8,6 +9,15 @@ import { prisma } from '@/lib/prisma'
  */
 export async function POST(request: NextRequest) {
   try {
+    const { formRateLimiter } = getRateLimiters()
+    const rl = await checkRateLimit(formRateLimiter, `lead:${getClientIp(request)}`)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again in a few minutes.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter ?? 600) } }
+      )
+    }
+
     const body = await request.json()
     const { propertyId, name, phone, email, message, intent } = body
 
