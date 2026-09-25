@@ -4,13 +4,13 @@
  * gates (city >= 1, area >= 3, subarea >= 5).
  *
  * Every optional field is populated so the UI can be reviewed end to end:
- * estimates, neighbourhood scores, nearby places, price history, images,
- * features, possession/furnishing/facing, tax, maintenance, MLS, views.
+ * estimates, nearby amenities, documents and approval, utilities, rental
+ * terms, structure, price history, images, features, possession, views.
  *
  *   npx tsx prisma/seed-showcase.ts          # add showcase listings
  *   npx tsx prisma/seed-showcase.ts --clean  # remove them again
  *
- * Everything it creates is tagged with mlsSource = 'SHOWCASE', so --clean
+ * Everything it creates is tagged with listingSource = 'SHOWCASE', so --clean
  * removes exactly these rows and nothing else.
  */
 
@@ -90,34 +90,91 @@ function featuresFor(type: PropertyType): string {
   return JSON.stringify(pool.slice(0, 5 + Math.floor(Math.random() * 3)))
 }
 
-function nearbyFor(city: string): string {
-  const byCity: Record<string, [string, string, string][]> = {
+/**
+ * Nearby amenities, in the vocabulary Pakistani listings actually use.
+ *
+ * Zameen and Graana listings sell on walking distance to the masjid, the
+ * school and the commercial market — not on walkability scores, which are a
+ * US/Canada product with no equivalent here.
+ */
+function nearbyFor(city: string, i: number): string {
+  // Always within walking distance in a developed Pakistani society.
+  const core: [string, string][] = [
+    ['masjid', 'Walking distance'],
+    ['park', 'Walking distance'],
+    ['market', 'Walking distance'],
+    ['superstore', i % 2 === 0 ? 'Walking distance' : 'Under 5 min drive'],
+    ['school', i % 3 === 0 ? 'Walking distance' : 'Under 5 min drive'],
+  ]
+
+  const byCity: Record<string, [string, string][]> = {
     Lahore: [
-      ['Emporium Mall', '3 km', 'Shopping'],
-      ['Shaukat Khanum Hospital', '5 km', 'Hospital'],
-      ['Beaconhouse School System', '1.2 km', 'School'],
-      ['Lahore Ring Road', '2 km', 'Transport'],
+      ['mall', 'Under 5 min drive'],
+      ['hospital', '5-10 min drive'],
+      ['mainroad', 'Walking distance'],
+      ['transport', 'Under 5 min drive'],
+      ['restaurant', 'Walking distance'],
     ],
     Karachi: [
-      ['Dolmen Mall Clifton', '4 km', 'Shopping'],
-      ['Aga Khan University Hospital', '6 km', 'Hospital'],
-      ['The City School', '1.5 km', 'School'],
-      ['Shahrah-e-Faisal', '3 km', 'Transport'],
+      ['mall', '5-10 min drive'],
+      ['hospital', '5-10 min drive'],
+      ['mainroad', 'Under 5 min drive'],
+      ['transport', 'Walking distance'],
+      ['bank', 'Walking distance'],
     ],
     Islamabad: [
-      ['Centaurus Mall', '5 km', 'Shopping'],
-      ['Shifa International Hospital', '4 km', 'Hospital'],
-      ['Roots Millennium School', '2 km', 'School'],
-      ['Islamabad Expressway', '3 km', 'Transport'],
+      ['mall', '10-20 min drive'],
+      ['hospital', '5-10 min drive'],
+      ['mainroad', 'Under 5 min drive'],
+      ['university', '5-10 min drive'],
+      ['gym', 'Under 5 min drive'],
+    ],
+  }
+
+  const extra = byCity[city] ?? [
+    ['hospital', '5-10 min drive'],
+    ['mainroad', 'Under 5 min drive'],
+    ['pharmacy', 'Walking distance'],
+    ['petrol', 'Under 5 min drive'],
+  ]
+
+  return JSON.stringify(
+    [...core, ...extra].map(([type, distance]) => ({ type, distance }))
+  )
+}
+
+/** How Pakistanis actually give directions: by landmark. */
+function landmarkFor(city: string, i: number): string {
+  const byCity: Record<string, string[]> = {
+    Lahore: [
+      'Opposite Emporium Mall, 2 minutes from Main Boulevard',
+      'Near Shaukat Khanum Hospital, off Jail Road',
+      'Behind Beaconhouse School, near the community park',
+    ],
+    Karachi: [
+      'Near Dolmen Mall Clifton, off Khayaban-e-Iqbal',
+      'Walking distance from Shahrah-e-Faisal, near Aga Khan Hospital',
+      'Opposite the main commercial market, near Jamia Masjid',
+    ],
+    Islamabad: [
+      'Near Centaurus Mall, 5 minutes from Jinnah Avenue',
+      'Off Islamabad Expressway, near Shifa International Hospital',
+      'Adjacent to the sector park, near the main markaz',
     ],
   }
   const list = byCity[city] ?? [
-    ['Main Bazaar', '2 km', 'Shopping'],
-    ['District Hospital', '3 km', 'Hospital'],
-    ['Government High School', '1 km', 'School'],
+    'Near the main bazaar, opposite Jamia Masjid',
+    'Walking distance from the district hospital and main road',
+    'Adjacent to the government high school, near the community park',
   ]
-  return JSON.stringify(list.map(([name, distance, type]) => ({ name, distance, type })))
+  return list[i % list.length]
 }
+
+const DOCUMENT_TYPES_SEED = ['Registry', 'Allotment Letter', 'Fard / Intiqal', 'File']
+const APPROVALS_SEED = ['LDA (Lahore)', 'CDA (Islamabad)', 'DHA', 'RDA (Rawalpindi)', 'KDA (Karachi)']
+const BACKUP_SEED = ['Generator', 'Solar', 'Generator + Solar', 'UPS']
+const WATER_SEED = ['Government Supply', 'Boring', 'Motor / Submersible', 'Government Supply + Boring']
+const TENANT_SEED = ['Family Only', 'Any', 'Bachelors Allowed', 'Office Use']
 
 const POSSESSION = ['Ready', 'Under Construction', 'Ready']
 const FURNISHING = ['Furnished', 'Semi-Furnished', 'Unfurnished']
@@ -229,7 +286,7 @@ function pick<T>(arr: T[], i: number): T {
 }
 
 async function clean() {
-  const found = await prisma.property.findMany({ where: { mlsSource: TAG }, select: { id: true } })
+  const found = await prisma.property.findMany({ where: { listingSource: TAG }, select: { id: true } })
   if (found.length === 0) {
     console.log('No showcase listings found.')
     return
@@ -317,7 +374,6 @@ async function main() {
         maintenanceFees: ['FLAT', 'PENTHOUSE', 'OFFICE', 'SHOP'].includes(s.type)
           ? 5000 + (i % 5) * 2500
           : null,
-        taxAmount: Math.round(s.price * 0.01),
         parkingSpaces: s.beds > 0 ? Math.max(1, Math.round(s.beds / 2)) : 2 + (i % 4),
         garage: s.beds > 2,
         pool: s.price > 90000000,
@@ -325,16 +381,46 @@ async function main() {
         furnishing: pick(FURNISHING, i),
         facing: pick(FACING, i),
         cornerProperty: i % 4 === 0,
-        walkScore: 55 + (i % 40),
-        transitScore: 45 + (i % 45),
         crimeScore: pick(CRIME, i),
-        schoolRating: Math.round((6.5 + (i % 7) * 0.5) * 10) / 10,
-        nearbyPlaces: nearbyFor(s.city),
+        nearbyPlaces: nearbyFor(s.city, i),
+        nearbyLandmark: landmarkFor(s.city, i),
+
+        // Documents and approval
+        documentType: pick(DOCUMENT_TYPES_SEED, i),
+        approvalAuthority: pick(APPROVALS_SEED, i),
+        nocAvailable: i % 4 !== 0,
+        installmentsAvailable: i % 5 === 0,
+        installmentMonths: i % 5 === 0 ? 24 + (i % 3) * 12 : null,
+        downPayment: i % 5 === 0 ? Math.round(s.price * 0.3) : null,
+
+        // Utilities
+        hasElectricity: true,
+        hasSuiGas: i % 6 !== 0,
+        backupPower: pick(BACKUP_SEED, i),
+        waterSource: pick(WATER_SEED, i),
+
+        // Rental terms, only meaningful on a letting
+        advanceMonths: s.listingType === ListingType.FOR_RENT ? 2 + (i % 2) : null,
+        securityDeposit: s.listingType === ListingType.FOR_RENT ? Math.round(s.price * 2) : null,
+        rentIncrementPct: s.listingType === ListingType.FOR_RENT ? 10 : null,
+        tenantPreference: s.listingType === ListingType.FOR_RENT ? pick(TENANT_SEED, i) : null,
+
+        // Structure
+        floors: 1 + (i % 3),
+        floorNumber: i % 4 === 0 ? i % 5 : null,
+        hasLift: i % 4 === 0,
+        plotWidthFt: 25 + (i % 4) * 5,
+        plotLengthFt: 50 + (i % 4) * 10,
+        roadWidthFt: [20, 30, 40, 60][i % 4],
+        kitchens: 1 + (i % 2),
+        storeRooms: i % 3,
+        drawingRoom: i % 2 === 0,
+        tvLounge: i % 2 === 1,
+        servantQuarter: i % 3 === 0,
         agentId: s.fsbo ? null : agents.length ? pick(agents, i).id : null,
         ownerId: s.fsbo && owners.length ? pick(owners, i).id : null,
         views: 40 + Math.floor(Math.random() * 900),
-        mlsNumber: `MG-${String(1000 + i)}`,
-        mlsSource: TAG,
+        listingSource: TAG,
         listedDate: new Date(Date.now() - (i % 60) * 86400000),
       },
     })

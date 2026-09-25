@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { signIn } from 'next-auth/react'
-import { FaEnvelope, FaLock, FaUser, FaGoogle, FaFacebook } from 'react-icons/fa'
+import { FaEnvelope, FaLock, FaUser, FaGoogle } from 'react-icons/fa'
 import PakistaniPhoneInput from '@/components/PakistaniPhoneInput'
 
 export default function SignUpPage() {
@@ -291,7 +291,7 @@ export default function SignUpPage() {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="mt-6 grid grid-cols-1 gap-3">
             <button
               type="button"
               onClick={() => signIn('google', { callbackUrl: '/' })}
@@ -299,14 +299,6 @@ export default function SignUpPage() {
             >
               <FaGoogle className="text-red-500" />
               Google
-            </button>
-            <button
-              type="button"
-              onClick={() => signIn('facebook', { callbackUrl: '/' })}
-              className="w-full inline-flex justify-center items-center gap-2 py-3 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-slate-50 transition"
-            >
-              <FaFacebook className="text-cyan-600" />
-              Facebook
             </button>
           </div>
         </div>

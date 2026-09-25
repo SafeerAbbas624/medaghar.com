@@ -1,3 +1,13 @@
+import type { Metadata } from 'next'
+import { absoluteUrl } from '@/lib/seo'
+
+export const metadata: Metadata = {
+  title: "About MedaGhar — Pakistan's Free Property Marketplace",
+  description:
+    'Learn about MedaGhar: free property listings across Pakistan, direct contact with owners and agents, and no commission on any transaction.',
+  alternates: { canonical: absoluteUrl('/about') },
+}
+
 import { FaHome, FaUsers, FaChartLine, FaHandshake, FaAward, FaMapMarkedAlt } from 'react-icons/fa'
 import HeroBg from '@/components/HeroBg'
 

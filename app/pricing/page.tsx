@@ -4,11 +4,11 @@ import Image from 'next/image'
 import { breadcrumbJsonLd, faqJsonLd } from '@/lib/seo'
 import JsonLd from '@/components/JsonLd'
 import { FaCheck, FaStar, FaCheckCircle, FaWhatsapp, FaEnvelope, FaArrowRight } from 'react-icons/fa'
+import { whatsappHref } from '@/lib/social'
 
 // ─── Update these once payment accounts are ready ───────────────────────────
 const CONTACT_EMAIL = 'info@medaghar.com'
 // Set to e.g. '923001234567' (country code, no +) to activate WhatsApp buttons
-const WHATSAPP_NUMBER = ''
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
@@ -49,9 +49,8 @@ const FAQS = [
 ]
 
 export default function PricingPage() {
-  const whatsappHref = WHATSAPP_NUMBER
-    ? `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('Hi MedaGhar, I want to feature my listing.')}`
-    : null
+  // Falls back to email everywhere below when no number is configured.
+  const whatsapp = whatsappHref('Hi MedaGhar, I want to feature my listing.')
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -140,7 +139,7 @@ export default function PricingPage() {
               ))}
             </ul>
             <a
-              href={whatsappHref || `mailto:${CONTACT_EMAIL}?subject=Feature my listing`}
+              href={whatsapp || `mailto:${CONTACT_EMAIL}?subject=Feature my listing`}
               className="mt-[21px] block text-center bg-copper-500 text-white py-[13px] rounded-xl font-semibold hover:bg-copper-600 transition"
             >
               Feature My Listing
@@ -169,7 +168,7 @@ export default function PricingPage() {
               ))}
             </ul>
             <a
-              href={whatsappHref || `mailto:${CONTACT_EMAIL}?subject=Agent Pro plan`}
+              href={whatsapp || `mailto:${CONTACT_EMAIL}?subject=Agent Pro plan`}
               className="mt-[21px] block text-center bg-cyan-700 text-white py-[13px] rounded-xl font-semibold hover:bg-cyan-800 transition"
             >
               Become Agent Pro
@@ -190,7 +189,7 @@ export default function PricingPage() {
             </p>
           </div>
           <a
-            href={whatsappHref || `mailto:${CONTACT_EMAIL}?subject=Verify my listing`}
+            href={whatsapp || `mailto:${CONTACT_EMAIL}?subject=Verify my listing`}
             className="bg-cyan-700 text-white px-[34px] py-[13px] rounded-xl font-semibold hover:bg-cyan-800 transition whitespace-nowrap"
           >
             Get Verified
@@ -207,9 +206,9 @@ export default function PricingPage() {
             <li>Your listing is upgraded within a few hours — confirmation by email.</li>
           </ol>
           <div className="flex flex-wrap gap-[13px]">
-            {whatsappHref && (
+            {whatsapp && (
               <a
-                href={whatsappHref}
+                href={whatsapp}
                 className="inline-flex items-center gap-[8px] bg-white text-slate-900 px-[21px] py-[13px] rounded-xl font-semibold hover:bg-cyan-50 transition"
               >
                 <FaWhatsapp className="text-[19px]" /> WhatsApp Us

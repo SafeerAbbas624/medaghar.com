@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, getRateLimiters } from '@/lib/rate-limiter'
 
 // POST - Send a new message
 export async function POST(request: NextRequest) {
@@ -12,6 +13,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      )
+    }
+
+    const { messageRateLimiter } = getRateLimiters()
+    const rl = await checkRateLimit(messageRateLimiter, `${session.user.id ?? session.user.email}`)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'You are sending messages too quickly. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter ?? 3600) } }
       )
     }
 
@@ -90,10 +100,38 @@ export async function POST(request: NextRequest) {
             id: true,
             address: true,
             city: true,
+            slug: true,
+            title: true,
           },
         },
       },
     })
+
+    // Tell the recipient by email. Best-effort: a mail failure must never
+    // lose a message that is already saved.
+    if (message.property) {
+      try {
+        const { sendEmail, defaultHostingerConfig } = await import('@/lib/email')
+        const { generateEnquiryEmail, generateEnquiryEmailText } = await import(
+          '@/lib/email/notifications'
+        )
+        const payload = {
+          ownerFirstName: message.receiver.firstName,
+          senderName: `${message.sender.firstName} ${message.sender.lastName}`.trim(),
+          message: content,
+          propertyTitle: message.property.title,
+          propertySlug: message.property.slug ?? message.property.id,
+        }
+        await sendEmail(defaultHostingerConfig, {
+          to: message.receiver.email,
+          subject: `New enquiry: ${message.property.title}`,
+          text: generateEnquiryEmailText(payload),
+          html: generateEnquiryEmail(payload),
+        })
+      } catch (emailError) {
+        console.error('Enquiry email failed (message was still saved):', emailError)
+      }
+    }
 
     return NextResponse.json({ message }, { status: 201 })
   } catch (error) {

@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import HeroBg from '@/components/HeroBg'
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock, FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from 'react-icons/fa'
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock } from 'react-icons/fa'
+import SocialLinks, { hasSocialLinks } from '@/components/SocialLinks'
 
 export default function ContactUs() {
   const [formData, setFormData] = useState({
@@ -116,43 +117,12 @@ export default function ContactUs() {
             </div>
 
             {/* Social Media */}
-            <div className="bg-white rounded-2xl shadow-lg p-[34px]">
-              <h3 className="text-[21px] font-bold text-gray-900 mb-[21px]">Follow Us</h3>
-              <div className="flex gap-[13px]">
-                <a 
-                  href="https://facebook.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-cyan-100 w-[55px] h-[55px] rounded-full flex items-center justify-center hover:bg-cyan-700 hover:text-white transition"
-                >
-                  <FaFacebook className="text-[21px]" />
-                </a>
-                <a 
-                  href="https://twitter.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-cyan-100 w-[55px] h-[55px] rounded-full flex items-center justify-center hover:bg-cyan-700 hover:text-white transition"
-                >
-                  <FaTwitter className="text-[21px]" />
-                </a>
-                <a 
-                  href="https://instagram.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-cyan-100 w-[55px] h-[55px] rounded-full flex items-center justify-center hover:bg-cyan-700 hover:text-white transition"
-                >
-                  <FaInstagram className="text-[21px]" />
-                </a>
-                <a 
-                  href="https://linkedin.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bg-cyan-100 w-[55px] h-[55px] rounded-full flex items-center justify-center hover:bg-cyan-700 hover:text-white transition"
-                >
-                  <FaLinkedin className="text-[21px]" />
-                </a>
+            {hasSocialLinks() && (
+              <div className="bg-white rounded-2xl shadow-lg p-[34px]">
+                <h3 className="text-[21px] font-bold text-gray-900 mb-[21px]">Follow Us</h3>
+                <SocialLinks variant="light" />
               </div>
-            </div>
+            )}
           </div>
 
           {/* Contact Form */}

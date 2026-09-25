@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
       where: { id: adminUser.id },
       data: {
         lastLoginAt: new Date(),
-        lastLoginIp: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown',
+        lastLoginIp: clientIp,
         lastLoginDevice: request.headers.get('user-agent') || 'unknown',
       },
     })

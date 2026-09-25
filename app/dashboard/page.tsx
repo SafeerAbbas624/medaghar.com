@@ -65,6 +65,7 @@ export default function DashboardPage() {
   const [myListings, setMyListings] = useState<any[]>([])
   const [listingsStats, setListingsStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [statusError, setStatusError] = useState('')
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
 
   useEffect(() => {
@@ -120,6 +121,7 @@ export default function DashboardPage() {
   }
 
   const handleStatusChange = async (propertyId: string, newStatus: string) => {
+    setStatusError('')
     setUpdatingStatus(propertyId)
     try {
       const res = await fetch(`/api/properties/${propertyId}/status`, {
@@ -128,7 +130,14 @@ export default function DashboardPage() {
         body: JSON.stringify({ status: newStatus }),
       })
 
-      if (res.ok) {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        setStatusError(data.error || 'Could not update the listing. Please try again.')
+        return
+      }
+
+      setStatusError('')
+      {
         // Refresh listings
         const listingsRes = await fetch('/api/user/properties?limit=6')
         if (listingsRes.ok) {
@@ -145,6 +154,7 @@ export default function DashboardPage() {
       }
     } catch (error) {
       console.error('Error updating status:', error)
+      setStatusError('Could not reach the server. Please check your connection.')
     } finally {
       setUpdatingStatus(null)
     }
@@ -329,6 +339,11 @@ export default function DashboardPage() {
         {/* My Listings Section */}
         {myListings.length > 0 && (
           <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+            {statusError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
+                {statusError}
+              </div>
+            )}
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-bold text-gray-900">My Listings</h2>
@@ -365,7 +380,7 @@ export default function DashboardPage() {
                         <span className={`px-2 py-1 rounded text-xs font-medium ${
                           property.status === 'ACTIVE' ? 'bg-cyan-700 text-white' :
                           property.status === 'PENDING' ? 'bg-copper-500 text-white' :
-                          property.status === 'SOLD' ? 'bg-red-500 text-white' :
+                          property.status === 'SOLD' || property.status === 'OFF_MARKET' ? 'bg-red-500 text-white' :
                           'bg-gray-500 text-white'
                         }`}>
                           {property.status}
@@ -395,7 +410,7 @@ export default function DashboardPage() {
                     </Link>
                     {property.status === 'ACTIVE' && (
                       <button
-                        onClick={() => handleStatusChange(property.id, property.listingType === 'FOR_RENT' ? 'INACTIVE' : 'SOLD')}
+                        onClick={() => handleStatusChange(property.id, property.listingType === 'FOR_RENT' ? 'OFF_MARKET' : 'SOLD')}
                         disabled={updatingStatus === property.id}
                         className="flex-1 text-center py-1 text-sm bg-cyan-700 text-white rounded hover:bg-cyan-800 flex items-center justify-center gap-1 disabled:opacity-50"
                       >
@@ -404,10 +419,10 @@ export default function DashboardPage() {
                         ) : (
                           <FaCheckCircle className="text-xs" />
                         )}
-                        {property.listingType === 'FOR_RENT' ? 'Deactivate' : 'Mark Sold'}
+                        {property.listingType === 'FOR_RENT' ? 'Mark Rented' : 'Mark Sold'}
                       </button>
                     )}
-                    {(property.status === 'SOLD' || property.status === 'INACTIVE') && (
+                    {(property.status === 'SOLD' || property.status === 'OFF_MARKET') && (
                       <button
                         onClick={() => handleStatusChange(property.id, 'ACTIVE')}
                         disabled={updatingStatus === property.id}

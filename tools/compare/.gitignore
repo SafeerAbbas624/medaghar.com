@@ -1,0 +1,3 @@
+__pycache__/
+*.csv
+*.photo-hashes.json

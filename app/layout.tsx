@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import SessionProvider from "@/components/SessionProvider";
@@ -68,16 +69,23 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const h = await headers();
+  const pathname = h.get("x-pathname") || "";
+  const isOpsShell =
+    pathname.startsWith("/mgh-ops") || pathname.startsWith("/admin");
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`} suppressHydrationWarning>
-        <JsonLd data={[organizationJsonLd(), webSiteJsonLd()]} />
-        {ADSENSE_CLIENT && (
+        {!isOpsShell ? (
+          <JsonLd data={[organizationJsonLd(), webSiteJsonLd()]} />
+        ) : null}
+        {ADSENSE_CLIENT && !isOpsShell ? (
           <Script
             id="adsense-loader"
             async
@@ -85,13 +93,13 @@ export default function RootLayout({
             crossOrigin="anonymous"
             strategy="afterInteractive"
           />
-        )}
+        ) : null}
         <SessionProvider>
-          <DeferredAnalyticsTracker />
-          <Navbar />
+          {!isOpsShell ? <DeferredAnalyticsTracker /> : null}
+          {!isOpsShell ? <Navbar /> : null}
           {children}
-          <DeferredCompareBar />
-          <Footer />
+          {!isOpsShell ? <DeferredCompareBar /> : null}
+          {!isOpsShell ? <Footer /> : null}
         </SessionProvider>
       </body>
     </html>

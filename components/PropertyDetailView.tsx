@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { FaBed, FaBath, FaRuler, FaCar, FaSwimmingPool, FaCalendar, FaMapMarkerAlt, FaHeart, FaStar, FaPen } from 'react-icons/fa'
 import PropertyMap from '@/components/PropertyMap'
 import SavePropertyButton from '@/components/SavePropertyButton'
+import ShareButtons from '@/components/ShareButtons'
 import VirtualTour from '@/components/VirtualTour'
 import NeighborhoodInfo from '@/components/NeighborhoodInfo'
 import PriceHistoryChart from '@/components/PriceHistoryChart'
@@ -10,6 +11,7 @@ import RevealPhone from '@/components/RevealPhone'
 import ImageSlider from '@/components/ImageSlider'
 import JsonLd from '@/components/JsonLd'
 import AdSlot from '@/components/AdSlot'
+import { plotDimensions } from '@/lib/listingFields'
 import LeadForm from '@/components/LeadForm'
 import { absoluteUrl, breadcrumbJsonLd, formatPkr, propertyJsonLd } from '@/lib/seo'
 import type { PropertyDetail } from '@/lib/getProperty'
@@ -26,16 +28,6 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
     } catch {
       // If not valid JSON, treat as comma-separated string
       features = property.features.split(',').map((f: string) => f.trim()).filter(Boolean)
-    }
-  }
-
-  // Handle nearbyPlaces - could be JSON array or comma-separated string
-  let nearbyPlaces: string[] = []
-  if (property.nearbyPlaces) {
-    try {
-      nearbyPlaces = JSON.parse(property.nearbyPlaces)
-    } catch {
-      nearbyPlaces = property.nearbyPlaces.split(',').map((p: string) => p.trim()).filter(Boolean)
     }
   }
 
@@ -164,6 +156,16 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
                 </div>
               </div>
 
+              {/* Share. WhatsApp first — in Pakistan a listing is far more
+                  likely to be forwarded to family than posted publicly, and
+                  that forward is how most listings actually travel. */}
+              <div className="pt-4 border-t border-gray-200">
+                <ShareButtons
+                  url={absoluteUrl(`/properties/${property.slug || property.id}`)}
+                  title={property.title}
+                />
+              </div>
+
               {/* Key Details */}
               <div className="flex flex-wrap gap-3 md:gap-6 pt-4 border-t border-gray-200">
                 {property.bedrooms > 0 && (
@@ -280,14 +282,89 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
                     <span className="font-semibold">Yes</span>
                   </div>
                 )}
-                {property.mlsNumber && (
-                  <div className="flex justify-between py-2 border-b border-gray-200">
-                    <span className="text-gray-600">MLS Number</span>
-                    <span className="font-semibold">{property.mlsNumber}</span>
-                  </div>
-                )}
+                <DetailRows
+                  rows={[
+                    ['Floors', property.floors],
+                    ['Floor Number', property.floorNumber === 0 ? 'Ground' : property.floorNumber],
+                    ['Lift', property.hasLift === null ? null : property.hasLift ? 'Yes' : 'No'],
+                    ['Kitchens', property.kitchens],
+                    ['Store Rooms', property.storeRooms],
+                    ['Drawing Room', property.drawingRoom ? 'Yes' : null],
+                    ['TV Lounge', property.tvLounge ? 'Yes' : null],
+                    ['Servant Quarter', property.servantQuarter ? 'Yes' : null],
+                    ['Plot Dimensions', plotDimensions(property.plotWidthFt, property.plotLengthFt)],
+                    ['Road Width', property.roadWidthFt ? `${property.roadWidthFt} ft` : null],
+                  ]}
+                />
               </div>
             </div>
+
+            {/* Documents & approval — the first thing a serious buyer checks. */}
+            {(property.documentType ||
+              property.approvalAuthority ||
+              property.nocAvailable !== null ||
+              property.installmentsAvailable) && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Documents &amp; Approval</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DetailRows
+                    rows={[
+                      ['Document Type', property.documentType],
+                      ['Approved By', property.approvalAuthority],
+                      ['NOC', property.nocAvailable === null ? null : property.nocAvailable ? 'Available' : 'Not available'],
+                      ['Instalments', property.installmentsAvailable ? 'Accepted' : null],
+                      ['Plan Length', property.installmentMonths ? `${property.installmentMonths} months` : null],
+                      ['Down Payment', property.downPayment ? `PKR ${property.downPayment.toLocaleString()}` : null],
+                    ]}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-4">
+                  Always verify these against a fresh fard from the revenue office before paying
+                  any token amount. MedaGhar does not verify seller documents.
+                </p>
+              </div>
+            )}
+
+            {/* Utilities */}
+            {(property.hasElectricity !== null ||
+              property.hasSuiGas !== null ||
+              property.backupPower ||
+              property.waterSource) && (
+              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">Utilities</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <DetailRows
+                    rows={[
+                      ['Electricity', property.hasElectricity === null ? null : property.hasElectricity ? 'Connected' : 'Not connected'],
+                      ['Sui Gas', property.hasSuiGas === null ? null : property.hasSuiGas ? 'Connected' : 'Not connected'],
+                      ['Backup Power', property.backupPower],
+                      ['Water Source', property.waterSource],
+                    ]}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Rental terms */}
+            {property.listingType === 'FOR_RENT' &&
+              (property.advanceMonths ||
+                property.securityDeposit ||
+                property.rentIncrementPct ||
+                property.tenantPreference) && (
+                <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Rental Terms</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <DetailRows
+                      rows={[
+                        ['Advance', property.advanceMonths ? `${property.advanceMonths} ${property.advanceMonths === 1 ? 'month' : 'months'} rent` : null],
+                        ['Security Deposit', property.securityDeposit ? `PKR ${property.securityDeposit.toLocaleString()}` : null],
+                        ['Annual Increment', property.rentIncrementPct ? `${property.rentIncrementPct}%` : null],
+                        ['Tenant Preference', property.tenantPreference],
+                      ]}
+                    />
+                  </div>
+                </div>
+              )}
 
 
 
@@ -304,11 +381,9 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
 
             {/* Neighborhood Data */}
             <NeighborhoodInfo
-              walkScore={property.walkScore}
-              transitScore={property.transitScore}
-              crimeScore={property.crimeScore}
-              schoolRating={property.schoolRating}
               nearbyPlaces={property.nearbyPlaces}
+              nearbyLandmark={property.nearbyLandmark}
+              crimeScore={property.crimeScore}
             />
 
             {/* Map Location */}
@@ -467,5 +542,27 @@ export default function PropertyDetailView({ property }: { property: PropertyDet
         </div>
       </div>
     </div>
+  )
+}
+
+/**
+ * Render label/value rows, skipping anything the seller left blank.
+ *
+ * Most of the Pakistan-specific fields are optional and type-dependent, so
+ * rendering them one-by-one with a truthiness guard each would triple the
+ * length of the details panel for no benefit.
+ */
+function DetailRows({ rows }: { rows: [string, string | number | null | undefined][] }) {
+  return (
+    <>
+      {rows
+        .filter(([, value]) => value !== null && value !== undefined && value !== '')
+        .map(([label, value]) => (
+          <div key={label} className="flex justify-between py-2 border-b border-gray-200">
+            <span className="text-gray-600">{label}</span>
+            <span className="font-semibold">{value}</span>
+          </div>
+        ))}
+    </>
   )
 }

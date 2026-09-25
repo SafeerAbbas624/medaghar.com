@@ -54,7 +54,7 @@ jobs:
         run: npx prisma generate
 
       - name: Run tests
-        run: npm test --if-present
+        run: npm test
 
   build:
     name: Build Application

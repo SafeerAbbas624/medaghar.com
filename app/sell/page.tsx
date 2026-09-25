@@ -1,6 +1,20 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { MAX_IMAGES, minImagesFor, imageCountError, photoHint } from '@/lib/imageRules'
+import {
+  DOCUMENT_TYPES,
+  APPROVAL_AUTHORITIES,
+  BACKUP_POWER,
+  WATER_SOURCES,
+  TENANT_PREFERENCES,
+  NEARBY_AMENITIES,
+  DISTANCE_BANDS,
+  isLandType,
+  asksFloorNumber,
+  asksRoomCounts,
+  asksUtilities,
+} from '@/lib/listingFields'
 import HeroBg from '@/components/HeroBg'
 import LocationSelect from '@/components/LocationSelect'
 import { useSession } from 'next-auth/react'
@@ -59,6 +73,38 @@ interface PropertyForm {
   images: { url: string; caption: string }[]
   videoUrl: string
   virtualTourUrl: string
+  // Legal / documentation
+  documentType: string
+  approvalAuthority: string
+  nocAvailable: boolean
+  installmentsAvailable: boolean
+  installmentMonths: string
+  downPayment: string
+  // Utilities
+  hasElectricity: boolean
+  backupPower: string
+  hasSuiGas: boolean
+  waterSource: string
+  // Rental terms
+  advanceMonths: string
+  securityDeposit: string
+  rentIncrementPct: string
+  tenantPreference: string
+  // Structure
+  floors: string
+  floorNumber: string
+  hasLift: boolean
+  plotWidthFt: string
+  plotLengthFt: string
+  roadWidthFt: string
+  kitchens: string
+  storeRooms: string
+  drawingRoom: boolean
+  tvLounge: boolean
+  servantQuarter: boolean
+  // What is around the property
+  nearbyLandmark: string
+  nearbyPlaces: { type: string; distance: string }[]
 }
 
 const PROPERTY_TYPES = [
@@ -135,9 +181,56 @@ export default function SellPage() {
     images: [],
     videoUrl: '',
     virtualTourUrl: '',
+    documentType: '',
+    approvalAuthority: '',
+    nocAvailable: false,
+    installmentsAvailable: false,
+    installmentMonths: '',
+    downPayment: '',
+    hasElectricity: true,
+    backupPower: '',
+    hasSuiGas: false,
+    waterSource: '',
+    advanceMonths: '',
+    securityDeposit: '',
+    rentIncrementPct: '',
+    tenantPreference: 'Any',
+    floors: '',
+    floorNumber: '',
+    hasLift: false,
+    plotWidthFt: '',
+    plotLengthFt: '',
+    roadWidthFt: '',
+    kitchens: '',
+    storeRooms: '',
+    drawingRoom: false,
+    tvLounge: false,
+    servantQuarter: false,
+    nearbyLandmark: '',
+    nearbyPlaces: [],
   })
 
   // State for features input
+  /** Tick or untick an amenity. New ticks default to walking distance. */
+  const toggleNearby = (type: string) => {
+    setFormData(prev => {
+      const exists = prev.nearbyPlaces.some(p => p.type === type)
+      return {
+        ...prev,
+        nearbyPlaces: exists
+          ? prev.nearbyPlaces.filter(p => p.type !== type)
+          : [...prev.nearbyPlaces, { type, distance: DISTANCE_BANDS[0] }],
+      }
+    })
+  }
+
+  const setNearbyDistance = (type: string, distance: string) => {
+    setFormData(prev => ({
+      ...prev,
+      nearbyPlaces: prev.nearbyPlaces.map(p => (p.type === type ? { ...p, distance } : p)),
+    }))
+  }
+
   const [featureInput, setFeatureInput] = useState('')
 
   // File upload states
@@ -313,7 +406,7 @@ export default function SellPage() {
     if (!files || files.length === 0) return
 
     // Check max images limit
-    if (formData.images.length + files.length > 7) {
+    if (formData.images.length + files.length > MAX_IMAGES) {
       setError('Maximum 7 images allowed')
       return
     }
@@ -478,9 +571,10 @@ export default function SellPage() {
       return
     }
 
-    // Validate at least 1 image
-    if (formData.images.length < 1) {
-      setError('Please upload at least 1 image')
+    // Photo minimum varies by property type — a plot needs far fewer than a house.
+    const imageError = imageCountError(formData.propertyType, formData.images.length)
+    if (imageError) {
+      setError(imageError)
       return
     }
 
@@ -940,6 +1034,244 @@ export default function SellPage() {
                     <span>Corner Property</span>
                   </label>
                 </div>
+
+                {/* Structure. Which questions apply depends on the type — a
+                    bare plot has no kitchens, a house has no floor number. */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Structure</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {!isLandType(formData.propertyType) && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Number of Floors</label>
+                        <input
+                          type="number"
+                          name="floors"
+                          min="1"
+                          value={formData.floors}
+                          onChange={handleChange}
+                          placeholder="e.g. 2 for double storey"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                    )}
+                    {asksFloorNumber(formData.propertyType) && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Floor Number</label>
+                        <input
+                          type="number"
+                          name="floorNumber"
+                          min="0"
+                          value={formData.floorNumber}
+                          onChange={handleChange}
+                          placeholder="0 for ground floor"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                    )}
+                    {asksRoomCounts(formData.propertyType) && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Kitchens</label>
+                        <input
+                          type="number"
+                          name="kitchens"
+                          min="0"
+                          value={formData.kitchens}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                    )}
+                    {asksRoomCounts(formData.propertyType) && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Store Rooms</label>
+                        <input
+                          type="number"
+                          name="storeRooms"
+                          min="0"
+                          value={formData.storeRooms}
+                          onChange={handleChange}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                        />
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Plot Width (ft)</label>
+                      <input
+                        type="number"
+                        name="plotWidthFt"
+                        min="0"
+                        step="0.5"
+                        value={formData.plotWidthFt}
+                        onChange={handleChange}
+                        placeholder="e.g. 30"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Plot Length (ft)</label>
+                      <input
+                        type="number"
+                        name="plotLengthFt"
+                        min="0"
+                        step="0.5"
+                        value={formData.plotLengthFt}
+                        onChange={handleChange}
+                        placeholder="e.g. 60"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Road Width (ft)</label>
+                      <input
+                        type="number"
+                        name="roadWidthFt"
+                        min="0"
+                        step="0.5"
+                        value={formData.roadWidthFt}
+                        onChange={handleChange}
+                        placeholder="e.g. 40"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                      />
+                    </div>
+                  </div>
+
+                  {asksRoomCounts(formData.propertyType) && (
+                    <div className="flex flex-wrap gap-6 mt-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="drawingRoom" checked={formData.drawingRoom} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                        <span>Drawing Room</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="tvLounge" checked={formData.tvLounge} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                        <span>TV Lounge</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="servantQuarter" checked={formData.servantQuarter} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                        <span>Servant Quarter</span>
+                      </label>
+                      {asksFloorNumber(formData.propertyType) && (
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" name="hasLift" checked={formData.hasLift} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                          <span>Lift in Building</span>
+                        </label>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Utilities */}
+                {asksUtilities(formData.propertyType) && (
+                  <div className="pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Utilities</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Buyers and tenants ask about these before anything else. Filling them in
+                      cuts down the phone calls you have to field.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Backup Power</label>
+                        <select name="backupPower" value={formData.backupPower} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+                          <option value="">Select</option>
+                          {BACKUP_POWER.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Water Source</label>
+                        <select name="waterSource" value={formData.waterSource} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+                          <option value="">Select</option>
+                          {WATER_SOURCES.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-6 mt-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="hasElectricity" checked={formData.hasElectricity} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                        <span>Electricity Connected</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="hasSuiGas" checked={formData.hasSuiGas} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                        <span>Sui Gas Connected</span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Legal / documentation */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">Documents &amp; Approval</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    The first thing a serious buyer asks. Listings that state the document type
+                    get far more genuine enquiries.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
+                      <select name="documentType" value={formData.documentType} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+                        <option value="">Select</option>
+                        {DOCUMENT_TYPES.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Approved By</label>
+                      <select name="approvalAuthority" value={formData.approvalAuthority} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+                        <option value="">Select</option>
+                        {APPROVAL_AUTHORITIES.map(o => <option key={o} value={o}>{o}</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-6 mt-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" name="nocAvailable" checked={formData.nocAvailable} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                      <span>NOC Available</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox" name="installmentsAvailable" checked={formData.installmentsAvailable} onChange={handleChange} className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500" />
+                      <span>Instalments Accepted</span>
+                    </label>
+                  </div>
+                  {formData.installmentsAvailable && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Plan Length (months)</label>
+                        <input type="number" name="installmentMonths" min="1" value={formData.installmentMonths} onChange={handleChange} placeholder="e.g. 36" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Down Payment (PKR)</label>
+                        <input type="number" name="downPayment" min="0" value={formData.downPayment} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Rental terms — only relevant when letting. */}
+                {formData.listingType === 'FOR_RENT' && (
+                  <div className="pt-6 border-t border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Rental Terms</h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      Stating these up front saves the back-and-forth on every call.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Advance (months of rent)</label>
+                        <input type="number" name="advanceMonths" min="0" value={formData.advanceMonths} onChange={handleChange} placeholder="e.g. 2" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Security Deposit (PKR)</label>
+                        <input type="number" name="securityDeposit" min="0" value={formData.securityDeposit} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Annual Increment (%)</label>
+                        <input type="number" name="rentIncrementPct" min="0" max="100" step="0.5" value={formData.rentIncrementPct} onChange={handleChange} placeholder="e.g. 10" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Tenant Preference</label>
+                        <select name="tenantPreference" value={formData.tenantPreference} onChange={handleChange} className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500">
+                          {TENANT_PREFERENCES.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1049,6 +1381,66 @@ export default function SellPage() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
+
+                {/* What's nearby. Pakistani buyers ask about walking distance
+                    to the masjid, school and market before almost anything
+                    else, and describe locations by landmark. */}
+                <div className="pt-6 border-t border-gray-200">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-1">What&apos;s Nearby</h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Tick everything close to the property and say how far. This is the first thing
+                    most buyers and tenants ask about.
+                  </p>
+
+                  <div className="mb-5">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Nearest Landmark</label>
+                    <input
+                      type="text"
+                      name="nearbyLandmark"
+                      value={formData.nearbyLandmark}
+                      onChange={handleChange}
+                      placeholder="e.g. Opposite Emporium Mall, near Jamia Masjid Al-Noor"
+                      maxLength={120}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {NEARBY_AMENITIES.map(a => {
+                      const selected = formData.nearbyPlaces.find(p => p.type === a.key)
+                      return (
+                        <div
+                          key={a.key}
+                          className={`rounded-lg border p-3 transition ${
+                            selected ? 'border-cyan-500 bg-cyan-50/60' : 'border-gray-200 bg-white'
+                          }`}
+                        >
+                          <label className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={!!selected}
+                              onChange={() => toggleNearby(a.key)}
+                              className="w-5 h-5 text-cyan-600 rounded focus:ring-cyan-500"
+                            />
+                            <span className="text-sm font-medium text-gray-900">{a.label}</span>
+                          </label>
+                          {selected && (
+                            <select
+                              value={selected.distance}
+                              onChange={e => setNearbyDistance(a.key, e.target.value)}
+                              aria-label={`Distance to ${a.label}`}
+                              className="mt-3 w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-cyan-500"
+                            >
+                              {DISTANCE_BANDS.map(d => (
+                                <option key={d} value={d}>{d}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1092,13 +1484,24 @@ export default function SellPage() {
                 </div>
 
                 {/* Image Count */}
-                <div className="flex items-center justify-between text-sm">
-                  <span className={formData.images.length < 1 ? 'text-red-500' : 'text-gray-600'}>
-                    {formData.images.length}/7 images uploaded
-                  </span>
-                  {formData.images.length < 1 && (
-                    <span className="text-red-500">At least 1 image required</span>
-                  )}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span
+                      className={
+                        formData.images.length < minImagesFor(formData.propertyType)
+                          ? 'text-red-500'
+                          : 'text-gray-600'
+                      }
+                    >
+                      {formData.images.length}/{MAX_IMAGES} photos uploaded
+                    </span>
+                    {formData.images.length < minImagesFor(formData.propertyType) && (
+                      <span className="text-red-500">
+                        At least {minImagesFor(formData.propertyType)} required
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500">{photoHint(formData.propertyType)}</p>
                 </div>
 
                 {/* Uploaded Images Preview */}
@@ -1139,7 +1542,7 @@ export default function SellPage() {
                   <button
                     type="button"
                     onClick={addImageUrl}
-                    disabled={formData.images.length >= 7}
+                    disabled={formData.images.length >= MAX_IMAGES}
                     className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:border-cyan-500 hover:text-cyan-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <FaImage /> Add Image URL

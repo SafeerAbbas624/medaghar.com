@@ -2,16 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { limitsForRole, ACTIVE_STATUSES } from '@/lib/quota'
 
-// Quota limits by role - separate for sell and rent
-const QUOTA_LIMITS = {
-  BUYER: { sell: 2, rent: 2 },
-  SELLER: { sell: 2, rent: 2 },
-  LANDLORD: { sell: 2, rent: 2 },
-  TENANT: { sell: 2, rent: 2 },
-  AGENT: { sell: 10, rent: 10 },
-  ADMIN: { sell: 100, rent: 100 },
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,9 +34,7 @@ export async function GET(request: NextRequest) {
       where: {
         ownerId: session.user.id,
         listingType: 'FOR_SALE',
-        status: {
-          in: ['ACTIVE', 'PENDING', 'UNDER_CONTRACT'],
-        },
+        status: { in: [...ACTIVE_STATUSES] },
       },
     })
 
@@ -53,13 +43,11 @@ export async function GET(request: NextRequest) {
       where: {
         ownerId: session.user.id,
         listingType: 'FOR_RENT',
-        status: {
-          in: ['ACTIVE', 'PENDING', 'UNDER_CONTRACT'],
-        },
+        status: { in: [...ACTIVE_STATUSES] },
       },
     })
 
-    const quotaLimits = QUOTA_LIMITS[user.role as keyof typeof QUOTA_LIMITS] || { sell: 2, rent: 2 }
+    const quotaLimits = limitsForRole(user.role)
     const maxSellListings = quotaLimits.sell
     const maxRentListings = quotaLimits.rent
     const remainingSellSlots = Math.max(0, maxSellListings - activeSellListingsCount)

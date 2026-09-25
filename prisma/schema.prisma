@@ -11,36 +11,44 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  firstName     String
-  lastName      String
-  phone         String?
-  avatar        String?
-  role          UserRole  @default(BUYER)
-  hasUpgradedToAgent Boolean @default(false) // Tracks if user has used their one-time upgrade
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  password           String
+  firstName          String
+  lastName           String
+  phone              String?
+  avatar             String?
+  role               UserRole @default(BUYER)
+  hasUpgradedToAgent Boolean  @default(false) // Tracks if user has used their one-time upgrade
 
   // Email Verification
   emailVerified          DateTime? // Null if not verified, timestamp when verified
-  verificationCode       String?   // 6-digit verification code
+  verificationCode       String? // 6-digit verification code
   verificationCodeExpiry DateTime? // Expiry time for verification code
   verificationAttempts   Int       @default(0) // Track failed verification attempts
   lastVerificationSentAt DateTime? // Track when last verification email was sent
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  // Password reset. The code is stored as a bcrypt hash, not in the clear:
+  // a leaked database should not hand over every account, and a 6-digit code
+  // is trivially reversible from a fast hash.
+  passwordResetCodeHash   String?
+  passwordResetExpiry     DateTime?
+  passwordResetAttempts   Int       @default(0)
+  lastPasswordResetSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  savedProperties SavedProperty[]
-  savedSearches   SavedSearch[]
-  viewHistory     ViewHistory[]
-  reviews         Review[]
-  agentProfile    Agent?
-  sentMessages    Message[]  @relation("SentMessages")
-  receivedMessages Message[] @relation("ReceivedMessages")
-  tourRequests    TourRequest[]
-  ownedProperties Property[] @relation("PropertyOwner")
+  savedProperties  SavedProperty[]
+  savedSearches    SavedSearch[]
+  viewHistory      ViewHistory[]
+  reviews          Review[]
+  agentProfile     Agent?
+  sentMessages     Message[]       @relation("SentMessages")
+  receivedMessages Message[]       @relation("ReceivedMessages")
+  tourRequests     TourRequest[]
+  ownedProperties  Property[]      @relation("PropertyOwner")
 
   @@index([role])
   @@index([email])
@@ -65,132 +73,171 @@ model SavedSearch {
 }
 
 model Agent {
-  id              String    @id @default(uuid())
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id              String  @id @default(uuid())
+  userId          String  @unique
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   bio             String?
-  specialties     String?   // JSON array
+  specialties     String? // JSON array
   yearsExperience Int
-  rating          Float     @default(0)
-  reviewCount     Int       @default(0)
+  rating          Float   @default(0)
+  reviewCount     Int     @default(0)
   phoneNumber     String
   officeAddress   String?
   website         String?
-  licenseNumber   String?   // e.g. PK-REA-2018-001234
+  licenseNumber   String? // e.g. PK-REA-2018-001234
 
   // Relations
-  properties      Property[]
-  reviews         Review[]
-  tourRequests    TourRequest[]
+  properties   Property[]
+  reviews      Review[]
+  tourRequests TourRequest[]
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Property {
-  id              String         @id @default(uuid())
-  address         String
-  city            String
-  province        String         // Punjab, Sindh, KPK, Balochistan, Islamabad
-  area            String?        // DHA, Bahria Town, Gulberg, etc.
-  subArea         String?        // Block / Phase / Sector, e.g. "Block 18", "Phase 6", "G-13/1"
+  id       String  @id @default(uuid())
+  address  String
+  city     String
+  province String // Punjab, Sindh, KPK, Balochistan, Islamabad
+  area     String? // DHA, Bahria Town, Gulberg, etc.
+  subArea  String? // Block / Phase / Sector, e.g. "Block 18", "Phase 6", "G-13/1"
 
   // Canonical taxonomy slugs (content/locations). city/area/subArea above are
   // free-text display values; these are the indexed join keys the SEO tree
   // queries on. Resolved via resolveLocation() on create/edit.
-  citySlug        String?
-  areaSlug        String?
-  subAreaSlug     String?
+  citySlug    String?
+  areaSlug    String?
+  subAreaSlug String?
 
-  zipCode         String?
-  country         String         @default("Pakistan")
-  latitude        Float
-  longitude       Float
+  zipCode   String?
+  country   String  @default("Pakistan")
+  latitude  Float
+  longitude Float
 
   // Duplicate detection fields
-  normalizedAddress String?      // Normalized address for comparison
-  addressHash       String?      // MD5 hash for quick duplicate check
+  normalizedAddress String? // Normalized address for comparison
+  addressHash       String? // MD5 hash for quick duplicate check
 
   // Video URL for property tour
-  videoUrl          String?
+  videoUrl String?
 
   // Property Details
-  price           Float
-  bedrooms        Int
-  bathrooms       Float
-  squareFeet      Int?           // Optional for Pakistan (use marla/kanal)
-  marla           Float?         // Pakistan unit
-  kanal           Float?         // Pakistan unit
-  lotSize         Float?
-  yearBuilt       Int?
-  propertyType    PropertyType
-  listingType     ListingType
-  status          PropertyStatus @default(ACTIVE)
-  isFeatured      Boolean        @default(false)
-  isVerified      Boolean        @default(false)
-  isFSBO          Boolean        @default(false) // For Sale By Owner
+  price        Float
+  bedrooms     Int
+  bathrooms    Float
+  squareFeet   Int? // Optional for Pakistan (use marla/kanal)
+  marla        Float? // Pakistan unit
+  kanal        Float? // Pakistan unit
+  lotSize      Float?
+  yearBuilt    Int?
+  propertyType PropertyType
+  listingType  ListingType
+  status       PropertyStatus @default(ACTIVE)
+  isFeatured   Boolean        @default(false)
+  isVerified   Boolean        @default(false)
+  isFSBO       Boolean        @default(false) // For Sale By Owner
 
   // Description
-  title           String
-  slug            String?        @unique // SEO-friendly URL slug
-  description     String
-  features        String?        // JSON array
+  title       String
+  slug        String? @unique // SEO-friendly URL slug
+  description String
+  features    String? // JSON array
 
   // Media
-  images          PropertyImage[]
-  virtualTourUrl  String?
-  video3DTour     String?
-  floorPlan       String?
+  images         PropertyImage[]
+  virtualTourUrl String?
+  video3DTour    String?
+  floorPlan      String?
 
   // Valuation (Pakistan Estimate)
-  pkEstimate      Float?         // Pakistan property value estimate
-  pkEstimateChange Float?        // 30-day change
-  rentEstimate    Float?
-  pricePerMarla   Float?
-  pricePerSqft    Float?
+  pkEstimate       Float? // Pakistan property value estimate
+  pkEstimateChange Float? // 30-day change
+  rentEstimate     Float?
+  pricePerMarla    Float?
+  pricePerSqft     Float?
 
   // Additional Info
   maintenanceFees Float?
-  taxAmount       Float?
   parkingSpaces   Int?
-  garage          Boolean        @default(false)
-  pool            Boolean        @default(false)
+  garage          Boolean @default(false)
+  pool            Boolean @default(false)
 
   // Pakistan-specific
-  possession      String?        // Ready, Under Construction, etc.
-  furnishing      String?        // Furnished, Semi-Furnished, Unfurnished
-  facing          String?        // North, South, East, West
-  cornerProperty  Boolean        @default(false)
+  possession     String? // Ready, Under Construction, etc.
+  furnishing     String? // Furnished, Semi-Furnished, Unfurnished
+  facing         String? // North, South, East, West
+  cornerProperty Boolean @default(false)
 
-  // Neighborhood Data
-  walkScore       Int?
-  transitScore    Int?
-  crimeScore      String?        // Low, Medium, High
-  schoolRating    Float?
-  nearbyPlaces    String?        // JSON array of nearby amenities
+  // Legal / documentation — the first thing a Pakistani buyer asks about,
+  // because it decides whether the sale can complete at all.
+  documentType          String? // Registry, Allotment Letter, Fard, File, Power of Attorney, Lease
+  approvalAuthority     String? // LDA, CDA, RDA, DHA, MDA, KDA, Other, Not Approved
+  nocAvailable          Boolean? // Society/authority NOC in hand
+  installmentsAvailable Boolean  @default(false)
+  installmentMonths     Int? // Plan length when instalments are offered
+  downPayment           Float? // Amount payable up front on an instalment plan
+
+  // Utilities. Load-shedding and frozen gas connections make these headline
+  // features rather than footnotes.
+  hasElectricity Boolean? // Connection present
+  backupPower    String? // None, Generator, UPS, Solar, Generator + Solar
+  hasSuiGas      Boolean? // Sui gas connected, vs LPG/cylinder only
+  waterSource    String? // Government Supply, Boring, Motor, Tanker
+
+  // Rental terms, negotiated on every let in Pakistan and previously
+  // invisible until the tenant phoned.
+  advanceMonths    Int? // Months of rent payable in advance
+  securityDeposit  Float?
+  rentIncrementPct Float? // Annual increase clause, typically 10
+  tenantPreference String? // Family, Bachelors, Office Use, Any
+
+  // Structure
+  floors         Int? // Storeys in the building
+  floorNumber    Int? // Which floor a flat/office sits on
+  hasLift        Boolean? // Lift in the building
+  plotWidthFt    Float? // Advertised as e.g. 30x60 ft
+  plotLengthFt   Float?
+  roadWidthFt    Float? // Width of the approach road
+  kitchens       Int?
+  storeRooms     Int?
+  drawingRoom    Boolean  @default(false)
+  tvLounge       Boolean  @default(false)
+  servantQuarter Boolean  @default(false)
+
+  // Neighbourhood.
+  //
+  // Walk Score, transit score and school ratings are US/Canada services with
+  // no Pakistani equivalent, so they were always null here. What actually
+  // sells a property in Pakistan is what is within walking distance: the
+  // masjid, the school, the commercial market, the main road.
+  nearbyPlaces   String? // JSON: [{ type, distance, name? }]
+  nearbyLandmark String? // "Opposite Emporium Mall" — how addresses are really given
+  crimeScore     String? // Low, Medium, High
 
   // Agent/Listing Info
-  agentId         String?
-  agent           Agent?         @relation(fields: [agentId], references: [id])
-  ownerId         String?
-  owner           User?          @relation("PropertyOwner", fields: [ownerId], references: [id])
-  listedDate      DateTime       @default(now())
-  views           Int            @default(0)
+  agentId    String?
+  agent      Agent?   @relation(fields: [agentId], references: [id])
+  ownerId    String?
+  owner      User?    @relation("PropertyOwner", fields: [ownerId], references: [id])
+  listedDate DateTime @default(now())
+  views      Int      @default(0)
 
-  // MLS Integration (future)
-  mlsNumber       String?
-  mlsSource       String?
+  /// Where the listing came from: null for a normal user post, 'SHOWCASE' for
+  /// demo data, or an import name later. Replaces the old mlsSource, which the
+  /// showcase seeder had been borrowing as a cleanup tag.
+  listingSource String?
 
   // Relations
-  savedBy         SavedProperty[]
-  viewHistory     ViewHistory[]
-  reviews         Review[]
-  tourRequests    TourRequest[]
-  priceHistory    PriceHistory[]
-  messages        Message[]
+  savedBy      SavedProperty[]
+  viewHistory  ViewHistory[]
+  reviews      Review[]
+  tourRequests TourRequest[]
+  priceHistory PriceHistory[]
+  messages     Message[]
 
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([city, province])
   @@index([area])
@@ -210,7 +257,6 @@ model Property {
   @@index([area, listingType, price])
   @@index([ownerId, status, listingType])
   @@index([agentId, status])
-
   // SEO tree access paths: /{purpose}/{type}/{city}[/{area}[/{subarea}]]
   @@index([citySlug, propertyType, listingType, status])
   @@index([citySlug, areaSlug, listingType, status])
@@ -219,61 +265,61 @@ model Property {
 }
 
 model PropertyImage {
-  id          String   @id @default(uuid())
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  url         String
-  caption     String?
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  url        String
+  caption    String?
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
 
   @@index([propertyId])
 }
 
 model SavedProperty {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  notes       String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  notes      String?
+  createdAt  DateTime @default(now())
 
   @@unique([userId, propertyId])
   @@index([userId])
 }
 
 model ViewHistory {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  viewedAt    DateTime @default(now())
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  viewedAt   DateTime @default(now())
 
   @@index([userId])
   @@index([propertyId])
 }
 
 model Review {
-  id          String   @id @default(uuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  propertyId  String?
-  property    Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  agentId     String?
-  agent       Agent?   @relation(fields: [agentId], references: [id], onDelete: Cascade)
-  rating      Int      // 1-5
-  comment     String
-  title       String?  // Review title/headline
-  pros        String?  // What they liked (JSON array)
-  cons        String?  // What they didn't like (JSON array)
-  wouldRecommend Boolean @default(true)
-  verified    Boolean  @default(false) // Verified purchase/transaction
-  helpfulCount Int     @default(0) // Number of users who found this helpful
-  images      String?  // Review images (JSON array of URLs)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId     String?
+  property       Property? @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  agentId        String?
+  agent          Agent?    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  rating         Int // 1-5
+  comment        String
+  title          String? // Review title/headline
+  pros           String? // What they liked (JSON array)
+  cons           String? // What they didn't like (JSON array)
+  wouldRecommend Boolean   @default(true)
+  verified       Boolean   @default(false) // Verified purchase/transaction
+  helpfulCount   Int       @default(0) // Number of users who found this helpful
+  images         String? // Review images (JSON array of URLs)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
 
   @@index([propertyId])
   @@index([agentId])
@@ -281,36 +327,36 @@ model Review {
 }
 
 model TourRequest {
-  id          String      @id @default(uuid())
-  userId      String
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  propertyId  String
-  property    Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  agentId     String?
-  agent       Agent?      @relation(fields: [agentId], references: [id])
-  tourType    TourType
+  id            String     @id @default(uuid())
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  propertyId    String
+  property      Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  agentId       String?
+  agent         Agent?     @relation(fields: [agentId], references: [id])
+  tourType      TourType
   preferredDate DateTime
   preferredTime String
-  status      TourStatus  @default(PENDING)
-  message     String?
-  createdAt   DateTime    @default(now())
+  status        TourStatus @default(PENDING)
+  message       String?
+  createdAt     DateTime   @default(now())
 
   @@index([userId])
   @@index([propertyId])
 }
 
 model Message {
-  id            String   @id @default(uuid())
-  senderId      String
-  sender        User     @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
-  receiverId    String
-  receiver      User     @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
-  propertyId    String?
-  property      Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
-  subject       String
-  content       String
-  isRead        Boolean  @default(false)
-  createdAt     DateTime @default(now())
+  id         String    @id @default(uuid())
+  senderId   String
+  sender     User      @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiverId String
+  receiver   User      @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  subject    String
+  content    String
+  isRead     Boolean   @default(false)
+  createdAt  DateTime  @default(now())
 
   @@index([senderId])
   @@index([receiverId])
@@ -318,13 +364,13 @@ model Message {
 }
 
 model PriceHistory {
-  id          String   @id @default(uuid())
-  propertyId  String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
-  price       Float
-  eventType   String   // "Listed", "Price Change", "Sold"
-  eventDate   DateTime
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  price      Float
+  eventType  String // "Listed", "Price Change", "Sold"
+  eventDate  DateTime
+  createdAt  DateTime @default(now())
 
   @@index([propertyId])
 }
@@ -398,23 +444,23 @@ enum TourStatus {
 
 // Admin System Models
 model AdminUser {
-  id            String    @id @default(uuid())
-  email         String    @unique // Must be @medaghar.com domain
-  password      String
-  firstName     String
-  lastName      String
-  roleId        String
-  role          AdminRole @relation(fields: [roleId], references: [id])
-  isActive      Boolean   @default(true)
-  lastLoginAt   DateTime?
-  lastLoginIp   String?
+  id              String    @id @default(uuid())
+  email           String    @unique // Must be @medaghar.com domain
+  password        String
+  firstName       String
+  lastName        String
+  roleId          String
+  role            AdminRole @relation(fields: [roleId], references: [id])
+  isActive        Boolean   @default(true)
+  lastLoginAt     DateTime?
+  lastLoginIp     String?
   lastLoginDevice String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
-  auditLogs     AuditLog[]
-  createdBy     String?
+  auditLogs AuditLog[]
+  createdBy String?
 
   @@index([email])
   @@index([roleId])
@@ -422,41 +468,41 @@ model AdminUser {
 }
 
 model AdminRole {
-  id            String    @id @default(uuid())
-  name          String    @unique // Admin, Admin Assistant, Editor, etc.
-  description   String?
-  permissions   AdminPermission[]
-  users         AdminUser[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id          String            @id @default(uuid())
+  name        String            @unique // Admin, Admin Assistant, Editor, etc.
+  description String?
+  permissions AdminPermission[]
+  users       AdminUser[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   @@index([name])
 }
 
 model AdminPermission {
-  id            String    @id @default(uuid())
-  roleId        String
-  role          AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  resource      String    // traffic_analytics, database_management, user_management, etc.
-  actions       String    // JSON array: ["read", "write", "delete", "export"]
-  createdAt     DateTime  @default(now())
+  id        String    @id @default(uuid())
+  roleId    String
+  role      AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource  String // traffic_analytics, database_management, user_management, etc.
+  actions   String // JSON array: ["read", "write", "delete", "export"]
+  createdAt DateTime  @default(now())
 
   @@unique([roleId, resource])
   @@index([roleId])
 }
 
 model AuditLog {
-  id            String    @id @default(uuid())
-  adminUserId   String
-  adminUser     AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
-  action        String    // login, create_user, edit_property, delete_record, etc.
-  resource      String    // users, properties, admin_users, etc.
-  resourceId    String?   // ID of the affected resource
-  details       String?   // JSON object with additional details
-  ipAddress     String?
-  userAgent     String?
-  status        String    // success, failure
-  createdAt     DateTime  @default(now())
+  id          String    @id @default(uuid())
+  adminUserId String
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+  action      String // login, create_user, edit_property, delete_record, etc.
+  resource    String // users, properties, admin_users, etc.
+  resourceId  String? // ID of the affected resource
+  details     String? // JSON object with additional details
+  ipAddress   String?
+  userAgent   String?
+  status      String // success, failure
+  createdAt   DateTime  @default(now())
 
   @@index([adminUserId])
   @@index([action])
@@ -466,23 +512,23 @@ model AuditLog {
 
 // Analytics Models
 model PageView {
-  id            String    @id @default(uuid())
-  page          String    // URL path
-  userId        String?   // Optional - for logged-in users
-  sessionId     String    // Session identifier
-  ipAddress     String?
-  country       String?
-  city          String?
-  region        String?
-  latitude      Float?
-  longitude     Float?
-  userAgent     String?
-  device        String?   // mobile, tablet, desktop
-  browser       String?
-  os            String?
-  referrer      String?
-  duration      Int?      // Time spent on page in seconds
-  createdAt     DateTime  @default(now())
+  id        String   @id @default(uuid())
+  page      String // URL path
+  userId    String? // Optional - for logged-in users
+  sessionId String // Session identifier
+  ipAddress String?
+  country   String?
+  city      String?
+  region    String?
+  latitude  Float?
+  longitude Float?
+  userAgent String?
+  device    String? // mobile, tablet, desktop
+  browser   String?
+  os        String?
+  referrer  String?
+  duration  Int? // Time spent on page in seconds
+  createdAt DateTime @default(now())
 
   @@index([page])
   @@index([sessionId])
@@ -493,17 +539,17 @@ model PageView {
 }
 
 model LoginHistory {
-  id            String    @id @default(uuid())
+  id            String   @id @default(uuid())
   userId        String
   email         String
   ipAddress     String?
   device        String?
   browser       String?
   os            String?
-  location      String?   // City, Country
-  status        String    // success, failed
+  location      String? // City, Country
+  status        String // success, failed
   failureReason String?
-  createdAt     DateTime  @default(now())
+  createdAt     DateTime @default(now())
 
   @@index([userId])
   @@index([email])

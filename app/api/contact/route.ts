@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { checkRateLimit, getClientIp, getRateLimiters } from '@/lib/rate-limiter'
 
 export async function POST(request: NextRequest) {
   try {
+    const { formRateLimiter } = getRateLimiters()
+    const rl = await checkRateLimit(formRateLimiter, `contact:${getClientIp(request)}`)
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: 'Too many submissions. Please try again in a few minutes.' },
+        { status: 429, headers: { 'Retry-After': String(rl.retryAfter ?? 600) } }
+      )
+    }
+
     const body = await request.json()
     const { name, email, phone, subject, message } = body
 
@@ -39,10 +49,10 @@ export async function POST(request: NextRequest) {
       message: 'Your message has been sent successfully. We will get back to you soon!',
       contactId: contact.id,
     })
-  } catch (error: any) {
+  } catch (error) {
     console.error('Contact form error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to submit contact form' },
+      { error: 'Failed to submit contact form' },
       { status: 500 }
     )
   }
