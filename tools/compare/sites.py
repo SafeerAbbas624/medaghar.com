@@ -197,7 +197,6 @@ def graana(f: Fetcher, cities: list[str], cutoff: datetime, log, **_) -> Iterato
     if not ids:
         log("graana: could not find the newest listing id")
         return
-    want = {c.lower() for c in cities}
     newest = max(ids)
     misses = old_run = 0
     lid = newest + 50  # ids a little above the homepage's newest usually exist too
@@ -215,9 +214,9 @@ def graana(f: Fetcher, cities: list[str], cutoff: datetime, log, **_) -> Iterato
             old_run += 1
             continue
         old_run = 0
+        # Every city is kept: the id walk costs the same whatever the city, so
+        # one Graana pass serves later comparisons for any city.
         city = d.get("city.name") or ""
-        if want and city.lower() not in want:
-            continue
         unit = (d.get("sizeUnit") or "").lower().replace(" ", "")
         sqft = (float(d.get("size") or 0) * GRAANA_UNITS.get(unit, 0)) or None
         nearby = [k for k, v in (d.get("nearByFeatures") or {}).items() if v]

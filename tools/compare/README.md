@@ -25,7 +25,7 @@ npx tsx scripts/import-listings.ts my-listings.csv --skip my-listings.skip-ids.c
 |---|---|---|---|---|
 | zameen | search pages, newest first | yes | cover | Refreshing an ad moves it to the top, so "last 15 days" means *active* in the last 15 days |
 | lamudi | search pages, newest first | yes | cover | Same platform as Zameen and mostly the same ads; `compare.py` counts the two as one site |
-| graana | walks listing ids down from the newest | yes | all | Its search paging is disallowed by robots.txt, so ids are used instead |
+| graana | walks listing ids down from the newest | yes | all | Its search paging is disallowed by robots.txt, so ids are used instead. Slow (~3 h for 15 days) and keeps every city, whatever `--cities` says, so one run serves all cities |
 | nobroker | property sitemap (last-modified) | yes | all | Small inventory; no publish date on the page, so last-modified is used |
 | propertyonline | property sitemap | when shown | all | No map pins |
 | olx | search URLs you pass with `--olx-url` | no | cover | Behind Cloudflare. Blocked from this server; may work from your own connection. Untested, because it could not be reached from here |
