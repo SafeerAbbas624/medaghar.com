@@ -1,7 +1,6 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
-import FacebookProvider from 'next-auth/providers/facebook'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
@@ -67,21 +66,10 @@ export const authOptions: NextAuthOptions = {
           }),
         ]
       : []),
-    // Facebook OAuth Provider
-    // To enable: Set FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET in .env
-    // Get credentials from: https://developers.facebook.com/apps/
-    ...(process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_CLIENT_SECRET
-      ? [
-          FacebookProvider({
-            clientId: process.env.FACEBOOK_CLIENT_ID,
-            clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-          }),
-        ]
-      : []),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Handle OAuth sign-in (Google, Facebook, etc.)
+      // Handle OAuth sign-in (Google, etc.)
       if (account?.provider !== 'credentials') {
         try {
           // Check if user exists in database
