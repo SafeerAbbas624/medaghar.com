@@ -570,3 +570,26 @@ model Contact {
   @@index([createdAt])
   @@index([isRead])
 }
+
+/// Signatures for mail sent from the ops console mailbox.
+model EmailSignature {
+  id        String   @id @default(uuid())
+  name      String
+  html      String
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Canned replies for the ops console mailbox. `html` is the message body; the
+/// branded shell (logo header, footer) is added when the mail is sent.
+model EmailTemplate {
+  id        String   @id @default(uuid())
+  name      String
+  category  String   @default("General")
+  subject   String?
+  html      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

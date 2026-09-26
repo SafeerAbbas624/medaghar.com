@@ -1,15 +1,8 @@
 'use client'
 
-import { PageHeader, Panel } from '@/components/mgh-ops/ui'
-import EmailManagementTab from '@/components/admin/EmailManagementTab'
+import MailClient from '@/components/mgh-ops/mail/MailClient'
 
+/** Company mailbox (info@medaghar.com): read, reply, compose, organise. */
 export default function EmailPage() {
-  return (
-    <div>
-      <PageHeader title="Email" subtitle="Company mailbox — read and send" />
-      <Panel bodyClassName="p-0 sm:p-2">
-        <EmailManagementTab />
-      </Panel>
-    </div>
-  )
+  return <MailClient />
 }
