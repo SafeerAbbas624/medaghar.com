@@ -32,6 +32,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Lets a test build go to another folder (NEXT_DIST_DIR=.next-test) without
+  // replacing the live site's .next.
+  distDir: process.env.NEXT_DIST_DIR || '.next',
   async redirects() {
     return [
       // Old dashboard link pointed here before the tools section existed

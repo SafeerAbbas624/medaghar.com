@@ -58,3 +58,4 @@ next-env.d.ts
 
 # competitor scraper jobs (admin)
 /storage/
+/.next-test/
