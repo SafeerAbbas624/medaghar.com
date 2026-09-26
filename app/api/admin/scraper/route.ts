@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
         limit: clamp(b.limit, 0, 1_000_000, 0),
         cityIds,
         olxUrls,
+        graanaAllCities: b.graanaAllCities === true,
       }
       id = await startScrape(params)
       details = params

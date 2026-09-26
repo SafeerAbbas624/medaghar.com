@@ -41,6 +41,8 @@ def main():
     ap.add_argument("--limit", type=int, default=0, help="stop each site after N listings (for a test run)")
     ap.add_argument("--resume", action="store_true", help="append to --out, skipping listings already in it")
     ap.add_argument("--user-agent", default=USER_AGENT)
+    ap.add_argument("--graana-all-cities", action="store_true",
+                    help="keep Graana listings from every city, not just --cities (one run serves all cities)")
     ap.add_argument("--progress-file", help="JSON file updated with per-site counts (used by the admin page)")
     args = ap.parse_args()
 
@@ -82,6 +84,8 @@ def main():
             gen = adapter(f, cities, city_ids=city_ids, **kwargs)
         elif site == "olx":
             gen = adapter(f, args.olx_url, **kwargs)
+        elif site == "graana":
+            gen = adapter(f, cities, keep_all_cities=args.graana_all_cities, **kwargs)
         else:
             gen = adapter(f, cities, **kwargs)
         try:

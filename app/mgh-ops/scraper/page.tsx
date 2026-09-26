@@ -23,7 +23,7 @@ const ALL_SITES = ['zameen', 'lamudi', 'graana', 'nobroker', 'propertyonline', '
 const SITE_NOTES: Record<string, string> = {
   zameen: 'Phones, pins, cover photo',
   lamudi: 'Mirror of Zameen; counted as one site when comparing',
-  graana: 'Phones, pins, all photos',
+  graana: 'Phones, pins, all photos. Slow: reads every city to find yours',
   nobroker: 'Small inventory',
   propertyonline: 'No map pins',
   olx: 'Blocked by Cloudflare from this server; needs search URLs below',
@@ -78,6 +78,7 @@ export default function ScraperPage() {
     limit: 0,
     cityIds: '',
     olxUrls: '',
+    graanaAllCities: false,
   })
   const [cmp, setCmp] = useState({ file: null as File | null, scrapeJobs: [] as string[], minSites: 3, photos: 2, countMirrors: false })
 
@@ -241,6 +242,24 @@ export default function ScraperPage() {
               </div>
             ))}
           </div>
+
+          {form.sites.includes('graana') && (
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5"
+                checked={form.graanaAllCities}
+                onChange={(e) => setForm({ ...form, graanaAllCities: e.target.checked })}
+              />
+              <span>
+                <span className="font-medium text-slate-800">Keep all cities from Graana</span>
+                <span className="block text-xs text-slate-500">
+                  Graana has to be read city-by-city regardless, so this costs no extra time. Tick it to reuse one Graana run
+                  for every city; leave it off to keep the CSV to the cities above.
+                </span>
+              </span>
+            </label>
+          )}
 
           <details className="rounded-lg border border-slate-200 p-3">
             <summary className="cursor-pointer text-sm font-semibold text-slate-700">Advanced: city ids and OLX</summary>

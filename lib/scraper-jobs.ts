@@ -31,6 +31,8 @@ export interface ScrapeParams {
   limit: number
   cityIds: string[] // "Sialkot=480"
   olxUrls: string[]
+  /** Keep Graana listings from every city (one run serves all cities). */
+  graanaAllCities?: boolean
 }
 
 export interface CompareParams {
@@ -179,6 +181,7 @@ function scrapeArgs(p: ScrapeParams, dir: string, resume: boolean): string[] {
   if (p.limit) args.push('--limit', String(p.limit))
   for (const c of p.cityIds) args.push('--city-id', c)
   for (const u of p.olxUrls) args.push('--olx-url', u)
+  if (p.graanaAllCities) args.push('--graana-all-cities')
   if (resume) args.push('--resume')
   return args
 }

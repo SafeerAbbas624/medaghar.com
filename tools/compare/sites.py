@@ -192,12 +192,16 @@ def olx(f: Fetcher, urls: list[str], cutoff: datetime, log, max_pages: int) -> I
 GRAANA_UNITS = {"marla": MARLA_SQFT, "kanal": MARLA_SQFT * 20, "sqft": 1, "sqyd": 9, "sqm": SQM_TO_SQFT}
 
 
-def graana(f: Fetcher, cities: list[str], cutoff: datetime, log, **_) -> Iterator[Listing]:
+def graana(f: Fetcher, cities: list[str], cutoff: datetime, log, keep_all_cities: bool = False, **_) -> Iterator[Listing]:
     r = f.get(f.base + "/")
     ids = [int(x) for x in re.findall(r'/property/[^"]*?-(\d{5,})/', r.text if r else "")]
     if not ids:
         log("graana: could not find the newest listing id")
         return
+    # Graana's own spellings of some cities differ from ours.
+    same = {"wahcantt": "wah", "fatehjang": "fatehjhang", "mingora": "swat", "hub": "hubchowki"}
+    norm = lambda x: re.sub(r"[^a-z]", "", (x or "").lower())
+    want = set() if keep_all_cities else {v for c in cities for v in (norm(c), same.get(norm(c), norm(c)))}
     newest = max(ids)
     misses = old_run = 0
     lid = newest + 50  # ids a little above the homepage's newest usually exist too
@@ -215,9 +219,11 @@ def graana(f: Fetcher, cities: list[str], cutoff: datetime, log, **_) -> Iterato
             old_run += 1
             continue
         old_run = 0
-        # Every city is kept: the id walk costs the same whatever the city, so
-        # one Graana pass serves later comparisons for any city.
+        # The walk costs the same whatever the city; --graana-all-cities keeps
+        # every city so one Graana run can serve comparisons for any of them.
         city = d.get("city.name") or ""
+        if want and norm(city) not in want:
+            continue
         unit = (d.get("sizeUnit") or "").lower().replace(" ", "")
         sqft = (float(d.get("size") or 0) * GRAANA_UNITS.get(unit, 0)) or None
         nearby = [k for k, v in (d.get("nearByFeatures") or {}).items() if v]
