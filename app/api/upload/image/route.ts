@@ -45,11 +45,10 @@ export async function POST(request: Request) {
         session.user.id
       )
       processedImages.push({
-        original: result.original.url,
         thumbnail: result.thumbnail.url,
         watermarked: result.watermarked.url,
-        width: result.original.width,
-        height: result.original.height,
+        width: result.watermarked.width,
+        height: result.watermarked.height,
       })
     }
 

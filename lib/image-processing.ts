@@ -19,56 +19,110 @@ export interface ProcessedImageResult {
 
 // Configuration
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads')
-const WATERMARK_PATH = path.join(process.cwd(), 'public', 'watermark.png')
+/**
+ * Clean, un-watermarked originals. Deliberately outside public/: nginx serves
+ * everything under public/uploads, and a public original would let anyone
+ * download the photo without the watermark.
+ */
+const ORIGINALS_DIR = path.join(process.cwd(), 'storage', 'uploads-originals')
+const LOGO_PATH = path.join(process.cwd(), 'public', 'logo.png')
 const MAX_WIDTH = 1920
 const MAX_HEIGHT = 1080
 const THUMBNAIL_WIDTH = 400
 const THUMBNAIL_HEIGHT = 300
 const QUALITY = 80
-const WATERMARK_OPACITY = 0.15
 
-// Ensure upload directories exist
-async function ensureUploadDirs() {
-  const dirs = [
-    UPLOAD_DIR,
-    path.join(UPLOAD_DIR, 'properties'),
-    path.join(UPLOAD_DIR, 'thumbnails'),
-    path.join(UPLOAD_DIR, 'watermarked'),
-  ]
+// ---------------------------------------------------------------------------
+// Watermark
+// ---------------------------------------------------------------------------
 
-  for (const dir of dirs) {
-    await fs.mkdir(dir, { recursive: true })
-  }
-}
+let logoDataUri: Promise<string> | null = null
 
-// Create default watermark if it doesn't exist
-async function ensureWatermark() {
-  try {
-    await fs.access(WATERMARK_PATH)
-  } catch {
-    // Create a simple text watermark
-    const svg = `
-      <svg width="300" height="100" xmlns="http://www.w3.org/2000/svg">
-        <text x="150" y="55" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#3B82F6" text-anchor="middle" opacity="0.8">MedaGhar</text>
-        <text x="150" y="80" font-family="Arial, sans-serif" font-size="12" fill="#6B7280" text-anchor="middle" opacity="0.6">medaghar.com</text>
-      </svg>
-    `
-    await sharp(Buffer.from(svg))
-      .resize(300, 100)
+/** The site logo, trimmed of its transparent margin, as a data URI for SVG. */
+function getLogo(): Promise<string> {
+  if (!logoDataUri) {
+    logoDataUri = sharp(LOGO_PATH)
+      .trim()
+      .resize(800, 800, { fit: 'inside' })
       .png()
-      .toFile(WATERMARK_PATH)
+      .toBuffer()
+      .then((b) => `data:image/png;base64,${b.toString('base64')}`)
   }
-}
-
-function generateFilename(originalName: string, prefix: string = ''): string {
-  const ext = path.extname(originalName).toLowerCase()
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 10)
-  return `${prefix}${timestamp}_${random}${ext}`
+  return logoDataUri
 }
 
 /**
- * Process and save uploaded image with resizing, optimization, and watermarking
+ * Watermark layer for a W×H photo: a large, faint logo + "MedaGhar.com" in the
+ * centre (hard to crop or clone out) and a small, solid one in the bottom-right
+ * corner for branding. Sized from the photo so it reads the same on any image.
+ */
+async function watermarkSvg(w: number, h: number): Promise<Buffer> {
+  const logo = await getLogo()
+  const short = Math.min(w, h)
+
+  // Centre mark
+  const cW = Math.round(short * 0.42)
+  const cH = Math.round(cW * 0.65)
+  const cFont = Math.round(cW * 0.14)
+  const cX = Math.round((w - cW) / 2)
+  const cY = Math.round((h - cH - cFont * 1.4) / 2)
+
+  // Corner mark
+  const k = Math.round(short * 0.16)
+  const kH = Math.round(k * 0.65)
+  const kFont = Math.max(12, Math.round(k * 0.2))
+  const pad = Math.round(short * 0.025)
+  const kX = w - k - pad // logo and text both end at the right padding
+  const kY = h - kH - kFont * 1.3 - pad
+
+  const text = (x: number, y: number, size: number, opacity: number, anchor = 'middle') =>
+    `<text x="${x}" y="${y}" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-weight="700"
+       font-size="${size}" text-anchor="${anchor}" fill="#ffffff" fill-opacity="${opacity}"
+       stroke="#0f172a" stroke-opacity="${opacity * 0.6}" stroke-width="${Math.max(1, size / 18)}"
+       paint-order="stroke">MedaGhar.com</text>`
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}">
+    <image href="${logo}" xlink:href="${logo}" x="${cX}" y="${cY}" width="${cW}" height="${cH}"
+       preserveAspectRatio="xMidYMid meet" opacity="0.32"/>
+    ${text(w / 2, cY + cH + cFont * 1.1, cFont, 0.42)}
+    <image href="${logo}" xlink:href="${logo}" x="${kX}" y="${kY}" width="${k}" height="${kH}"
+       preserveAspectRatio="xMidYMid meet" opacity="0.9"/>
+    ${text(w - pad, kY + kH + kFont * 1.05, kFont, 0.9, 'end')}
+  </svg>`
+  return Buffer.from(svg)
+}
+
+/**
+ * Resize to the site's maximum, stamp the watermark and encode as WebP.
+ * Used for every photo shown on the site, and to re-stamp older uploads.
+ */
+export async function watermarkToWebp(input: Buffer): Promise<{ buffer: Buffer; width: number; height: number }> {
+  // rotate() applies the phone's EXIF orientation before anything else.
+  const base = await sharp(input)
+    .rotate()
+    .resize(MAX_WIDTH, MAX_HEIGHT, { fit: 'inside', withoutEnlargement: true })
+    .toBuffer({ resolveWithObject: true })
+  const { width, height } = base.info
+  const buffer = await sharp(base.data)
+    .composite([{ input: await watermarkSvg(width, height), top: 0, left: 0 }])
+    .webp({ quality: QUALITY })
+    .toBuffer()
+  return { buffer, width, height }
+}
+
+// ---------------------------------------------------------------------------
+// Property photos
+// ---------------------------------------------------------------------------
+
+function generateBase(): string {
+  return `${Date.now()}_${Math.random().toString(36).substring(2, 10)}`
+}
+
+/**
+ * Save an uploaded property photo:
+ *   watermarked  public, WebP, the image the site shows
+ *   thumbnail    public, WebP, cut from the watermarked image
+ *   original     private (storage/), untouched, for re-processing later
  */
 export async function processPropertyImage(
   file: UploadedFile,
@@ -78,83 +132,55 @@ export async function processPropertyImage(
   thumbnail: ProcessedImageResult
   watermarked: ProcessedImageResult
 }> {
-  await ensureUploadDirs()
-  await ensureWatermark()
+  const base = generateBase()
+  const ext = (path.extname(file.originalName).toLowerCase() || '.jpg').replace(/[^.a-z0-9]/g, '')
 
-  const baseFilename = generateFilename(file.originalName)
-  const propertyDir = path.join(UPLOAD_DIR, 'properties', propertyId)
-  await fs.mkdir(propertyDir, { recursive: true })
+  // 1. Private original, byte-for-byte.
+  const originalPath = path.join(ORIGINALS_DIR, propertyId, `${base}${ext}`)
+  await fs.mkdir(path.dirname(originalPath), { recursive: true })
+  await fs.writeFile(originalPath, file.buffer)
+  const originalMeta = await sharp(file.buffer).metadata()
 
-  // 1. Process original (resize if too large, optimize)
-  const originalPath = path.join(propertyDir, baseFilename)
-  const originalMetadata = await sharp(file.buffer)
-    .resize(MAX_WIDTH, MAX_HEIGHT, {
-      fit: 'inside',
-      withoutEnlargement: true,
-    })
-    .jpeg({ quality: QUALITY, progressive: true })
-    .toFile(originalPath)
-
-  // 2. Create thumbnail
-  const thumbFilename = `thumb_${baseFilename}`
-  const thumbPath = path.join(UPLOAD_DIR, 'thumbnails', propertyId, thumbFilename)
-  await fs.mkdir(path.dirname(thumbPath), { recursive: true })
-
-  const thumbMetadata = await sharp(file.buffer)
-    .resize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, {
-      fit: 'cover',
-      position: 'center',
-    })
-    .jpeg({ quality: 70 })
-    .toFile(thumbPath)
-
-  // 3. Create watermarked version
-  const watermarkedFilename = `wm_${baseFilename}`
+  // 2. Watermarked WebP.
+  const wm = await watermarkToWebp(file.buffer)
+  const watermarkedFilename = `wm_${base}.webp`
   const watermarkedPath = path.join(UPLOAD_DIR, 'watermarked', propertyId, watermarkedFilename)
   await fs.mkdir(path.dirname(watermarkedPath), { recursive: true })
+  await fs.writeFile(watermarkedPath, wm.buffer)
 
-  const watermarkedMetadata = await sharp(file.buffer)
-    .resize(MAX_WIDTH, MAX_HEIGHT, {
-      fit: 'inside',
-      withoutEnlargement: true,
-    })
-    .composite([
-      {
-        input: WATERMARK_PATH,
-        tile: true,
-        gravity: 'southeast',
-        blend: 'over',
-      },
-    ])
-    .jpeg({ quality: QUALITY, progressive: true })
-    .toFile(watermarkedPath)
-
-  const baseUrl = `/uploads/properties/${propertyId}`
+  // 3. Thumbnail from the watermarked image, so no clean copy is ever public.
+  const thumbFilename = `thumb_${base}.webp`
+  const thumbPath = path.join(UPLOAD_DIR, 'thumbnails', propertyId, thumbFilename)
+  await fs.mkdir(path.dirname(thumbPath), { recursive: true })
+  const thumbInfo = await sharp(wm.buffer)
+    .resize(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, { fit: 'cover', position: 'center' })
+    .webp({ quality: 70 })
+    .toFile(thumbPath)
 
   return {
     original: {
-      filename: baseFilename,
+      filename: path.basename(originalPath),
       path: originalPath,
-      url: `${baseUrl}/${baseFilename}`,
-      width: originalMetadata.width,
-      height: originalMetadata.height,
-      size: (await fs.stat(originalPath)).size,
+      url: '', // never served
+      width: originalMeta.width ?? wm.width,
+      height: originalMeta.height ?? wm.height,
+      size: file.buffer.length,
     },
     thumbnail: {
       filename: thumbFilename,
       path: thumbPath,
       url: `/uploads/thumbnails/${propertyId}/${thumbFilename}`,
-      width: thumbMetadata.width,
-      height: thumbMetadata.height,
-      size: (await fs.stat(thumbPath)).size,
+      width: thumbInfo.width,
+      height: thumbInfo.height,
+      size: thumbInfo.size,
     },
     watermarked: {
       filename: watermarkedFilename,
       path: watermarkedPath,
       url: `/uploads/watermarked/${propertyId}/${watermarkedFilename}`,
-      width: watermarkedMetadata.width,
-      height: watermarkedMetadata.height,
-      size: (await fs.stat(watermarkedPath)).size,
+      width: wm.width,
+      height: wm.height,
+      size: wm.buffer.length,
     },
   }
 }
@@ -166,20 +192,19 @@ export async function processProfileImage(
   file: UploadedFile,
   userId: string
 ): Promise<ProcessedImageResult> {
-  await ensureUploadDirs()
-
-  const filename = generateFilename(file.originalName, 'avatar_')
+  const filename = `avatar_${generateBase()}.webp`
   const avatarDir = path.join(UPLOAD_DIR, 'avatars', userId)
   await fs.mkdir(avatarDir, { recursive: true })
 
   const outputPath = path.join(avatarDir, filename)
 
   const metadata = await sharp(file.buffer)
+    .rotate()
     .resize(300, 300, {
       fit: 'cover',
       position: 'center',
     })
-    .jpeg({ quality: 85 })
+    .webp({ quality: 85 })
     .toFile(outputPath)
 
   return {
@@ -197,6 +222,7 @@ export async function processProfileImage(
  */
 export async function deletePropertyImages(propertyId: string): Promise<void> {
   const dirs = [
+    path.join(ORIGINALS_DIR, propertyId),
     path.join(UPLOAD_DIR, 'properties', propertyId),
     path.join(UPLOAD_DIR, 'thumbnails', propertyId),
     path.join(UPLOAD_DIR, 'watermarked', propertyId),
