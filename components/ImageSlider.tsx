@@ -21,20 +21,26 @@ const MIN_SWIPE = 50
 function useSwipe(onNext: () => void, onPrev: () => void) {
   const start = useRef<number | null>(null)
   const end = useRef<number | null>(null)
+  // Some browsers still fire a click after a swipe; this lets the slider ignore it.
+  const swipedAt = useRef(0)
   return {
-    onTouchStart: (e: React.TouchEvent) => {
-      end.current = null
-      start.current = e.targetTouches[0].clientX
+    handlers: {
+      onTouchStart: (e: React.TouchEvent) => {
+        end.current = null
+        start.current = e.targetTouches[0].clientX
+      },
+      onTouchMove: (e: React.TouchEvent) => {
+        end.current = e.targetTouches[0].clientX
+      },
+      onTouchEnd: () => {
+        if (start.current === null || end.current === null) return
+        const d = start.current - end.current
+        if (Math.abs(d) > MIN_SWIPE) swipedAt.current = Date.now()
+        if (d > MIN_SWIPE) onNext()
+        if (d < -MIN_SWIPE) onPrev()
+      },
     },
-    onTouchMove: (e: React.TouchEvent) => {
-      end.current = e.targetTouches[0].clientX
-    },
-    onTouchEnd: () => {
-      if (start.current === null || end.current === null) return
-      const d = start.current - end.current
-      if (d > MIN_SWIPE) onNext()
-      if (d < -MIN_SWIPE) onPrev()
-    },
+    justSwiped: () => Date.now() - swipedAt.current < 500,
   }
 }
 
@@ -213,7 +219,7 @@ export default function ImageSlider({
             </div>
 
             {/* Photo */}
-            <div className="relative flex-1 min-h-0" {...swipe}>
+            <div className="relative flex-1 min-h-0" {...swipe.handlers}>
               <Slide media={currentMedia} alt={alt} contain />
               {arrows}
             </div>
@@ -228,9 +234,14 @@ export default function ImageSlider({
 
   return (
     <>
+      {/* Tapping anywhere on the photo (not on a control) opens fullscreen. */}
       <div
-        className={`relative h-[400px] md:h-[500px] overflow-hidden ${isPortrait ? 'bg-gray-900' : ''}`}
-        {...swipe}
+        className={`relative h-[400px] md:h-[500px] overflow-hidden cursor-zoom-in ${isPortrait ? 'bg-gray-900' : ''}`}
+        {...swipe.handlers}
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest('button, video') || swipe.justSwiped()) return
+          setIsFullscreen(true)
+        }}
       >
         <Slide media={currentMedia} alt={alt} contain={isPortrait} priority={currentIndex === 0} />
 

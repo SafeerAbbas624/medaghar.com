@@ -53,41 +53,26 @@ function getLogo(): Promise<string> {
 
 /**
  * Watermark layer for a W×H photo: a large, faint logo + "MedaGhar.com" in the
- * centre (hard to crop or clone out) and a small, solid one in the bottom-right
- * corner for branding. Sized from the photo so it reads the same on any image.
+ * centre, where it is hard to crop or clone out but does not hide the room.
+ * Sized from the photo so it reads the same on any image.
  */
 async function watermarkSvg(w: number, h: number): Promise<Buffer> {
   const logo = await getLogo()
   const short = Math.min(w, h)
 
-  // Centre mark
   const cW = Math.round(short * 0.42)
   const cH = Math.round(cW * 0.65)
   const cFont = Math.round(cW * 0.14)
   const cX = Math.round((w - cW) / 2)
   const cY = Math.round((h - cH - cFont * 1.4) / 2)
 
-  // Corner mark
-  const k = Math.round(short * 0.16)
-  const kH = Math.round(k * 0.65)
-  const kFont = Math.max(12, Math.round(k * 0.2))
-  const pad = Math.round(short * 0.025)
-  const kX = w - k - pad // logo and text both end at the right padding
-  const kY = h - kH - kFont * 1.3 - pad
-
-  const text = (x: number, y: number, size: number, opacity: number, anchor = 'middle') =>
-    `<text x="${x}" y="${y}" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif" font-weight="700"
-       font-size="${size}" text-anchor="${anchor}" fill="#ffffff" fill-opacity="${opacity}"
-       stroke="#0f172a" stroke-opacity="${opacity * 0.6}" stroke-width="${Math.max(1, size / 18)}"
-       paint-order="stroke">MedaGhar.com</text>`
-
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${w}" height="${h}">
     <image href="${logo}" xlink:href="${logo}" x="${cX}" y="${cY}" width="${cW}" height="${cH}"
        preserveAspectRatio="xMidYMid meet" opacity="0.32"/>
-    ${text(w / 2, cY + cH + cFont * 1.1, cFont, 0.42)}
-    <image href="${logo}" xlink:href="${logo}" x="${kX}" y="${kY}" width="${k}" height="${kH}"
-       preserveAspectRatio="xMidYMid meet" opacity="0.9"/>
-    ${text(w - pad, kY + kH + kFont * 1.05, kFont, 0.9, 'end')}
+    <text x="${w / 2}" y="${cY + cH + cFont * 1.1}" font-family="Liberation Sans, DejaVu Sans, Arial, sans-serif"
+       font-weight="700" font-size="${cFont}" text-anchor="middle" fill="#ffffff" fill-opacity="0.42"
+       stroke="#0f172a" stroke-opacity="0.25" stroke-width="${Math.max(1, cFont / 18)}"
+       paint-order="stroke">MedaGhar.com</text>
   </svg>`
   return Buffer.from(svg)
 }
