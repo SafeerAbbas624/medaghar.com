@@ -7,7 +7,6 @@ import {
   FaDatabase,
   FaUsers,
   FaUserShield,
-  FaEnvelope,
   FaSignOutAlt,
   FaBars,
   FaTimes,
@@ -20,10 +19,9 @@ import DatabaseManagementTab from '@/components/admin/DatabaseManagementTab'
 import ListingsManagementTab from '@/components/admin/ListingsManagementTab'
 import UserManagementTab from '@/components/admin/UserManagementTab'
 import AdminUserManagementTab from '@/components/admin/AdminUserManagementTab'
-import EmailManagementTab from '@/components/admin/EmailManagementTab'
 import ContactSubmissionsTab from '@/components/admin/ContactSubmissionsTab'
 
-type TabType = 'analytics' | 'listings' | 'database' | 'users' | 'admins' | 'email' | 'contacts'
+type TabType = 'analytics' | 'listings' | 'database' | 'users' | 'admins' | 'contacts'
 
 interface Tab {
   id: TabType
@@ -38,7 +36,6 @@ const tabs: Tab[] = [
   { id: 'database', name: 'Database Management', icon: <FaDatabase />, resource: 'database_management' },
   { id: 'users', name: 'User Management', icon: <FaUsers />, resource: 'user_management' },
   { id: 'admins', name: 'Admin Users', icon: <FaUserShield />, resource: 'admin_user_management' },
-  { id: 'email', name: 'Email Management', icon: <FaEnvelope />, resource: 'email_management' },
   { id: 'contacts', name: 'Contact Submissions', icon: <FaComments />, resource: 'contact_submissions' },
 ]
 
@@ -164,7 +161,6 @@ export default function AdminDashboardPage() {
           {activeTab === 'database' && hasAccess('database_management') && <DatabaseManagementTab />}
           {activeTab === 'users' && hasAccess('user_management') && <UserManagementTab />}
           {activeTab === 'admins' && hasAccess('admin_user_management') && <AdminUserManagementTab />}
-          {activeTab === 'email' && hasAccess('email_management') && <EmailManagementTab />}
           {activeTab === 'contacts' && hasAccess('contact_submissions') && <ContactSubmissionsTab />}
         </main>
       </div>

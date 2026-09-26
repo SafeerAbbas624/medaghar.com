@@ -54,6 +54,13 @@ const list = (v?: string | string[]) => (Array.isArray(v) ? v : v ? [v] : []).fi
  * best-effort and never delays or fails the send.
  */
 export async function sendEmail(config: EmailConfig, options: SendEmailOptions) {
+  // Demo and imported placeholder accounts use *.invalid addresses, which can
+  // never receive mail; sending to them only produced bounces in the inbox.
+  const deliverable = (v?: string | string[]) => list(v).filter((a) => !/\.invalid>?\s*$/i.test(a))
+  options = { ...options, to: deliverable(options.to), cc: deliverable(options.cc), bcc: deliverable(options.bcc) }
+  if (!list(options.to).length && !list(options.cc).length && !list(options.bcc).length) {
+    return { messageId: '', skipped: true as const, accepted: [], rejected: [], raw: Buffer.alloc(0) }
+  }
   const transporter = createEmailTransporter(config)
 
   const mail: Mail.Options = {

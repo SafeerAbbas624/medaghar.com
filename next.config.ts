@@ -22,7 +22,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       // OpenStreetMap tile servers and unpkg/cdnjs serve the Leaflet map tiles
       // and default marker icons — without these the property map renders blank.
-      "img-src 'self' data: blob: https://images.unsplash.com https://i.pravatar.cc https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://unpkg.com https://cdnjs.cloudflare.com https://*.basemaps.cartocdn.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.gstatic.com",
+      "img-src 'self' data: blob: https://images.unsplash.com https://i.pravatar.cc https://*.googleusercontent.com https://platform-lookaside.fbsbx.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://unpkg.com https://cdnjs.cloudflare.com https://*.basemaps.cartocdn.com https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com https://*.gstatic.com",
       "font-src 'self'",
       "connect-src 'self' https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.basemaps.cartocdn.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://*.adtrafficquality.google https://csi.gstatic.com",
       "frame-src 'self' https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://www.google.com",
@@ -80,6 +80,9 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'i.pravatar.cc',
       },
+      // Profile photos of users who signed in with Google or Facebook.
+      { protocol: 'https', hostname: '*.googleusercontent.com' },
+      { protocol: 'https', hostname: 'platform-lookaside.fbsbx.com' },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',
